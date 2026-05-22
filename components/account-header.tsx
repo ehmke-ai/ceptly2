@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import { LogOut, User } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useStatsigClient } from "@statsig/react-bindings";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -36,6 +37,7 @@ export function AccountHeader() {
   const router = useRouter();
   const pathname = usePathname();
   const { theme, resolvedTheme } = useTheme();
+  const { client } = useStatsigClient();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -43,6 +45,7 @@ export function AccountHeader() {
   }, []);
 
   const handleSignOut = () => {
+    client.logEvent("sign_out_click");
     router.push("/");
   };
 
@@ -53,7 +56,10 @@ export function AccountHeader() {
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => router.push("/")}
+                onClick={() => {
+                  client.logEvent("logo_click");
+                  router.push("/");
+                }}
                 className="cursor-pointer"
               >
                 <Image
@@ -76,7 +82,10 @@ export function AccountHeader() {
                   key={item.path}
                   variant={pathname.startsWith(item.path) ? "default" : "ghost"}
                   size="sm"
-                  onClick={() => router.push(item.path)}
+                  onClick={() => {
+                    client.logEvent("navigation_click", item.path);
+                    router.push(item.path);
+                  }}
                 >
                   {item.label}
                 </Button>
@@ -114,7 +123,12 @@ export function AccountHeader() {
                   </DropdownMenuLabel>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/settings")}>
+                <DropdownMenuItem
+                  onClick={() => {
+                    client.logEvent("account_settings_click");
+                    router.push("/settings");
+                  }}
+                >
                   <User />
                   <span>Account Settings</span>
                 </DropdownMenuItem>

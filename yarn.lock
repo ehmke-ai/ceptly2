@@ -1162,6 +1162,30 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rrweb/record@npm:2.0.0-alpha.17":
+  version: 2.0.0-alpha.17
+  resolution: "@rrweb/record@npm:2.0.0-alpha.17"
+  dependencies:
+    "@rrweb/types": "npm:^2.0.0-alpha.17"
+    rrweb: "npm:^2.0.0-alpha.17"
+  checksum: 10c0/30adb39a103dd23f9f0faef1ce5692f39af64b21af46bdb74c978042b87c39ea377033eb77187288ce315340b6ae1e21e353dbe388d90f490712f7df5f1d7ff3
+  languageName: node
+  linkType: hard
+
+"@rrweb/types@npm:^2.0.0-alpha.17, @rrweb/types@npm:^2.0.0-alpha.20":
+  version: 2.0.0-alpha.20
+  resolution: "@rrweb/types@npm:2.0.0-alpha.20"
+  checksum: 10c0/9529bdc4f27a2b868082c245bb28d828c1c777937cb9deffe766c1d524a5d8b4b27428477ca334f69e126d2024d86042b1512dbfd5da8f93c776c13ee012cc9d
+  languageName: node
+  linkType: hard
+
+"@rrweb/utils@npm:^2.0.0-alpha.17, @rrweb/utils@npm:^2.0.0-alpha.20":
+  version: 2.0.0-alpha.20
+  resolution: "@rrweb/utils@npm:2.0.0-alpha.20"
+  checksum: 10c0/b50c32d9c83769bb9e1b50e825eddd350e26ca56d80fd14bbd32c0b5549895aff46566bcb82cb7b7aad84d61fedef27a6d9f40c288d94812a3bbe261c7f3b459
+  languageName: node
+  linkType: hard
+
 "@rtsao/scc@npm:^1.1.0":
   version: 1.1.0
   resolution: "@rtsao/scc@npm:1.1.0"
@@ -1180,6 +1204,56 @@ __metadata:
   version: 4.0.0
   resolution: "@sindresorhus/merge-streams@npm:4.0.0"
   checksum: 10c0/482ee543629aa1933b332f811a1ae805a213681ecdd98c042b1c1b89387df63e7812248bb4df3910b02b3cc5589d3d73e4393f30e197c9dde18046ccd471fc6b
+  languageName: node
+  linkType: hard
+
+"@statsig/client-core@npm:3.33.1":
+  version: 3.33.1
+  resolution: "@statsig/client-core@npm:3.33.1"
+  checksum: 10c0/62a6726a7fbacec0566e0fd11019bde2a403b262781a686db9cfc9bd3c502ff266f80f346c00999020708c950698c58bf29e371e222006651f7766abf91a7ae7
+  languageName: node
+  linkType: hard
+
+"@statsig/js-client@npm:3.33.1":
+  version: 3.33.1
+  resolution: "@statsig/js-client@npm:3.33.1"
+  dependencies:
+    "@statsig/client-core": "npm:3.33.1"
+  checksum: 10c0/79af671b283dfaad6199f5af1fd6bd73cde0eecb485288b056cce18b438956c6a933d7fda509e1e4580283129735a907c553d63e03533170ea4d739834c5ddf3
+  languageName: node
+  linkType: hard
+
+"@statsig/react-bindings@npm:^3.33.1":
+  version: 3.33.1
+  resolution: "@statsig/react-bindings@npm:3.33.1"
+  dependencies:
+    "@statsig/client-core": "npm:3.33.1"
+    "@statsig/js-client": "npm:3.33.1"
+  peerDependencies:
+    react: ^16.6.3 || ^17.0.0 || ^18.0.0 || ^19.0.0
+  checksum: 10c0/8a9a36f3dbc76b83b812e9907285e78376e9670d2ffb3d5336272aed910196fecf78adb0f5517065c2012d22a7319d2e1f7af3295885d8a96db41051d372ea94
+  languageName: node
+  linkType: hard
+
+"@statsig/session-replay@npm:^3.33.1":
+  version: 3.33.1
+  resolution: "@statsig/session-replay@npm:3.33.1"
+  dependencies:
+    "@rrweb/record": "npm:2.0.0-alpha.17"
+    "@statsig/client-core": "npm:3.33.1"
+    rrweb: "npm:2.0.0-alpha.17"
+  checksum: 10c0/979c24136f7d954296e0f80c8d9d2a187de589f9399d7c64cca557cc8b636d2931dc8db88176b680413fcbe170cee0f982e60a54ce7606ba9aef638dc5a42c66
+  languageName: node
+  linkType: hard
+
+"@statsig/web-analytics@npm:^3.33.1":
+  version: 3.33.1
+  resolution: "@statsig/web-analytics@npm:3.33.1"
+  dependencies:
+    "@statsig/client-core": "npm:3.33.1"
+    "@statsig/js-client": "npm:3.33.1"
+    web-vitals: "npm:5.0.3"
+  checksum: 10c0/fad2ccf570ff96fd197b9bfae6fad8c7e604e1c88c714f0e15055afad7d638e0c3b4d6afc003dfb302dad41413f0b270f77d9bacbd7098fb520e86b1b7e8ef00
   languageName: node
   linkType: hard
 
@@ -1373,6 +1447,13 @@ __metadata:
   dependencies:
     tslib: "npm:^2.4.0"
   checksum: 10c0/26165bcd1fd7269f42d7fbe3de318f854a8968de8397e89fc9a423bb3e2da35a52150f382e6323b3367595beb16d9800a6f35971a5599daf76da1742ec3afc25
+  languageName: node
+  linkType: hard
+
+"@types/css-font-loading-module@npm:0.0.7":
+  version: 0.0.7
+  resolution: "@types/css-font-loading-module@npm:0.0.7"
+  checksum: 10c0/a74759a14bcc7d60a1a1d863b53b7638d4aa7f88f1d97347426262cc6fe8f9335d8fa80c7e0608cd67e33ff0067608e9b5475a1227a684e1dfad3cac87df1405
   languageName: node
   linkType: hard
 
@@ -1749,6 +1830,46 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@vercel/analytics@npm:^2.0.1":
+  version: 2.0.1
+  resolution: "@vercel/analytics@npm:2.0.1"
+  peerDependencies:
+    "@remix-run/react": ^2
+    "@sveltejs/kit": ^1 || ^2
+    next: ">= 13"
+    nuxt: ">= 3"
+    react: ^18 || ^19 || ^19.0.0-rc
+    svelte: ">= 4"
+    vue: ^3
+    vue-router: ^4
+  peerDependenciesMeta:
+    "@remix-run/react":
+      optional: true
+    "@sveltejs/kit":
+      optional: true
+    next:
+      optional: true
+    nuxt:
+      optional: true
+    react:
+      optional: true
+    svelte:
+      optional: true
+    vue:
+      optional: true
+    vue-router:
+      optional: true
+  checksum: 10c0/c788c03d0f072f6f2be52d3f6f4f0680d2343f0d8765a759a044204223b14a6e14b285d0c5d5d05c0b66d4419746c5b245656ebdc48398328d85d96f1ede982b
+  languageName: node
+  linkType: hard
+
+"@xstate/fsm@npm:^1.4.0":
+  version: 1.6.5
+  resolution: "@xstate/fsm@npm:1.6.5"
+  checksum: 10c0/472fe625b84b9e7102b8774e80c441b8b7dbc9585e700223d9c7a39c583d38ba50636909a5d749d44b361555daa841862f932a29c52b81c8829a74884e715bf4
+  languageName: node
+  linkType: hard
+
 "accepts@npm:^2.0.0":
   version: 2.0.0
   resolution: "accepts@npm:2.0.0"
@@ -2033,6 +2154,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"base64-arraybuffer@npm:^1.0.1":
+  version: 1.0.2
+  resolution: "base64-arraybuffer@npm:1.0.2"
+  checksum: 10c0/3acac95c70f9406e87a41073558ba85b6be9dbffb013a3d2a710e3f2d534d506c911847d5d9be4de458af6362c676de0a5c4c2d7bdf4def502d00b313368e72f
+  languageName: node
+  linkType: hard
+
 "baseline-browser-mapping@npm:^2.10.12, baseline-browser-mapping@npm:^2.9.19":
   version: 2.10.31
   resolution: "baseline-browser-mapping@npm:2.10.31"
@@ -2169,10 +2297,14 @@ __metadata:
   resolution: "ceptly2@workspace:."
   dependencies:
     "@base-ui/react": "npm:^1.5.0"
+    "@statsig/react-bindings": "npm:^3.33.1"
+    "@statsig/session-replay": "npm:^3.33.1"
+    "@statsig/web-analytics": "npm:^3.33.1"
     "@tailwindcss/postcss": "npm:^4"
     "@types/node": "npm:^20"
     "@types/react": "npm:^19"
     "@types/react-dom": "npm:^19"
+    "@vercel/analytics": "npm:^2.0.1"
     class-variance-authority: "npm:^0.7.1"
     clsx: "npm:^2.1.1"
     eslint: "npm:^9"
@@ -4736,6 +4868,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"mitt@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "mitt@npm:3.0.1"
+  checksum: 10c0/3ab4fdecf3be8c5255536faa07064d05caa3dd332bd318ff02e04621f7b3069ca1de9106cfe8e7ced675abfc2bec2ce4c4ef321c4a1bb1fb29df8ae090741913
+  languageName: node
+  linkType: hard
+
 "ms@npm:^2.1.1, ms@npm:^2.1.3":
   version: 2.1.3
   resolution: "ms@npm:2.1.3"
@@ -5287,7 +5426,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.5.10, postcss@npm:^8.5.6":
+"postcss@npm:^8.4.38, postcss@npm:^8.5.10, postcss@npm:^8.5.6":
   version: 8.5.15
   resolution: "postcss@npm:8.5.15"
   dependencies:
@@ -5563,6 +5702,56 @@ __metadata:
     parseurl: "npm:^1.3.3"
     path-to-regexp: "npm:^8.0.0"
   checksum: 10c0/3279de7450c8eae2f6e095e9edacbdeec0abb5cb7249c6e719faa0db2dba43574b4fff5892d9220631c9abaff52dd3cad648cfea2aaace845e1a071915ac8867
+  languageName: node
+  linkType: hard
+
+"rrdom@npm:^2.0.0-alpha.17, rrdom@npm:^2.0.0-alpha.20":
+  version: 2.0.0-alpha.20
+  resolution: "rrdom@npm:2.0.0-alpha.20"
+  dependencies:
+    rrweb-snapshot: "npm:^2.0.0-alpha.20"
+  checksum: 10c0/c051fb371e1d6101bbd25dfb1b1b42302d533bf8cae99f1e85acd0ed4decc6f9508e6785a7bab6adf26eee66f2de396159a262d4d86fba6dfe9a1473e4b1e74c
+  languageName: node
+  linkType: hard
+
+"rrweb-snapshot@npm:^2.0.0-alpha.17, rrweb-snapshot@npm:^2.0.0-alpha.20":
+  version: 2.0.0-alpha.20
+  resolution: "rrweb-snapshot@npm:2.0.0-alpha.20"
+  dependencies:
+    postcss: "npm:^8.4.38"
+  checksum: 10c0/15694fa0e9c1c88e824e6e32c1e9d7caa3933d9582f35efb5f4925346280e9ee74a344c38c57a1e0d19c9a60353d4f531c893a5519f02fb25a0bbf9137f87c64
+  languageName: node
+  linkType: hard
+
+"rrweb@npm:2.0.0-alpha.17":
+  version: 2.0.0-alpha.17
+  resolution: "rrweb@npm:2.0.0-alpha.17"
+  dependencies:
+    "@rrweb/types": "npm:^2.0.0-alpha.17"
+    "@rrweb/utils": "npm:^2.0.0-alpha.17"
+    "@types/css-font-loading-module": "npm:0.0.7"
+    "@xstate/fsm": "npm:^1.4.0"
+    base64-arraybuffer: "npm:^1.0.1"
+    mitt: "npm:^3.0.0"
+    rrdom: "npm:^2.0.0-alpha.17"
+    rrweb-snapshot: "npm:^2.0.0-alpha.17"
+  checksum: 10c0/b9a5ae284f47db89d7f081c92d0fdc5da67d25b86e18848309cccd40dc3f0c7e6d14b8790a5b3a3dcb9d1f13c7dda0561f61c230957a411bddb5c4574263c84b
+  languageName: node
+  linkType: hard
+
+"rrweb@npm:^2.0.0-alpha.17":
+  version: 2.0.0-alpha.20
+  resolution: "rrweb@npm:2.0.0-alpha.20"
+  dependencies:
+    "@rrweb/types": "npm:^2.0.0-alpha.20"
+    "@rrweb/utils": "npm:^2.0.0-alpha.20"
+    "@types/css-font-loading-module": "npm:0.0.7"
+    "@xstate/fsm": "npm:^1.4.0"
+    base64-arraybuffer: "npm:^1.0.1"
+    mitt: "npm:^3.0.0"
+    rrdom: "npm:^2.0.0-alpha.20"
+    rrweb-snapshot: "npm:^2.0.0-alpha.20"
+  checksum: 10c0/63418b8ea2bce990d98cd5ea8ce9f59e55a357a74201746a03b2355e6f5e55aeacc346f4a4f101516aba9a6d5432016bd888d70c157a381693aa5ecd4cb1ee7b
   languageName: node
   linkType: hard
 
@@ -6634,6 +6823,13 @@ __metadata:
   version: 3.3.3
   resolution: "web-streams-polyfill@npm:3.3.3"
   checksum: 10c0/64e855c47f6c8330b5436147db1c75cb7e7474d924166800e8e2aab5eb6c76aac4981a84261dd2982b3e754490900b99791c80ae1407a9fa0dcff74f82ea3a7f
+  languageName: node
+  linkType: hard
+
+"web-vitals@npm:5.0.3":
+  version: 5.0.3
+  resolution: "web-vitals@npm:5.0.3"
+  checksum: 10c0/9bc6e6673eb913033ad962600b9bdf454aa1cf8dcf2611ecb65d00687d1befbdc85d528cb2d3630204284dc94a623e0daedf29816e7fe07aba595f9fea9d96cb
   languageName: node
   linkType: hard
 

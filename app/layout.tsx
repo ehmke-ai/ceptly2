@@ -3,6 +3,8 @@ import { Geist, Geist_Mono, Montserrat } from "next/font/google";
 import { AccountHeader } from "@/components/account-header";
 import { Providers } from "@/components/providers";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
+import MyStatsig from "./my-statsig";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,10 +38,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${montserrat.variable} min-h-full flex flex-col antialiased bg-background text-foreground selection:bg-primary/20 selection:text-primary`}
       >
-        <Providers>
-          <AccountHeader />
-          <main className="flex flex-1 flex-col">{children}</main>
-        </Providers>
+        <MyStatsig>
+          <Analytics />
+          <Providers>
+            <AccountHeader />
+            <main className="flex flex-1 flex-col">{children}</main>
+          </Providers>
+        </MyStatsig>
       </body>
     </html>
   );
