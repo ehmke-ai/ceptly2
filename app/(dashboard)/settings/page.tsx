@@ -3,9 +3,10 @@ import Link from "next/link";
 import { ThemeSettings } from "@/components/settings/theme-settings";
 import { WorkspaceNameForm } from "@/components/settings/workspace-name-form";
 import { WorkspaceTimezoneForm } from "@/components/settings/workspace-timezone-form";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { getWorkspaceTimezone } from "@/lib/api/conversations";
 import { getAccessToken, requireAuth } from "@/lib/auth/server";
+import { cn } from "@/lib/utils";
 
 const ADMIN_ROLES = new Set(["founder", "admin"]);
 
@@ -54,11 +55,12 @@ export default async function SettingsPage() {
               View your published check-in schedule. Edit it from the home page
               with AI.
             </p>
-            <Button asChild className="mt-4" variant="outline">
-              <Link href="/settings/conversations">
-                Manage conversations
-              </Link>
-            </Button>
+            <Link
+              href="/settings/conversations"
+              className={cn(buttonVariants({ variant: "outline" }), "mt-4")}
+            >
+              Manage conversations
+            </Link>
           </div>
         </>
       ) : (
