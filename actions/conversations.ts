@@ -265,7 +265,7 @@ export async function saveConversation(input: {
 
   revalidatePath("/settings/conversations");
   revalidatePath("/settings");
-  revalidatePath("/");
+  revalidatePath("/chat");
 
   return {};
 }
@@ -302,7 +302,7 @@ export async function removeConversation(input: {
 
   revalidatePath("/settings/conversations");
   revalidatePath("/settings");
-  revalidatePath("/");
+  revalidatePath("/chat");
 
   return {};
 }

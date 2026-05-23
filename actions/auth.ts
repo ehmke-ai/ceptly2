@@ -26,7 +26,7 @@ async function resolvePostAuthRedirect(accessToken: string): Promise<string> {
     });
 
     if (!response.ok) {
-      return "/";
+      return "/chat";
     }
 
     const result = (await response.json()) as AuthMeResponse;
@@ -34,7 +34,7 @@ async function resolvePostAuthRedirect(accessToken: string): Promise<string> {
 
     await setOnboardingCompleteCookie(onboardingCompleted);
 
-    return onboardingCompleted ? "/" : "/onboarding";
+    return onboardingCompleted ? "/chat" : "/onboarding";
   } catch {
     return "/onboarding";
   }

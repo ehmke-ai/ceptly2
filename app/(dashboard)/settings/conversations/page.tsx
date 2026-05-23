@@ -27,7 +27,7 @@ export default async function ConversationsPage() {
         <div>
           <div className="text-sm text-muted-foreground">
             <Link href="/settings" className="hover:text-foreground">
-              Settings
+              Team settings
             </Link>
             <span className="mx-2">/</span>
             <span className="text-foreground">Conversations</span>
@@ -41,7 +41,7 @@ export default async function ConversationsPage() {
           </p>
         </div>
         <Link
-          href="/"
+          href="/chat"
           className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
         >
           Edit with AI

@@ -58,7 +58,7 @@ export async function updateWorkspaceName(
 
   const token = await getAccessToken();
   if (!token) {
-    return { errors: { _form: ["You must be signed in to update the workspace."] } };
+    return { errors: { _form: ["You must be signed in to update the team."] } };
   }
 
   const result = await patchWorkspaceName(
@@ -70,7 +70,7 @@ export async function updateWorkspaceName(
   if (!result.success) {
     return {
       errors: {
-        _form: [result.error ?? "Failed to update workspace name."],
+        _form: [result.error ?? "Failed to update team name."],
       },
     };
   }

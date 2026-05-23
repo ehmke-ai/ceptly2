@@ -67,7 +67,7 @@ export function SlackConnectionCard({
           Slack
         </CardTitle>
         <CardDescription>
-          Connect Ceptly to your Slack workspace so check-ins run in DMs.
+          Connect Ceptly to Slack so check-ins run in DMs for your team.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -98,7 +98,7 @@ export function SlackConnectionCard({
         {status.connected ? (
           <div className="space-y-1">
             <p className="text-sm font-medium text-green-600 dark:text-green-400">
-              Connected to {status.teamName ?? "your Slack workspace"}
+              Connected to {status.teamName ?? "Slack"}
             </p>
             {installedLabel ? (
               <p className="text-sm text-muted-foreground">
@@ -109,8 +109,7 @@ export function SlackConnectionCard({
         ) : canEdit ? (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Install the Ceptly app to your Slack workspace to send check-in
-              DMs to your team.
+              Install the Ceptly app in Slack to send check-in DMs to your team.
             </p>
             <Button type="button" onClick={handleConnect} disabled={isPending}>
               {isPending ? (
@@ -125,8 +124,8 @@ export function SlackConnectionCard({
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Slack is not connected. Ask a founder or admin to install Ceptly in
-            your workspace.
+            Slack is not connected. Ask a founder or admin to install Ceptly for
+            your team.
           </p>
         )}
       </CardContent>

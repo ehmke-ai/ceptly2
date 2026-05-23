@@ -68,34 +68,34 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 ### User stories — Individual contributor
 
-- [ ] **As an IC**, I receive a short conversational check-in in Slack DM on the days my team configured, so I can report status without a meeting.
-- [ ] **As an IC**, the check-in feels like a chat, not a form, so I actually reply.
-- [ ] **As an IC**, I can flag a blocker in natural language so leadership can hear it without me escalating manually.
+- [x] **As an IC**, I receive a short conversational check-in in Slack DM on the days my team configured, so I can report status without a meeting.
+- [x] **As an IC**, the check-in feels like a chat, not a form, so I actually reply.
+- [x] **As an IC**, I can flag a blocker in natural language so leadership can hear it without me escalating manually.
 
 ### User stories — Founder / team lead
 
 - [x] **As a founder**, I can set check-in days, time, frequency, and workspace timezone in Settings so the schedule fits my team.
 - [x] **As a founder**, I see a preview of when check-ins run in local time so I don’t misconfigure timezone.
-- [ ] **As a founder**, I can add ICs to a roster (Slack user mapping) so the agent knows who to DM.
+- [x] **As a founder**, I can add ICs to a roster (Slack user mapping) so the agent knows who to DM.
 - [ ] **As a founder**, I can designate `#leadership-digest` (or equivalent) for digests and alerts.
 - [ ] **As a founder**, I get a weekly digest in Slack summarizing what everyone is working on (manual trigger OK for Phase 1 end).
-- [ ] **As a founder**, I am alerted in Slack when someone reports a blocker during a check-in.
+>> BLOCKED: - [ ] **As a founder**, I am alerted in Slack when someone reports a blocker during a check-in.
 
 ### Tasks
 
 **Backend**
 
 - [x] `GET` / `PUT` `/api/workspaces/:id/schedule` (auth + founder/admin only)
-- [ ] Roster schema + CRUD (IC Slack user id, display name, paused/opt-out flags)
-- [ ] Check-in session + response storage schema (session links to workspace; `question_id` nullable until Phase 2A)
-- [ ] Re-enable `POST /internal/checkin-scheduler` with `X-Cron-Secret` (401 without secret)
-- [ ] Due-window algorithm per workspace timezone (§7.1 in spec)
-- [ ] Idempotency: no double-DM in same 15-minute window (`last_checkin_schedule_fire_at`)
-- [ ] Render Cron Job: `*/15 * * * *` → scheduler endpoint
-- [ ] Slack app: OAuth install, bot token, signing secret
-- [ ] Check-In Agent: DM opener + **default question set (hardcoded v1; custom lists ship in Phase 2A)**
-- [ ] Persist each turn; mark session complete
-- [ ] Blocker detection on response → post to leadership channel
+- [x] Roster schema + CRUD (IC Slack user id, display name, paused/opt-out flags)
+- [x] Check-in session + response storage schema (session links to workspace; `question_id` FK on responses)
+- [x] Re-enable `POST /internal/checkin-scheduler` with `X-Cron-Secret` (401 without secret)
+- [x] Due-window algorithm per conversation timezone (§7.1 in spec)
+- [x] Idempotency: no double-DM in same 15-minute window (`last_fire_at` per conversation)
+- [x] Render Cron Job: `*/15 * * * *` → scheduler endpoint
+- [x] Slack app: OAuth install, bot token, signing secret (per-workspace OAuth + events receiver)
+- [x] Check-In Agent: DM opener + bullet list; loads enabled questions from DB
+- [x] Persist each turn; mark session complete
+- [ ] Blocker detection on response → post to leadership channel *(detection logs only; no channel post yet)*
 - [ ] Manual/internal endpoint or script to trigger synthesis digest (stub OK)
 
 **Frontend**
@@ -103,17 +103,17 @@ Use this file as the execution checklist. Check items when shipped and verified 
 - [x] Settings → **Check-in schedule** section (days, time, frequency, timezone)
 - [x] Local time preview string (“9:00 AM Central Time”)
 - [x] Save/load schedule via schedule API
-- [ ] Settings → **Team roster** (minimal list + add Slack member)
-- [ ] Settings → **Slack connection** (install app / team linked indicator)
+- [x] Settings → **Team roster** (minimal list + add Slack member by email)
+- [x] Settings → **Slack connection** (install app / team linked indicator)
 - [ ] Settings → **Digest channel** picker (or channel id field)
 
 ### Acceptance (from spec §9.2)
 
 - [x] Founder sets Mon+Thu, 9:00 AM, workspace timezone in UI; reload persists
 - [x] Timezone change updates preview without redeploying cron
-- [ ] Wrong cron secret → 401, no DMs
-- [ ] Correct secret → DMs only workspaces due in local window
-- [ ] Same workspace not double-triggered within one 15-minute window
+- [x] Wrong cron secret → 401, no DMs
+- [x] Correct secret → DMs only workspaces due in local window
+- [x] Same workspace not double-triggered within one 15-minute window
 
 ### Phase complete
 
@@ -159,7 +159,7 @@ Workspace
 - [ ] **As a founder**, I reorder prompts so the most important topics are asked first.
 - [x] **As a founder**, I preview the bullet list the IC will see before saving.
 - [x] **As a founder**, changes apply on the next scheduled check-in (no redeploy).
-- [ ] **As an IC**, the agent opens with a short bullet list of topics, then asks about each in chat (Phase 1 Slack).
+- [x] **As an IC**, the agent opens with a short bullet list of topics, then asks about each in chat.
 
 ### Tasks
 
@@ -171,7 +171,7 @@ Workspace
   - `POST/PATCH/DELETE .../conversations/:id/questions`
   - `PUT .../conversations/:id/questions/reorder`
 - [x] Session/response schema: `checkin_sessions` + `checkin_responses.question_id` FK
-- [ ] Check-In Agent: load enabled questions; DM opener with bullet list (stub only — Slack in Phase 1)
+- [x] Check-In Agent: load enabled questions; DM opener with bullet list
 - [x] Validation: max 10 questions, prompt 1–500 chars; scheduler skips zero enabled questions
 
 **Frontend (`ceptly2`)**
@@ -186,7 +186,7 @@ Workspace
 
 - [x] Founder sets custom questions, saves, reload persists order and text
 - [x] Preview shows bullet list matching saved questions
-- [ ] Next scheduled DM uses custom list; IC sees bullets; answers stored per `question_id` (blocked on Phase 1 Slack)
+- [x] Next scheduled DM uses custom list; IC sees bullets; answers stored per `question_id`
 - [x] Zero enabled questions → scheduler skips with warning log
 
 ### Phase 2A complete
@@ -208,7 +208,7 @@ Workspace
 - [x] **As a founder**, I add and edit the question list per conversation (same editor as 2A).
 - [x] **As a founder**, I enable/disable a conversation without deleting it.
 - [x] **As a founder**, I see a schedule preview per conversation (“Thu 4:00 PM Central Time”).
-- [ ] **As an IC**, I receive separate DMs when different conversations are due (Phase 1 Slack).
+- [x] **As an IC**, I receive separate DMs when different conversations are due.
 
 ### Tasks
 
@@ -474,15 +474,17 @@ Update this section when phases advance.
 |------|--------|
 | Backend health + auth | Done |
 | Workspace schedule schema | Done |
-| Internal cron scheduler | Stub commented out |
 | Schedule API | Done |
-| Slack Check-In Agent | Not started |
+| Internal cron scheduler | Done (per-conversation `last_fire_at`) |
+| Slack OAuth + per-workspace install | Done |
+| Slack Check-In Agent (DMs + turn persistence) | Done |
+| Team roster (backend + Settings UI) | Done |
 | Frontend auth | Done |
 | Settings schedule UI | Done |
 | Custom question lists (2A) | Done |
 | Multi-conversation schedules (2B) | Done |
-| Internal cron scheduler | Done (per-conversation; Slack stub) |
-| Question Editor / AI suggester (2C) | Not started |
+| AI conversation setup chat | Done |
+| Digest channel + blocker alerts + synthesis | Not started |
 | Linear / capacity | Not started |
 
 ---

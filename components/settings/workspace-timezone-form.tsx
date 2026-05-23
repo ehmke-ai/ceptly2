@@ -42,7 +42,7 @@ export function WorkspaceTimezoneForm({
     return (
       <Card className="dark:border-white/20">
         <CardHeader>
-          <CardTitle>Workspace timezone</CardTitle>
+          <CardTitle>Team timezone</CardTitle>
           <CardDescription>
             Default timezone for new conversations.
           </CardDescription>
@@ -62,7 +62,7 @@ export function WorkspaceTimezoneForm({
   return (
     <Card className="dark:border-white/20">
       <CardHeader>
-        <CardTitle>Workspace timezone</CardTitle>
+        <CardTitle>Team timezone</CardTitle>
         <CardDescription>
           Used as the default when you create a new scheduled conversation.
         </CardDescription>

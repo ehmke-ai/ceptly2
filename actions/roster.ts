@@ -55,6 +55,7 @@ export async function addRosterMemberAction(
   }
 
   revalidatePath("/settings");
+  revalidatePath("/team");
   return { success: true };
 }
 
@@ -85,6 +86,7 @@ export async function toggleRosterMemberPaused(
   }
 
   revalidatePath("/settings");
+  revalidatePath("/team");
   return { success: true };
 }
 
@@ -113,5 +115,6 @@ export async function removeRosterMemberAction(
   }
 
   revalidatePath("/settings");
+  revalidatePath("/team");
   return { success: true };
 }

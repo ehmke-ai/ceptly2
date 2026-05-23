@@ -8,23 +8,33 @@ import {
   MessageCircleQuestion,
   RefreshCw,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { useStatsigClient } from "@statsig/react-bindings";
 import { useMemo, useState } from "react";
 
-import {
-  commitSetupPlan,
-  sendSetupMessage,
-} from "@/actions/conversation-setup";
+import { commitSetupPlan } from "@/actions/conversation-setup";
+import { sendChatMessage } from "@/actions/workspace-chat";
 import { ChatMessageList } from "@/components/chat/chat-message-list";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
-import type { ConversationSetupPlan, SetupChatMessage } from "@/lib/api/types";
+import type {
+  ChatAgentId,
+  ConversationSetupPlan,
+  SetupChatMessage,
+} from "@/lib/api/types";
 
-const suggestions = [
+const setupSuggestions = [
   {
     label: "Mon & Thu sprint check-in",
     icon: CalendarDays,
@@ -44,6 +54,35 @@ const suggestions = [
       "Every weekday at 9am — short standup: priorities today, progress since yesterday, blockers.",
   },
 ];
+
+const teamSuggestions = [
+  {
+    label: "Who's blocked?",
+    icon: Users,
+    prompt: "Is anyone blocked right now?",
+  },
+  {
+    label: "Team pulse summary",
+    icon: TrendingUp,
+    prompt: "What did the team share in their most recent check-ins?",
+  },
+  {
+    label: "Recurring blockers",
+    icon: MessageCircleQuestion,
+    prompt: "Are there any recurring blockers across the team?",
+  },
+];
+
+const AGENT_LABELS: Record<ChatAgentId, string> = {
+  conversation_setup: "Scheduling",
+  team_qa: "Team insights",
+};
+
+const AGENT_MENU_LABELS: Record<ChatAgentId | "auto", string> = {
+  auto: "Auto",
+  conversation_setup: "Scheduling",
+  team_qa: "Team insights",
+};
 
 interface EmployeeChatPromptProps {
   workspaceId: string;
@@ -109,10 +148,16 @@ export function EmployeeChatPrompt({
   const [chatError, setChatError] = useState<string | null>(null);
   const [publishError, setPublishError] = useState<string | null>(null);
   const [publishSuccess, setPublishSuccess] = useState(false);
+  const [activeAgent, setActiveAgent] = useState<ChatAgentId | null>(null);
+  const [agentPreference, setAgentPreference] = useState<
+    ChatAgentId | "auto"
+  >("auto");
 
   const hasMessages = messages.length > 0 || chatPending;
   const isEmptyState = !hasMessages && !chatError;
   const chatDisabled = chatPending || publishPending || !canEdit;
+  const isSetupAgent =
+    activeAgent === "conversation_setup" || activeAgent === null;
 
   const pickerDays = useMemo(() => {
     for (let index = messages.length - 1; index >= 0; index -= 1) {
@@ -128,12 +173,22 @@ export function EmployeeChatPrompt({
   }, [messages]);
 
   const publishDisabled = useMemo(() => {
-    if (!proposal || publishPending || chatPending) {
+    if (!proposal || publishPending || chatPending || activeAgent !== "conversation_setup") {
       return true;
     }
 
     return getProposalDays(proposal, pickerDays).length === 0;
-  }, [proposal, publishPending, chatPending, pickerDays]);
+  }, [proposal, publishPending, chatPending, pickerDays, activeAgent]);
+
+  const suggestions = useMemo(() => {
+    if (activeAgent === "team_qa") {
+      return teamSuggestions;
+    }
+    if (activeAgent === "conversation_setup") {
+      return setupSuggestions;
+    }
+    return [...setupSuggestions, ...teamSuggestions];
+  }, [activeAgent]);
 
   async function handleSend(content: string) {
     const trimmed = content.trim();
@@ -155,13 +210,26 @@ export function EmployeeChatPrompt({
     setProposal(null);
     setPublishError(null);
 
-    const result = await sendSetupMessage(workspaceId, nextMessages);
+    const agentToSend =
+      agentPreference !== "auto"
+        ? agentPreference
+        : activeAgent ?? undefined;
+
+    const result = await sendChatMessage(
+      workspaceId,
+      nextMessages,
+      agentToSend,
+    );
 
     setChatPending(false);
 
     if (result.error) {
       setChatError(result.error);
       return;
+    }
+
+    if (result.agent) {
+      setActiveAgent(result.agent);
     }
 
     if (result.assistant_message) {
@@ -175,7 +243,7 @@ export function EmployeeChatPrompt({
       ]);
     }
 
-    if (result.proposal) {
+    if (result.agent === "conversation_setup" && result.proposal) {
       const daysFromPicker =
         result.ui_component?.type === "day_picker"
           ? result.ui_component.days_of_week
@@ -247,8 +315,12 @@ export function EmployeeChatPrompt({
     setChatError(null);
     setPublishError(null);
     setPublishSuccess(false);
+    setActiveAgent(null);
+    setAgentPreference("auto");
     client.logEvent("employee_chat_refresh_click");
   }
+
+  const agentBadgeLabel = activeAgent ? AGENT_LABELS[activeAgent] : null;
 
   const promptForm = (
     <form
@@ -258,9 +330,16 @@ export function EmployeeChatPrompt({
         void handleSend(input);
       }}
     >
+      {agentBadgeLabel ? (
+        <div className="border-b border-border px-3 py-2">
+          <Badge variant="secondary" className="text-xs font-normal">
+            {agentBadgeLabel}
+          </Badge>
+        </div>
+      ) : null}
       <Textarea
         variant="chat"
-        placeholder="Describe your check-in schedule and questions…"
+        placeholder="Ask about your team or describe a check-in schedule…"
         rows={3}
         value={input}
         disabled={chatDisabled}
@@ -273,17 +352,38 @@ export function EmployeeChatPrompt({
         }}
       />
       <div className="flex items-center justify-between px-3 pb-3">
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 px-2 text-muted-foreground"
-          tabIndex={-1}
-          aria-hidden
-        >
-          Ceptly AI
-          <ChevronDown className="size-3.5 opacity-60" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="h-8 gap-1.5 px-2 text-muted-foreground"
+                disabled={chatDisabled}
+              />
+            }
+          >
+            {AGENT_MENU_LABELS[agentPreference]}
+            <ChevronDown className="size-3.5 opacity-60" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuRadioGroup
+              value={agentPreference}
+              onValueChange={(value) =>
+                setAgentPreference(value as ChatAgentId | "auto")
+              }
+            >
+              <DropdownMenuRadioItem value="auto">Auto</DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="conversation_setup">
+                Scheduling
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="team_qa">
+                Team insights
+              </DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+          </DropdownMenuContent>
+        </DropdownMenu>
         <Button
           type="submit"
           variant="default"
@@ -386,7 +486,7 @@ export function EmployeeChatPrompt({
         </Alert>
       ) : null}
 
-      {proposal && !publishSuccess ? (
+      {proposal && !publishSuccess && isSetupAgent ? (
         <div className="flex flex-wrap items-center gap-3 px-1">
           <Button onClick={handlePublish} disabled={publishDisabled}>
             {publishPending ? (

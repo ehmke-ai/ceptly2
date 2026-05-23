@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
 
   if (token && pathname.startsWith("/auth")) {
     return NextResponse.redirect(
-      new URL(onboardingComplete ? "/" : "/onboarding", request.url),
+      new URL(onboardingComplete ? "/chat" : "/onboarding", request.url),
     );
   }
 
@@ -34,7 +34,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (token && onboardingComplete && pathname.startsWith("/onboarding")) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return NextResponse.redirect(new URL("/chat", request.url));
   }
 
   return response;

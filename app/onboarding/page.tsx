@@ -18,7 +18,7 @@ export default async function OnboardingPage() {
 
   if (user.onboardingCompleted) {
     await setOnboardingCompleteCookie(true);
-    redirect("/");
+    redirect("/chat");
   }
 
   const token = await getAccessToken();

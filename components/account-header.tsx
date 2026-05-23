@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
-import { LogOut, User } from "lucide-react";
+import { LogOut, User, Settings } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useStatsigClient } from "@statsig/react-bindings";
 
@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const navigationItems = [
-  { label: "Chat", path: "/" },
-  { label: "Metrics", path: "/metrics" },
-  { label: "Settings", path: "/settings" },
+  { label: "Chat", path: "/chat" },
+  { label: "Team", path: "/team" },
+  { label: "Settings", path: "/settings", matchPrefix: "/settings" },
 ];
 
 function getInitials(user: AuthUser) {
@@ -64,7 +64,7 @@ export function AccountHeader({ user }: AccountHeaderProps) {
     void signOut();
   };
 
-  const workspaceName = user.workspaces?.[0]?.name ?? "My Workspace";
+  const workspaceName = user.workspaces?.[0]?.name ?? "My Team";
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background">
@@ -75,7 +75,7 @@ export function AccountHeader({ user }: AccountHeaderProps) {
               <button
                 onClick={() => {
                   client.logEvent("logo_click");
-                  router.push("/");
+                  router.push("/chat");
                 }}
                 className="cursor-pointer"
               >
@@ -107,7 +107,11 @@ export function AccountHeader({ user }: AccountHeaderProps) {
               {navigationItems.map((item) => (
                 <Button
                   key={item.path}
-                  variant={pathname.startsWith(item.path) ? "default" : "ghost"}
+                  variant={
+                    pathname.startsWith(item.matchPrefix ?? item.path)
+                      ? "default"
+                      : "ghost"
+                  }
                   size="sm"
                   onClick={() => {
                     client.logEvent("navigation_click", item.path);
@@ -153,11 +157,20 @@ export function AccountHeader({ user }: AccountHeaderProps) {
                 <DropdownMenuItem
                   onClick={() => {
                     client.logEvent("account_settings_click");
-                    router.push("/settings");
+                    router.push("/account");
                   }}
                 >
                   <User />
                   <span>Account Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    client.logEvent("settings_click");
+                    router.push("/settings");
+                  }}
+                >
+                  <Settings />
+                  <span>Team Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>

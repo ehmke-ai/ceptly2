@@ -37,5 +37,5 @@ export async function completeOnboarding(
     return { error: "An unexpected error occurred. Please try again." };
   }
 
-  redirect("/");
+  redirect("/chat");
 }

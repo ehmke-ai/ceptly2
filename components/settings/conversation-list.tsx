@@ -46,7 +46,7 @@ export function ConversationList({
       <p className="text-sm text-muted-foreground">
         No scheduled conversations yet.{" "}
         <Link
-          href="/"
+          href="/chat"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
           Describe your check-ins on the home page

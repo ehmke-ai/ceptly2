@@ -66,6 +66,8 @@ export interface SetupChatMessage {
   ui_component?: SetupChatUiComponent;
 }
 
+export type ChatAgentId = "conversation_setup" | "team_qa";
+
 export interface AuthUser {
   id: string;
   email: string;
