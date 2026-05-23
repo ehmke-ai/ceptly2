@@ -74,8 +74,8 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 ### User stories — Founder / team lead
 
-- [ ] **As a founder**, I can set check-in days, time, frequency, and workspace timezone in Settings so the schedule fits my team.
-- [ ] **As a founder**, I see a preview of when check-ins run in local time so I don’t misconfigure timezone.
+- [x] **As a founder**, I can set check-in days, time, frequency, and workspace timezone in Settings so the schedule fits my team.
+- [x] **As a founder**, I see a preview of when check-ins run in local time so I don’t misconfigure timezone.
 - [ ] **As a founder**, I can add ICs to a roster (Slack user mapping) so the agent knows who to DM.
 - [ ] **As a founder**, I can designate `#leadership-digest` (or equivalent) for digests and alerts.
 - [ ] **As a founder**, I get a weekly digest in Slack summarizing what everyone is working on (manual trigger OK for Phase 1 end).
