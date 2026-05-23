@@ -1,5 +1,6 @@
 import { EmployeeChatPrompt } from "@/components/employee-chat-prompt";
-import { requireAuth } from "@/lib/auth/server";
+import { getLinearConnectionStatus } from "@/lib/api/linear";
+import { getAccessToken, requireAuth } from "@/lib/auth/server";
 
 const ADMIN_ROLES = new Set(["founder", "admin"]);
 
@@ -7,12 +8,23 @@ export default async function ChatPage() {
   const user = await requireAuth();
   const workspace = user.workspaces?.[0];
   const canEdit = workspace ? ADMIN_ROLES.has(workspace.role) : false;
+  const token = await getAccessToken();
+
+  const linearStatusResult =
+    workspace?.id && token
+      ? await getLinearConnectionStatus(token, workspace.id)
+      : null;
+  const linearConnected = linearStatusResult?.data?.connected ?? false;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col px-4 py-8 sm:py-12">
       <div className="mx-auto flex w-full max-w-2xl min-h-0 flex-1 flex-col">
         {workspace?.id ? (
-          <EmployeeChatPrompt workspaceId={workspace.id} canEdit={canEdit} />
+          <EmployeeChatPrompt
+            workspaceId={workspace.id}
+            canEdit={canEdit}
+            linearConnected={linearConnected}
+          />
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center text-center">
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">

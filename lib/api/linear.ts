@@ -1,10 +1,10 @@
 import { resolveApiBaseUrl } from "./auth";
 
-export interface SlackConnectionStatus {
+export interface LinearConnectionStatus {
   connected: boolean;
-  teamId?: string | null;
-  teamName?: string | null;
-  installedAt?: string | null;
+  organizationId?: string | null;
+  organizationName?: string | null;
+  connectedAt?: string | null;
 }
 
 async function parseJsonResponse<T>(
@@ -21,18 +21,18 @@ async function parseJsonResponse<T>(
   return (await response.json()) as T & { success: boolean; error?: string };
 }
 
-export async function getSlackConnectionStatus(
+export async function getLinearConnectionStatus(
   accessToken: string,
   workspaceId: string,
 ): Promise<{
   success: boolean;
   error?: string;
-  data?: SlackConnectionStatus;
+  data?: LinearConnectionStatus;
 }> {
   try {
     const base = await resolveApiBaseUrl();
     const response = await fetch(
-      `${base}/api/workspaces/${workspaceId}/slack/status`,
+      `${base}/api/workspaces/${workspaceId}/linear/status`,
       {
         method: "GET",
         headers: {
@@ -42,7 +42,7 @@ export async function getSlackConnectionStatus(
       },
     );
 
-    return parseJsonResponse<{ data?: SlackConnectionStatus }>(response);
+    return parseJsonResponse<{ data?: LinearConnectionStatus }>(response);
   } catch {
     return {
       success: false,
@@ -51,7 +51,7 @@ export async function getSlackConnectionStatus(
   }
 }
 
-export async function getSlackInstallUrl(
+export async function getLinearInstallUrl(
   accessToken: string,
   workspaceId: string,
   returnTo: string,
@@ -64,7 +64,7 @@ export async function getSlackInstallUrl(
     const base = await resolveApiBaseUrl();
     const params = new URLSearchParams({ return_to: returnTo });
     const response = await fetch(
-      `${base}/api/workspaces/${workspaceId}/slack/install-url?${params.toString()}`,
+      `${base}/api/workspaces/${workspaceId}/linear/install-url?${params.toString()}`,
       {
         method: "GET",
         headers: {
@@ -83,7 +83,7 @@ export async function getSlackInstallUrl(
   }
 }
 
-export async function disconnectSlack(
+export async function disconnectLinear(
   accessToken: string,
   workspaceId: string,
 ): Promise<{
@@ -93,7 +93,7 @@ export async function disconnectSlack(
   try {
     const base = await resolveApiBaseUrl();
     const response = await fetch(
-      `${base}/api/workspaces/${workspaceId}/slack/disconnect`,
+      `${base}/api/workspaces/${workspaceId}/linear/disconnect`,
       {
         method: "POST",
         headers: {

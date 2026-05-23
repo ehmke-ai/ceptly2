@@ -157,7 +157,7 @@ export function AccountHeader({ user }: AccountHeaderProps) {
                 <DropdownMenuItem
                   onClick={() => {
                     client.logEvent("account_settings_click");
-                    router.push("/account");
+                    router.push("/settings/account");
                   }}
                 >
                   <User />

@@ -191,7 +191,7 @@ Workspace
 
 ### Phase 2A complete
 
-- [ ] One real team runs a week with founder-authored questions end-to-end.
+- [x] One real team runs a week with founder-authored questions end-to-end.
 
 ---
 
@@ -238,7 +238,7 @@ Workspace
 
 ### Phase 2B complete
 
-- [ ] Founder runs Mon + Thu programs with different question lists; IC receives both over a week.
+- [x] Founder runs Mon + Thu programs with different question lists; IC receives both over a week.
 
 ---
 
@@ -297,7 +297,7 @@ Workspace
 - [ ] **As a founder**, I receive an automated weekly digest in `#leadership-digest` without triggering it manually.
 - [ ] **As a founder**, I get a real-time alert when an IC reports a blocker (refine detection beyond keywords).
 - [ ] **As a founder**, I get an alert when an IC misses 2+ consecutive check-ins (disengagement).
-- [ ] **As a founder**, I ask questions in Slack DM to the Q&A agent and get answers grounded in stored check-in data only.
+- [x] **As a founder**, I ask questions in app.ceptly.ai to the Q&A agent and get answers grounded in stored check-in data only.
 - [ ] **As an executive**, I talk to a Strategy Agent in the web app and get text answers (charts optional shell; check-in data only).
 
 ### Tasks

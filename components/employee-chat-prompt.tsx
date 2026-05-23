@@ -73,6 +73,19 @@ const teamSuggestions = [
   },
 ];
 
+const linearTeamSuggestions = [
+  {
+    label: "What is the team working on?",
+    icon: TrendingUp,
+    prompt: "What is each team member working on based on Linear and check-ins?",
+  },
+  {
+    label: "Open Linear issues",
+    icon: MessageCircleQuestion,
+    prompt: "What open Linear issues are assigned to the team?",
+  },
+];
+
 const AGENT_LABELS: Record<ChatAgentId, string> = {
   conversation_setup: "Scheduling",
   team_qa: "Team insights",
@@ -87,6 +100,7 @@ const AGENT_MENU_LABELS: Record<ChatAgentId | "auto", string> = {
 interface EmployeeChatPromptProps {
   workspaceId: string;
   canEdit?: boolean;
+  linearConnected?: boolean;
 }
 
 function getEditableConversationIndex(plan: ConversationSetupPlan): number {
@@ -137,6 +151,7 @@ function getProposalDays(
 export function EmployeeChatPrompt({
   workspaceId,
   canEdit = true,
+  linearConnected = false,
 }: EmployeeChatPromptProps) {
   const { client } = useStatsigClient();
 
@@ -181,14 +196,18 @@ export function EmployeeChatPrompt({
   }, [proposal, publishPending, chatPending, pickerDays, activeAgent]);
 
   const suggestions = useMemo(() => {
+    const linearAwareTeamSuggestions = linearConnected
+      ? [...linearTeamSuggestions, ...teamSuggestions]
+      : teamSuggestions;
+
     if (activeAgent === "team_qa") {
-      return teamSuggestions;
+      return linearAwareTeamSuggestions;
     }
     if (activeAgent === "conversation_setup") {
       return setupSuggestions;
     }
-    return [...setupSuggestions, ...teamSuggestions];
-  }, [activeAgent]);
+    return [...setupSuggestions, ...linearAwareTeamSuggestions];
+  }, [activeAgent, linearConnected]);
 
   async function handleSend(content: string) {
     const trimmed = content.trim();
@@ -339,7 +358,11 @@ export function EmployeeChatPrompt({
       ) : null}
       <Textarea
         variant="chat"
-        placeholder="Ask about your team or describe a check-in schedule…"
+        placeholder={
+          linearConnected
+            ? "Ask about your team, Linear issues, or describe a check-in schedule…"
+            : "Ask about your team or describe a check-in schedule…"
+        }
         rows={3}
         value={input}
         disabled={chatDisabled}
