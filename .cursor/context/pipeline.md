@@ -51,12 +51,12 @@ Use this file as the execution checklist. Check items when shipped and verified 
 - [x] Auth page (sign in / sign up)
 - [x] Auth cookies + server session helpers
 - [x] `NEXT_PUBLIC_API_URL` wired to backend
-- [ ] Post-login redirect to home (not stuck on `/auth`)
+- [x] Post-login redirect to home (not stuck on `/auth`)
 - [x] Protected routes for settings / dashboard (middleware or layout guard)
 
 ### Phase complete
 
-- [ ] Founder can register, log in, and hit a protected page that calls the API with a valid token.
+- [x] Founder can register, log in, and hit a protected page that calls the API with a valid token.
 
 ---
 
@@ -85,32 +85,32 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 **Backend**
 
-- [ ] `GET` / `PUT` `/api/workspaces/:id/schedule` (auth + founder/admin only)
+- [x] `GET` / `PUT` `/api/workspaces/:id/schedule` (auth + founder/admin only)
 - [ ] Roster schema + CRUD (IC Slack user id, display name, paused/opt-out flags)
-- [ ] Check-in session + response storage schema
+- [ ] Check-in session + response storage schema (session links to workspace; `question_id` nullable until Phase 2A)
 - [ ] Re-enable `POST /internal/checkin-scheduler` with `X-Cron-Secret` (401 without secret)
 - [ ] Due-window algorithm per workspace timezone (§7.1 in spec)
 - [ ] Idempotency: no double-DM in same 15-minute window (`last_checkin_schedule_fire_at`)
 - [ ] Render Cron Job: `*/15 * * * *` → scheduler endpoint
 - [ ] Slack app: OAuth install, bot token, signing secret
-- [ ] Check-In Agent: DM opener + default question set (hardcoded v1)
+- [ ] Check-In Agent: DM opener + **default question set (hardcoded v1; custom lists ship in Phase 2A)**
 - [ ] Persist each turn; mark session complete
 - [ ] Blocker detection on response → post to leadership channel
 - [ ] Manual/internal endpoint or script to trigger synthesis digest (stub OK)
 
 **Frontend**
 
-- [ ] Settings → **Check-in schedule** section (days, time, frequency, timezone)
-- [ ] Local time preview string (“9:00 AM Central Time”)
-- [ ] Save/load schedule via schedule API
+- [x] Settings → **Check-in schedule** section (days, time, frequency, timezone)
+- [x] Local time preview string (“9:00 AM Central Time”)
+- [x] Save/load schedule via schedule API
 - [ ] Settings → **Team roster** (minimal list + add Slack member)
 - [ ] Settings → **Slack connection** (install app / team linked indicator)
 - [ ] Settings → **Digest channel** picker (or channel id field)
 
 ### Acceptance (from spec §9.2)
 
-- [ ] Founder sets Mon+Thu, 9:00 AM, workspace timezone in UI; reload persists
-- [ ] Timezone change updates preview without redeploying cron
+- [x] Founder sets Mon+Thu, 9:00 AM, workspace timezone in UI; reload persists
+- [x] Timezone change updates preview without redeploying cron
 - [ ] Wrong cron secret → 401, no DMs
 - [ ] Correct secret → DMs only workspaces due in local window
 - [ ] Same workspace not double-triggered within one 15-minute window
@@ -121,17 +121,176 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 ---
 
-## Phase 2 — Question Editor + Intelligence (Weeks 5–8)
+## Product model — Scheduled conversations (Phase 2+)
 
-**Goal:** Managers own questions; synthesis, alerts, and Q&A run without manual triggers.
+**Concept:** A workspace runs one or more **scheduled conversations** — each is a named program with its own purpose, schedule, and ordered question list. The Check-In Agent DMs ICs when a conversation is due; the opener includes a **bullet list of topics**, then the agent asks about each in chat (not a form).
 
-### User stories — Question Editor
+```
+Workspace
+  timezone (shared default for all conversations)
+  └── ScheduledConversation[]
+        ├── name            e.g. "Monday sprint check-in"
+        ├── purpose         e.g. "Track progress and blockers"
+        ├── schedule        days, time, frequency, enabled (same shape as workspace schedule today)
+        ├── last_fire_at    idempotency per conversation (replaces workspace-level fire for multi-conv)
+        └── questions[]     ordered prompt_text rows
+              ├── "What did you ship since last check-in?"
+              ├── "Any blockers?"
+              └── "How's team energy?"
+```
 
-- [ ] **As a founder**, I tell Ceptly what I care about (e.g. sprint progress + team energy) and get a suggested question set I can customize.
-- [ ] **As a manager**, I add custom questions so check-ins reflect what matters now.
-- [ ] **As a manager**, I reorder questions so the most important are asked first.
-- [ ] **As a manager**, I preview what the agent will say to an IC before publishing.
-- [ ] **As a manager**, active question set changes apply on the next scheduled check-in.
+**IC Slack UX (default):** Short greeting → bullet list of topics → conversational turn per topic → session complete.
+
+**Migration path:** Phase 1 uses workspace `schedule_*` + hardcoded questions. Phase 2A adds custom questions on a **single implicit conversation**. Phase 2B splits into multiple conversations and moves schedule off the workspace row.
+
+**Build order:** Finish Phase 1 gate → Phase 2A (custom questions) → Phase 2B (multiple conversations) → Phase 2C (intelligence: synthesis, Q&A, AI suggester).
+
+---
+
+## Phase 2A — Custom questions (single conversation) (Weeks 5–6)
+
+**Goal:** Founders type what they want asked, add/remove/reorder prompts, preview the IC bullet list. Still **one** schedule (workspace Settings schedule from Phase 1). Agent uses the custom list on the next due check-in.
+
+**Prerequisite:** Phase 1 phase complete (Slack DMs + session storage working).
+
+### User stories
+
+- [ ] **As a founder**, I type what I want asked and add another prompt so check-ins reflect what I care about now.
+- [ ] **As a founder**, I reorder prompts so the most important topics are asked first.
+- [x] **As a founder**, I preview the bullet list the IC will see before saving.
+- [x] **As a founder**, changes apply on the next scheduled check-in (no redeploy).
+- [ ] **As an IC**, the agent opens with a short bullet list of topics, then asks about each in chat (Phase 1 Slack).
+
+### Tasks
+
+**Backend (`ceptly-backend`)**
+
+- [x] `conversation_questions` table (via `scheduled_conversations`; skipped workspace-only `checkin_questions`)
+- [x] Default seed: 3 hardcoded questions for new workspaces (match Phase 1 agent defaults)
+- [x] Question API nested under conversations (founder/admin write, any member read):
+  - `POST/PATCH/DELETE .../conversations/:id/questions`
+  - `PUT .../conversations/:id/questions/reorder`
+- [x] Session/response schema: `checkin_sessions` + `checkin_responses.question_id` FK
+- [ ] Check-In Agent: load enabled questions; DM opener with bullet list (stub only — Slack in Phase 1)
+- [x] Validation: max 10 questions, prompt 1–500 chars; scheduler skips zero enabled questions
+
+**Frontend (`ceptly2`)**
+
+- [x] Settings → **Conversations** editor with question list per conversation *(superseded by AI setup chat — see below)*
+- [x] Text input per question + “Add question” button *(superseded)*
+- [x] Reorder (move up/down), delete, enable/disable per question *(superseded)*
+- [x] **Preview as IC** panel: bullet list + sample opener copy (live as user edits)
+- [x] Save/load via conversation + question APIs *(commit via AI setup replaces manual save)*
+
+### Acceptance
+
+- [x] Founder sets custom questions, saves, reload persists order and text
+- [x] Preview shows bullet list matching saved questions
+- [ ] Next scheduled DM uses custom list; IC sees bullets; answers stored per `question_id` (blocked on Phase 1 Slack)
+- [x] Zero enabled questions → scheduler skips with warning log
+
+### Phase 2A complete
+
+- [ ] One real team runs a week with founder-authored questions end-to-end.
+
+---
+
+## Phase 2B — Multiple scheduled conversations (Weeks 7–8)
+
+**Goal:** Founders create **multiple** scheduled conversations, each with its own purpose, schedule, and question list (e.g. Mon 9am sprint check-in + Thu 4pm EOD pulse).
+
+**Prerequisite:** Phase 2A complete.
+
+### User stories
+
+- [x] **As a founder**, I create multiple scheduled conversations with different names and purposes.
+- [x] **As a founder**, each conversation has its own days, time, and frequency.
+- [x] **As a founder**, I add and edit the question list per conversation (same editor as 2A).
+- [x] **As a founder**, I enable/disable a conversation without deleting it.
+- [x] **As a founder**, I see a schedule preview per conversation (“Thu 4:00 PM Central Time”).
+- [ ] **As an IC**, I receive separate DMs when different conversations are due (Phase 1 Slack).
+
+### Tasks
+
+**Backend**
+
+- [x] `scheduled_conversations` table: `workspace_id`, `name`, `purpose`, `timezone`, schedule fields, `last_fire_at`, `sort_order`, `is_default`
+- [x] Migration + backfill: default conversation from workspace `schedule_*`; questions under `conversation_id`
+- [x] Scheduler uses per-conversation `last_fire_at`; workspace `timezone` kept as shared default
+- [x] Conversation CRUD API: `GET/POST/PATCH/DELETE /api/workspaces/:id/conversations`
+- [x] Nest questions under conversation (+ reorder, patch, delete, preview)
+- [x] Scheduler refactor: evaluate each enabled conversation; idempotency per `last_fire_at`
+- [x] Session schema: `scheduled_conversation_id` on `checkin_sessions`
+- [x] Limits: max 5 conversations, max 10 questions
+
+**Frontend**
+
+- [x] Settings → **Conversations** list + AI setup chat *(replaced `/settings/conversations/[id]` manual editor)*
+- [x] “Add conversation” / manual schedule + question editor *(superseded by AI setup chat)*
+- [x] Workspace Settings → **timezone only** + link to Conversations (legacy schedule API proxies to default conversation)
+
+### Acceptance
+
+- [x] Two conversations with different days/times can be created and listed independently
+- [x] Disabling one conversation excludes it from scheduler evaluation only
+- [x] Same conversation not double-fired within one 15-minute window (idempotency via `last_fire_at`)
+- [x] Each conversation’s questions are isolated
+
+### Phase 2B complete
+
+- [ ] Founder runs Mon + Thu programs with different question lists; IC receives both over a week.
+
+---
+
+## AI conversation setup (replaces manual editor)
+
+**Goal:** Founders describe check-in requirements in natural language; Claude returns a validated multi-conversation plan (schedules + questions). Publishing replaces all workspace conversations in one transaction. **No manual form editor.**
+
+**Status:** Implemented (May 2026).
+
+### User stories
+
+- [x] **As a founder**, I describe schedules and topics in chat and get a proposed plan with schedule previews and IC bullet previews.
+- [x] **As a founder**, I refine the plan in chat and publish when ready (full replace of workspace conversations).
+- [x] **As a non-admin**, I see the current schedule read-only without chat input.
+
+### Backend (`ceptly-backend`)
+
+- [x] `@google/genai`, `GEMINI_API_KEY` / `GEMINI_MODEL` env (503 if key missing on setup routes)
+- [x] Zod plan schema (max 5 conversations, max 10 questions each)
+- [x] `conversation-setup-agent`: `chat()` + `commit()` (transactional delete-all + insert)
+- [x] `POST /api/workspaces/:id/conversation-setup/chat` and `/commit` (founder/admin)
+
+### Frontend (`ceptly2`)
+
+- [x] Settings → **Conversations**: read-only current schedule + AI chat + proposal preview + Publish
+- [x] Removed `/settings/conversations/[id]` manual editor and manual editor components
+- [x] `lib/api/conversation-setup.ts`, `actions/conversation-setup.ts`
+
+### Supersedes
+
+- Manual `ConversationEditor`, question reorder UI, and “Add conversation” form flow (Phase 2A/2B frontend editor tasks)
+- Phase 2C “AI Question Suggester” as a separate editor feature — merged into setup chat (schedule + questions together)
+
+### Acceptance
+
+- [x] Chat → structured proposal; refinement returns full updated plan
+- [x] Commit → DB matches proposal; list GET reflects changes
+- [x] Invalid plan (6 conversations) → 400; missing API key → 503
+- [x] Scheduler still evaluates committed conversations per `last_fire_at`
+
+---
+
+## Phase 2C — Intelligence (Weeks 8–10)
+
+**Goal:** Synthesis, alerts, and Q&A on top of stored conversation data. AI question suggester optional enhancement.
+
+**Prerequisite:** Phase 2B complete (or 2A if multi-conversation deferred — do not start 2C before custom questions work).
+
+### User stories — AI & editor enhancements
+
+- [x] **As a founder**, I describe what I care about and get suggested questions I can edit before saving (per conversation). *(Merged into AI conversation setup chat.)*
+- [x] **As a manager**, I preview what the agent will say to an IC before publishing (extends 2A preview). *(Proposal preview on Conversations page.)*
 
 ### User stories — Executive / founder (Slack + web)
 
@@ -145,27 +304,34 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 **Backend**
 
-- [ ] Question sets schema (versioning, active flag, order, prompt text)
-- [ ] Question set API: CRUD, reorder, activate version
-- [ ] AI Question Suggester endpoint (goal → suggested questions via Claude)
-- [ ] Check-In Agent reads active question set (not hardcoded)
+- [x] AI Question Suggester endpoint (goal + optional conversation context → suggested prompts via Claude) *(merged into `conversation-setup/chat`)*
 - [ ] `/internal/synthesis-scheduler` (same cron pattern as check-in)
-- [ ] Synthesis Agent: digest generation + post to digest channel
-- [ ] Disengagement alert job
+- [ ] Synthesis Agent: digest generation + post to digest channel (aggregate across conversations)
+- [ ] Disengagement alert job (per IC, any conversation missed 2+ times)
 - [ ] Q&A Agent (Slack DM): RAG over stored responses only; no unsourced claims
 - [ ] Strategy chat API for web (streaming optional v2)
+- [ ] Question set versioning (optional — defer full history to Phase 3)
 
 **Frontend**
 
-- [ ] Question Editor page: list, create, edit, reorder, toggle active
-- [ ] “Suggest questions” flow (goal input → review → save set)
-- [ ] “Preview as IC” panel
+- [x] “Suggest questions” flow on conversation editor (goal input → review → save) *(superseded by AI setup chat on Conversations page)*
 - [ ] Home / dashboard: Strategy Agent chat shell wired to API
 - [ ] Team Health strip placeholder (check-in sentiment only)
 
-### Phase complete
+### Phase 2 complete (2A + 2B + 2C)
 
-- [ ] Founder customizes questions, previews, publishes; next check-in uses new set; weekly digest and Q&A work in Slack; web chat returns synthesized answers from real data.
+- [ ] Founder runs multiple scheduled conversations with custom questions; digest and Q&A work in Slack; web Strategy chat returns answers from real data.
+
+---
+
+## Phase 2 (legacy index — see 2A / 2B / 2C above)
+
+<details>
+<summary>Original Phase 2 items (superseded by 2A–2C split)</summary>
+
+Merged into Phase 2A–2C. Do not track separately.
+
+</details>
 
 ---
 
@@ -175,8 +341,8 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 ### User stories
 
-- [ ] **As a manager**, I see which questions ICs skip or answer briefly so I can improve them.
-- [ ] **As a manager**, I can restore a previous question set version after a bad edit.
+- [ ] **As a manager**, I see which questions ICs skip or answer briefly so I can improve them (per conversation).
+- [ ] **As a manager**, I can restore a previous question list version after a bad edit.
 - [ ] **As a founder**, I see workload and sentiment trends over time for the team.
 - [ ] **As an IC**, check-in follow-ups reference my prior answers (e.g. blocker update).
 - [ ] **As an IC**, I can pause check-ins or opt out temporarily (`/ceptly pause` or equivalent).
@@ -184,8 +350,8 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 ### Tasks
 
-- [ ] Question analytics (response rate, skip rate, avg length per question)
-- [ ] Question set version history + restore
+- [ ] Question analytics (response rate, skip rate, avg length per question, per conversation)
+- [ ] Question list version history + restore (per scheduled conversation)
 - [ ] Trend aggregates API + simple charts in web app
 - [ ] Adaptive follow-up in Check-In Agent (prior session context)
 - [ ] IC Slack commands: pause / resume / status
@@ -291,7 +457,12 @@ Track in [prd.md §11](./prd.md); resolve and check here when decided.
 - [ ] Chart library + exec-only auth pattern for dashboard?
 - [ ] Linear OAuth: workspace vs per-user?
 - [ ] HRIS vendor for first integration?
-- [ ] Per-sub-team question sets vs one set per workspace?
+- [ ] Per-sub-team question sets vs one set per workspace? → **Superseded:** per **scheduled conversation** within workspace (Phase 2B)
+- [ ] Agent opener UX: bullet list in first message vs one question per message? (Default: **bullets in opener**, then chat per topic)
+- [ ] Max questions per conversation? (Default: **10**)
+- [ ] Max scheduled conversations per workspace? (Default: **5**)
+- [ ] Workspace `schedule_*` columns: keep as timezone-only after 2B migration, or remove? (Default: **timezone only** on workspace)
+- [ ] All questions disabled on a due conversation: skip silently vs warn founder in Slack? (Decide before 2A ships)
 
 ---
 
@@ -304,18 +475,22 @@ Update this section when phases advance.
 | Backend health + auth | Done |
 | Workspace schedule schema | Done |
 | Internal cron scheduler | Stub commented out |
-| Schedule API | Not started |
+| Schedule API | Done |
 | Slack Check-In Agent | Not started |
 | Frontend auth | Done |
-| Settings schedule UI | Not started |
-| Question Editor | Not started |
+| Settings schedule UI | Done |
+| Custom question lists (2A) | Done |
+| Multi-conversation schedules (2B) | Done |
+| Internal cron scheduler | Done (per-conversation; Slack stub) |
+| Question Editor / AI suggester (2C) | Not started |
 | Linear / capacity | Not started |
 
 ---
 
 ## How to use this file
 
-1. Work **top to bottom**; do not skip Phase 1 acceptance for “nicer” dashboard work.
-2. When finishing a task, check `[ ]` → `[x]` and add PR link or commit hash in a comment if useful.
-3. Keep [spec.md](./spec.md) and [prd.md](./prd.md) as source of truth for behavior; update this file when scope shifts.
-4. **prd-test.md** is intentionally empty — do not use it for planning.
+1. Work **top to bottom**; do not skip Phase 1 acceptance for question/conversation UI work.
+2. Phase 2 order is fixed: **2A → 2B → 2C**. Do not build multiple conversations before custom questions work on one schedule.
+3. When finishing a task, check `[ ]` → `[x]` and add PR link or commit hash in a comment if useful.
+4. Keep [spec.md](./spec.md) and [prd.md](./prd.md) as source of truth for behavior; update this file when scope shifts.
+5. **prd-test.md** is intentionally empty — do not use it for planning.

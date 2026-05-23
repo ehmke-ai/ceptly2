@@ -33,7 +33,14 @@ export default function MyStatsig({
   authUser?: AuthUser | null;
 }) {
   const plugins = useMemo(
-    () => [new StatsigAutoCapturePlugin(), new StatsigSessionReplayPlugin()],
+    () => [
+      new StatsigAutoCapturePlugin({
+        consoleLogAutoCaptureSettings: {
+          enabled: true,
+        },
+      }),
+      new StatsigSessionReplayPlugin(),
+    ],
     [],
   );
 

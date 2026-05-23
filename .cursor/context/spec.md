@@ -294,7 +294,7 @@ Synthesis / digest scheduling can follow the same pattern on a separate internal
 | `DATABASE_URL` | Yes | Render Postgres connection string |
 | `CRON_SECRET` | Yes | Shared secret for `X-Cron-Secret` |
 | `SLACK_*` | Yes | Bot token, signing secret, client id/secret (per Slack app) |
-| `ANTHROPIC_API_KEY` | Yes | Claude for agents |
+| `GEMINI_API_KEY` | Yes | Gemini for agents |
 | `JWT_SECRET` / session secret | Yes | Vercel ↔ API auth |
 | `FRONTEND_URL` | Yes | Vercel origin for OAuth redirects / CORS |
 
