@@ -60,6 +60,7 @@ export function SlackIntegrationPanel({
 
   const installedLabel = formatInstalledDate(status.installedAt);
   const teamName = status.teamName ?? "Slack";
+  const searchEnabled = status.searchEnabled ?? false;
 
   const handleConnect = () => {
     setError(null);
@@ -128,6 +129,15 @@ export function SlackIntegrationPanel({
                     Connected {installedLabel}
                   </p>
                 ) : null}
+                {searchEnabled ? (
+                  <p className="text-sm text-muted-foreground">
+                    Team insights search enabled
+                  </p>
+                ) : status.connected ? (
+                  <p className="text-sm text-amber-600 dark:text-amber-400">
+                    Re-install Slack to enable Team insights search
+                  </p>
+                ) : null}
               </div>
 
               {canEdit ? (
@@ -177,7 +187,8 @@ export function SlackIntegrationPanel({
       ) : canEdit ? (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Install the Ceptly app in Slack to send check-in DMs to your team.
+            Install the Ceptly app in Slack to send check-in DMs and enable Team
+            insights search across your workspace history.
           </p>
           <Button type="button" onClick={handleConnect} disabled={isPending}>
             {isPending ? (

@@ -92,6 +92,7 @@ export interface SetupChatMessage {
   role: "user" | "assistant";
   content: string;
   ui_component?: SetupChatUiComponent;
+  activity?: import("./workspace-chat-stream").AgentActivityState;
 }
 
 export type ChatAgentId =

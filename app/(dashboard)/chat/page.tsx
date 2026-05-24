@@ -1,5 +1,6 @@
 import { EmployeeChatPrompt } from "@/components/employee-chat-prompt";
 import { getLinearConnectionStatus } from "@/lib/api/linear";
+import { getSlackConnectionStatus } from "@/lib/api/slack";
 import { getAccessToken, requireAuth } from "@/lib/auth/server";
 
 const ADMIN_ROLES = new Set(["founder", "admin"]);
@@ -10,11 +11,16 @@ export default async function ChatPage() {
   const canEdit = workspace ? ADMIN_ROLES.has(workspace.role) : false;
   const token = await getAccessToken();
 
-  const linearStatusResult =
+  const [linearStatusResult, slackStatusResult] =
     workspace?.id && token
-      ? await getLinearConnectionStatus(token, workspace.id)
-      : null;
+      ? await Promise.all([
+          getLinearConnectionStatus(token, workspace.id),
+          getSlackConnectionStatus(token, workspace.id),
+        ])
+      : [null, null];
+
   const linearConnected = linearStatusResult?.data?.connected ?? false;
+  const slackSearchEnabled = slackStatusResult?.data?.searchEnabled ?? false;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col px-4 py-8 sm:py-12">
@@ -24,6 +30,7 @@ export default async function ChatPage() {
             workspaceId={workspace.id}
             canEdit={canEdit}
             linearConnected={linearConnected}
+            slackSearchEnabled={slackSearchEnabled}
           />
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center text-center">

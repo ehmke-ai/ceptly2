@@ -21,7 +21,6 @@ import {
 } from "@/actions/adhoc-conversation";
 import { ACTIVE_CHECKIN_IN_PROGRESS_ERROR } from "@/lib/api/adhoc-conversation";
 import { commitSetupPlan } from "@/actions/conversation-setup";
-import { sendChatMessage } from "@/actions/workspace-chat";
 import { AdhocConversationProposalCard } from "@/components/chat/adhoc-conversation-proposal";
 import { ChatMessageList } from "@/components/chat/chat-message-list";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -41,6 +40,11 @@ import type {
   ConversationSetupPlan,
   SetupChatMessage,
 } from "@/lib/api/types";
+import {
+  createInitialActivity,
+  streamChatWorkspace,
+  type AgentActivityState,
+} from "@/lib/api/workspace-chat-stream";
 
 const setupSuggestions = [
   {
@@ -111,6 +115,15 @@ const linearTeamSuggestions = [
   },
 ];
 
+const slackTeamSuggestions = [
+  {
+    label: "Slack team discussion",
+    icon: MessageCircle,
+    agent: "team_qa" as const,
+    prompt: "What did the team discuss in Slack this week?",
+  },
+];
+
 const AGENT_LABELS: Record<ChatAgentId, string> = {
   conversation_setup: "Scheduling",
   team_qa: "Team insights",
@@ -128,6 +141,7 @@ interface EmployeeChatPromptProps {
   workspaceId: string;
   canEdit?: boolean;
   linearConnected?: boolean;
+  slackSearchEnabled?: boolean;
 }
 
 function getEditableConversationIndex(plan: ConversationSetupPlan): number {
@@ -199,6 +213,7 @@ export function EmployeeChatPrompt({
   workspaceId,
   canEdit = true,
   linearConnected = false,
+  slackSearchEnabled = false,
 }: EmployeeChatPromptProps) {
   const { client } = useStatsigClient();
 
@@ -208,6 +223,8 @@ export function EmployeeChatPrompt({
     useState<AdhocConversationProposal | null>(null);
   const [input, setInput] = useState("");
   const [chatPending, setChatPending] = useState(false);
+  const [pendingActivity, setPendingActivity] =
+    useState<AgentActivityState | null>(null);
   const [publishPending, setPublishPending] = useState(false);
   const [adhocPending, setAdhocPending] = useState(false);
   const [adhocAbandonPending, setAdhocAbandonPending] = useState(false);
@@ -275,9 +292,12 @@ export function EmployeeChatPrompt({
     const linearAwareTeamSuggestions = linearConnected
       ? [...linearTeamSuggestions, ...teamSuggestions]
       : teamSuggestions;
+    const contextAwareTeamSuggestions = slackSearchEnabled
+      ? [...slackTeamSuggestions, ...linearAwareTeamSuggestions]
+      : linearAwareTeamSuggestions;
 
     if (activeAgent === "team_qa") {
-      return linearAwareTeamSuggestions;
+      return contextAwareTeamSuggestions;
     }
     if (activeAgent === "conversation_setup") {
       return setupSuggestions;
@@ -285,8 +305,12 @@ export function EmployeeChatPrompt({
     if (activeAgent === "adhoc_conversation") {
       return adhocSuggestions;
     }
-    return [...setupSuggestions, ...adhocSuggestions, ...linearAwareTeamSuggestions];
-  }, [activeAgent, linearConnected]);
+    return [
+      ...setupSuggestions,
+      ...adhocSuggestions,
+      ...contextAwareTeamSuggestions,
+    ];
+  }, [activeAgent, linearConnected, slackSearchEnabled]);
 
   async function handleSend(content: string, agentOverride?: ChatAgentId) {
     const trimmed = content.trim();
@@ -303,6 +327,8 @@ export function EmployeeChatPrompt({
     setMessages(nextMessages);
     setInput("");
     setChatPending(true);
+    const initialActivity = createInitialActivity();
+    setPendingActivity(initialActivity);
     setChatError(null);
     setPublishSuccess(false);
     setAdhocSuccess(false);
@@ -317,16 +343,31 @@ export function EmployeeChatPrompt({
         ? agentPreference
         : activeAgent ?? undefined);
 
-    const result = await sendChatMessage(
+    let completedActivity: AgentActivityState = initialActivity;
+
+    const streamResult = await streamChatWorkspace(
       workspaceId,
       nextMessages,
       agentToSend,
+      {
+        onActivity: (activity) => {
+          completedActivity = activity;
+          setPendingActivity(activity);
+        },
+      },
     );
 
     setChatPending(false);
+    setPendingActivity(null);
 
-    if (result.error) {
-      setChatError(result.error);
+    if (streamResult.error) {
+      setChatError(streamResult.error);
+      return;
+    }
+
+    const result = streamResult.result;
+    if (!result) {
+      setChatError("Failed to send message.");
       return;
     }
 
@@ -341,6 +382,7 @@ export function EmployeeChatPrompt({
           role: "assistant",
           content: result.assistant_message,
           ui_component: result.ui_component ?? undefined,
+          activity: completedActivity,
         },
       ]);
     }
@@ -501,6 +543,8 @@ export function EmployeeChatPrompt({
     setProposal(null);
     setAdhocProposal(null);
     setInput("");
+    setChatPending(false);
+    setPendingActivity(null);
     setChatError(null);
     setPublishError(null);
     setAdhocError(null);
@@ -666,6 +710,7 @@ export function EmployeeChatPrompt({
           <ChatMessageList
             messages={messages}
             pending={chatPending}
+            pendingActivity={pendingActivity}
             onDaysChange={handleDaysChange}
             onMembersChange={handleMembersChange}
             interactiveDisabled={interactiveDisabled()}

@@ -1,17 +1,20 @@
 "use client";
 
-import { Loader2, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { useEffect, useRef } from "react";
 
+import { AgentActivityFeed } from "@/components/chat/agent-activity-feed";
 import { ScheduleDaysPicker } from "@/components/settings/schedule-days-picker";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import type { AgentActivityState } from "@/lib/api/workspace-chat-stream";
 import type { SetupChatMessage } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 interface ChatMessageListProps {
   messages: SetupChatMessage[];
   pending?: boolean;
+  pendingActivity?: AgentActivityState | null;
   className?: string;
   onDaysChange?: (messageIndex: number, days: number[]) => void;
   onMembersChange?: (messageIndex: number, memberIds: string[]) => void;
@@ -21,6 +24,7 @@ interface ChatMessageListProps {
 export function ChatMessageList({
   messages,
   pending = false,
+  pendingActivity = null,
   className,
   onDaysChange,
   onMembersChange,
@@ -30,7 +34,7 @@ export function ChatMessageList({
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, pending]);
+  }, [messages, pending, pendingActivity]);
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
@@ -70,6 +74,11 @@ export function ChatMessageList({
               <span className="px-1 text-xs font-medium text-muted-foreground">
                 {isUser ? "You" : "Ceptly"}
               </span>
+
+              {!isUser && message.activity ? (
+                <AgentActivityFeed activity={message.activity} />
+              ) : null}
+
               <div
                 className={cn(
                   "rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-sm",
@@ -143,21 +152,18 @@ export function ChatMessageList({
         );
       })}
 
-      {pending ? (
+      {pending && pendingActivity ? (
         <div className="flex gap-2.5">
           <Avatar size="sm" className="mt-0.5">
             <AvatarFallback className="bg-primary/10 text-primary">
               <Sparkles className="size-3.5" />
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col gap-1">
+          <div className="flex max-w-[min(85%,32rem)] flex-col gap-1">
             <span className="px-1 text-xs font-medium text-muted-foreground">
               Ceptly
             </span>
-            <div className="flex items-center gap-2 rounded-2xl rounded-bl-md border border-border bg-card px-4 py-3 text-sm text-muted-foreground shadow-sm">
-              <Loader2 className="size-4 animate-spin text-primary" />
-              Thinking…
-            </div>
+            <AgentActivityFeed activity={pendingActivity} />
           </div>
         </div>
       ) : null}
