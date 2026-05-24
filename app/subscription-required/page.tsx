@@ -1,5 +1,6 @@
 import { signOut } from "@/actions/auth";
-import { requireAuth, setSubscriptionCookies } from "@/lib/auth/server";
+import { SyncSubscriptionCookies } from "@/components/subscribe/sync-subscription-cookies";
+import { requireAuth } from "@/lib/auth/server";
 import {
   getPrimaryWorkspace,
   userCanManageBilling,
@@ -9,7 +10,6 @@ import { redirect } from "next/navigation";
 
 export default async function SubscriptionRequiredPage() {
   const user = await requireAuth();
-  await setSubscriptionCookies(user);
   const workspace = getPrimaryWorkspace(user);
 
   if (workspaceHasActiveSubscription(workspace)) {
@@ -22,6 +22,7 @@ export default async function SubscriptionRequiredPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-16">
+      <SyncSubscriptionCookies />
       <div className="max-w-md space-y-4 text-center">
         <h1 className="text-2xl font-bold tracking-tight">
           Workspace subscription required
