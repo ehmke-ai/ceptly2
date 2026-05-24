@@ -57,7 +57,11 @@ export async function commitAdhocConversation(
   workspaceId: string,
   proposal: Pick<
     AdhocConversationProposal,
-    "roster_member_ids" | "intent" | "topic" | "conversation_name"
+    | "roster_member_ids"
+    | "intent"
+    | "topic"
+    | "conversation_name"
+    | "delivery_facts"
   >,
 ): Promise<{
   success: boolean;

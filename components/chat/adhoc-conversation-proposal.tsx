@@ -63,6 +63,14 @@ export function AdhocConversationProposalCard({
             Topic
           </p>
           <p className="text-sm">{proposal.topic}</p>
+          {proposal.intent === "inform" && proposal.delivery_facts ? (
+            <div className="rounded-lg border border-border bg-muted/40 p-3">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                What Ceptly will share
+              </p>
+              <p className="mt-1 text-sm">{proposal.delivery_facts}</p>
+            </div>
+          ) : null}
           <p className="text-sm text-muted-foreground">
             {intentDescription(proposal.intent)}
           </p>

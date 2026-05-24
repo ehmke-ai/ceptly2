@@ -85,6 +85,7 @@ export interface AdhocConversationProposal {
   topic: string;
   summary: string;
   conversation_name: string;
+  delivery_facts?: string;
 }
 
 export interface SetupChatMessage {

@@ -19,7 +19,11 @@ export async function commitAdhocConversationAction(
   workspaceId: string,
   proposal: Pick<
     AdhocConversationProposal,
-    "roster_member_ids" | "intent" | "topic" | "conversation_name"
+    | "roster_member_ids"
+    | "intent"
+    | "topic"
+    | "conversation_name"
+    | "delivery_facts"
   >,
 ): Promise<{
   error?: string;

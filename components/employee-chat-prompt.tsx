@@ -430,6 +430,7 @@ export function EmployeeChatPrompt({
       intent: adhocProposal.intent,
       topic: adhocProposal.topic,
       conversation_name: adhocProposal.conversation_name,
+      delivery_facts: adhocProposal.delivery_facts,
     });
 
     setAdhocPending(false);
