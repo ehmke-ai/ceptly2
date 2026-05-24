@@ -1,9 +1,11 @@
 import Link from "next/link";
 
+import { WorkspaceInvites } from "@/components/settings/workspace-invites";
 import { WorkspaceNameForm } from "@/components/settings/workspace-name-form";
 import { WorkspaceTimezoneForm } from "@/components/settings/workspace-timezone-form";
 import { buttonVariants } from "@/components/ui/button";
 import { getWorkspaceTimezone } from "@/lib/api/conversations";
+import { listInvites } from "@/lib/api/invites";
 import { getAccessToken, requireAuth } from "@/lib/auth/server";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +22,13 @@ export default async function SettingsPage() {
     workspace?.id && token
       ? await getWorkspaceTimezone(token, workspace.id)
       : null;
+
+  const invitesResult =
+    workspace?.id && token
+      ? await listInvites(token, workspace.id)
+      : null;
+
+  const pendingInvites = invitesResult?.data?.invites ?? [];
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-8">
@@ -47,6 +56,13 @@ export default async function SettingsPage() {
               canEdit={canEdit}
             />
           ) : null}
+
+          <WorkspaceInvites
+            workspaceId={workspace.id}
+            canEdit={canEdit}
+            userEmail={user.email}
+            invites={pendingInvites}
+          />
 
           <div className="rounded-lg border border-border bg-muted/20 px-4 py-4 dark:border-white/10">
             <h2 className="text-base font-semibold">Integrations</h2>

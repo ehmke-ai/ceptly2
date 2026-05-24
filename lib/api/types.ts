@@ -115,6 +115,24 @@ export interface WorkspaceMembership {
   role: "founder" | "admin" | "lead" | "ic";
 }
 
+export interface WorkspaceInvite {
+  id: string;
+  email: string;
+  token: string;
+  role: WorkspaceMembership["role"];
+  inviteUrl: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
+export interface InvitePreview {
+  workspaceName: string;
+  invitedEmail: string;
+  inviterName: string;
+  expiresAt: string;
+  status: "pending" | "expired" | "accepted";
+}
+
 export interface AuthMeResponse {
   success: boolean;
   data?: {

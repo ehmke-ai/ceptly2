@@ -1,6 +1,7 @@
 "use server";
 
 import { chatWorkspace } from "@/lib/api/workspace-chat";
+import { normalizeChatMessagesForApi } from "@/lib/api/workspace-chat-stream";
 import type {
   AdhocConversationProposal,
   ChatAgentId,
@@ -32,7 +33,7 @@ export async function sendChatMessage(
 }> {
   try {
     const token = await requireToken();
-    const apiMessages = messages.map(({ role, content }) => ({ role, content }));
+    const apiMessages = normalizeChatMessagesForApi(messages);
     const result = await chatWorkspace(token, workspaceId, apiMessages, agent);
 
     if (!result.success) {

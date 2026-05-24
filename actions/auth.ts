@@ -15,7 +15,15 @@ import {
   setOnboardingCompleteCookie,
 } from "@/lib/auth/server";
 
-async function resolvePostAuthRedirect(accessToken: string): Promise<string> {
+async function resolvePostAuthRedirect(
+  accessToken: string,
+  inviteToken?: string,
+): Promise<string> {
+  if (inviteToken) {
+    await setOnboardingCompleteCookie(true);
+    return `/invite/${inviteToken}`;
+  }
+
   try {
     const base = await resolveApiBaseUrl();
     const response = await fetch(`${base}${AUTH_ENDPOINTS.me}`, {
@@ -43,6 +51,7 @@ async function resolvePostAuthRedirect(accessToken: string): Promise<string> {
 async function authenticate(
   endpoint: string,
   body: Record<string, string>,
+  options?: { inviteToken?: string; isRegister?: boolean },
 ): Promise<FormState> {
   try {
     const base = await resolveApiBaseUrl();
@@ -74,8 +83,15 @@ async function authenticate(
     }
 
     await setAuthCookies(result.data.session);
+
+    if (options?.inviteToken && options.isRegister) {
+      await setOnboardingCompleteCookie(true);
+      redirect("/chat");
+    }
+
     const redirectPath = await resolvePostAuthRedirect(
       result.data.session.access_token,
+      options?.inviteToken,
     );
     redirect(redirectPath);
   } catch (error) {
@@ -107,7 +123,12 @@ export async function signIn(
   }
 
   const { email, password } = validatedFields.data;
-  return authenticate(AUTH_ENDPOINTS.login, { email, password });
+  const inviteToken = formData.get("inviteToken")?.toString();
+  return authenticate(
+    AUTH_ENDPOINTS.login,
+    { email, password },
+    inviteToken ? { inviteToken } : undefined,
+  );
 }
 
 export async function signUp(
@@ -127,7 +148,31 @@ export async function signUp(
   }
 
   const { fullName, email, password } = validatedFields.data;
-  return authenticate(AUTH_ENDPOINTS.register, { fullName, email, password });
+  const inviteToken = formData.get("inviteToken")?.toString();
+  const body: Record<string, string> = { fullName, email, password };
+  if (inviteToken) {
+    body.inviteToken = inviteToken;
+  }
+  return authenticate(AUTH_ENDPOINTS.register, body, {
+    inviteToken,
+    isRegister: true,
+  });
+}
+
+export async function signOutForInvite(inviteToken: string) {
+  try {
+    const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+    if (base) {
+      await fetch(`${base}${AUTH_ENDPOINTS.logout}`, {
+        method: "POST",
+      });
+    }
+  } catch {
+    // Clearing local session is enough for logout.
+  }
+
+  await clearAuthCookies();
+  redirect(`/auth?invite=${encodeURIComponent(inviteToken)}`);
 }
 
 export async function signOut() {

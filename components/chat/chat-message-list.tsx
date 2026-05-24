@@ -163,7 +163,7 @@ export function ChatMessageList({
             <span className="px-1 text-xs font-medium text-muted-foreground">
               Ceptly
             </span>
-            <AgentActivityFeed activity={pendingActivity} />
+            <AgentActivityFeed activity={pendingActivity} isLive />
           </div>
         </div>
       ) : null}

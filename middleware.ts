@@ -1,7 +1,7 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const unprotectedPaths = ["/auth", "/onboarding"];
+const unprotectedPaths = ["/auth", "/onboarding", "/invite"];
 
 function isUnprotected(pathname: string) {
   return unprotectedPaths.some(
@@ -24,6 +24,11 @@ export function middleware(request: NextRequest) {
   }
 
   if (token && pathname.startsWith("/auth")) {
+    const invite = request.nextUrl.searchParams.get("invite");
+    if (invite) {
+      return NextResponse.redirect(new URL(`/invite/${invite}`, request.url));
+    }
+
     return NextResponse.redirect(
       new URL(onboardingComplete ? "/chat" : "/onboarding", request.url),
     );

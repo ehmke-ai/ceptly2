@@ -1,6 +1,6 @@
 "use client";
 
-import { Grip, Sparkles } from "lucide-react";
+import { Loader2, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 
@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 interface AgentActivityFeedProps {
   activity: AgentActivityState;
+  isLive?: boolean;
   className?: string;
 }
 
@@ -19,29 +20,38 @@ function formatElapsedSeconds(startedAt: number, now: number): number {
 
 export function AgentActivityFeed({
   activity,
+  isLive = false,
   className,
 }: AgentActivityFeedProps) {
   const { resolvedTheme } = useTheme();
   const logoTheme = resolvedTheme === "dark" ? "dark" : "light";
+  const [frozenNow] = useState(() => Date.now());
   const [now, setNow] = useState(() => Date.now());
+  const isActive = isLive && activity.completedAt === undefined;
 
   useEffect(() => {
+    if (!isActive) {
+      return;
+    }
+
     const interval = window.setInterval(() => {
       setNow(Date.now());
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [isActive]);
 
-  const elapsed = useMemo(
-    () => formatElapsedSeconds(activity.startedAt, now),
-    [activity.startedAt, now],
-  );
+  const elapsed = useMemo(() => {
+    const endTime = activity.completedAt ?? (isActive ? now : frozenNow);
+    return formatElapsedSeconds(activity.startedAt, endTime);
+  }, [activity.completedAt, activity.startedAt, frozenNow, isActive, now]);
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Grip className="size-4 shrink-0" aria-hidden />
+        {isActive ? (
+          <Loader2 className="size-4 shrink-0 animate-spin" aria-hidden />
+        ) : null}
         <span>
           {activity.statusLabel} • {elapsed}s
         </span>

@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { Suspense, useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
 import { AlertCircle, Loader2, Lock, Mail, User } from "lucide-react";
 
 import { signIn, signUp } from "@/actions/auth";
@@ -35,10 +36,21 @@ function SubmitButton({ label, pendingLabel }: { label: string; pendingLabel: st
   );
 }
 
-export default function AuthPage() {
-  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+function AuthPageContent() {
+  const searchParams = useSearchParams();
+  const inviteToken = searchParams.get("invite") ?? undefined;
+  const initialMode = searchParams.get("mode") === "sign-up" ? "sign-up" : "sign-in";
+  const prefilledEmail = searchParams.get("email") ?? "";
+
+  const [mode, setMode] = useState<"sign-in" | "sign-up">(initialMode);
   const [signInState, signInAction] = useActionState(signIn, undefined);
   const [signUpState, signUpAction] = useActionState(signUp, undefined);
+
+  useEffect(() => {
+    if (searchParams.get("mode") === "sign-up") {
+      setMode("sign-up");
+    }
+  }, [searchParams]);
 
   const isSignUp = mode === "sign-up";
   const formState = isSignUp ? signUpState : signInState;
@@ -62,9 +74,13 @@ export default function AuthPage() {
               {isSignUp ? "Create your Ceptly account" : "Welcome Back"}
             </CardTitle>
             <CardDescription>
-              {isSignUp
-                ? "Sign up with your email and password"
-                : "Sign in to your Ceptly account"}
+              {inviteToken
+                ? isSignUp
+                  ? "Create an account to accept your workspace invite"
+                  : "Sign in to accept your workspace invite"
+                : isSignUp
+                  ? "Sign up with your email and password"
+                  : "Sign in to your Ceptly account"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -77,6 +93,9 @@ export default function AuthPage() {
 
             {isSignUp ? (
               <form action={signUpAction} className="space-y-4">
+                {inviteToken ? (
+                  <input type="hidden" name="inviteToken" value={inviteToken} />
+                ) : null}
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <div className="relative">
@@ -87,6 +106,7 @@ export default function AuthPage() {
                       type="email"
                       placeholder="you@example.com"
                       className="pl-10"
+                      defaultValue={prefilledEmail}
                       required
                     />
                   </div>
@@ -146,6 +166,9 @@ export default function AuthPage() {
               </form>
             ) : (
               <form action={signInAction} className="space-y-4">
+                {inviteToken ? (
+                  <input type="hidden" name="inviteToken" value={inviteToken} />
+                ) : null}
                 <div className="space-y-2">
                   <Label htmlFor="signin-email">Email</Label>
                   <Input
@@ -153,6 +176,7 @@ export default function AuthPage() {
                     name="email"
                     type="email"
                     placeholder="Enter your email"
+                    defaultValue={prefilledEmail}
                     required
                   />
                   {signInState?.errors?.email && (
@@ -203,5 +227,19 @@ export default function AuthPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
+      <AuthPageContent />
+    </Suspense>
   );
 }

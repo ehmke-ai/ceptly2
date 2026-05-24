@@ -339,9 +339,7 @@ export function EmployeeChatPrompt({
 
     const agentToSend =
       agentOverride ??
-      (agentPreference !== "auto"
-        ? agentPreference
-        : activeAgent ?? undefined);
+      (agentPreference !== "auto" ? agentPreference : undefined);
 
     let completedActivity: AgentActivityState = initialActivity;
 

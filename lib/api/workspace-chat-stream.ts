@@ -45,6 +45,7 @@ export interface AgentActivityToolStep {
 export interface AgentActivityState {
   statusLabel: string;
   startedAt: number;
+  completedAt?: number;
   tools: AgentActivityToolStep[];
 }
 
@@ -100,6 +101,10 @@ function applyStreamEvent(
     };
   }
 
+  if (event.type === "done" || event.type === "error") {
+    return { ...activity, completedAt: Date.now() };
+  }
+
   return activity;
 }
 
@@ -143,6 +148,28 @@ export function createInitialActivity(): AgentActivityState {
   };
 }
 
+const MAX_CHAT_MESSAGES = 40;
+
+/** Strip UI-only fields and cap length before sending to the API. */
+export function normalizeChatMessagesForApi(
+  messages: SetupChatMessage[],
+): SetupChatMessage[] {
+  const normalized = messages
+    .map((message) => ({
+      role: message.role,
+      content: message.content.trim(),
+    }))
+    .filter((message) => message.content.length > 0);
+
+  if (normalized.length <= MAX_CHAT_MESSAGES) {
+    return normalized;
+  }
+
+  const head = normalized.slice(0, 2);
+  const tail = normalized.slice(-(MAX_CHAT_MESSAGES - head.length));
+  return [...head, ...tail];
+}
+
 export async function streamChatWorkspace(
   workspaceId: string,
   messages: SetupChatMessage[],
@@ -158,7 +185,10 @@ export async function streamChatWorkspace(
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages, agent }),
+        body: JSON.stringify({
+          messages: normalizeChatMessagesForApi(messages),
+          agent,
+        }),
       },
     );
 
