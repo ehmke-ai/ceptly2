@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { SubscribeClient } from "@/components/subscribe/subscribe-client";
-import { requireAuth } from "@/lib/auth/server";
+import { requireAuth, setSubscriptionCookies } from "@/lib/auth/server";
 import {
   getPrimaryWorkspace,
   userCanManageBilling,
@@ -12,6 +12,7 @@ import {
 
 export default async function SubscribePage() {
   const user = await requireAuth();
+  await setSubscriptionCookies(user);
   const workspace = getPrimaryWorkspace(user);
 
   if (!userCanManageBilling(workspace)) {

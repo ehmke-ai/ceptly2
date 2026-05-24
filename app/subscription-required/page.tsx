@@ -1,6 +1,5 @@
-import Link from "next/link";
-
-import { requireAuth } from "@/lib/auth/server";
+import { signOut } from "@/actions/auth";
+import { requireAuth, setSubscriptionCookies } from "@/lib/auth/server";
 import {
   getPrimaryWorkspace,
   userCanManageBilling,
@@ -10,6 +9,7 @@ import { redirect } from "next/navigation";
 
 export default async function SubscriptionRequiredPage() {
   const user = await requireAuth();
+  await setSubscriptionCookies(user);
   const workspace = getPrimaryWorkspace(user);
 
   if (workspaceHasActiveSubscription(workspace)) {
@@ -31,12 +31,14 @@ export default async function SubscriptionRequiredPage() {
           Ceptly subscription. Ask your workspace founder or admin to start a
           trial or renew billing.
         </p>
-        <Link
-          href="/auth"
-          className="inline-flex text-sm font-medium text-foreground underline-offset-4 hover:underline"
-        >
-          Sign out
-        </Link>
+        <form action={signOut}>
+          <button
+            type="submit"
+            className="inline-flex text-sm font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Sign out
+          </button>
+        </form>
       </div>
     </div>
   );

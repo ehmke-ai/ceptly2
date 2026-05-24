@@ -15,6 +15,10 @@ export function getPrimaryWorkspace(
   return user?.workspaces?.[0];
 }
 
+const ACTIVE_SUBSCRIPTION_STATUSES = new Set<
+  NonNullable<WorkspaceMembership["subscriptionStatus"]>
+>(["trialing", "active", "past_due"]);
+
 export function workspaceHasActiveSubscription(
   workspace: WorkspaceMembership | undefined,
 ): boolean {
@@ -26,7 +30,11 @@ export function workspaceHasActiveSubscription(
     return workspace.hasActiveSubscription;
   }
 
-  return true;
+  if (workspace.subscriptionStatus !== undefined) {
+    return ACTIVE_SUBSCRIPTION_STATUSES.has(workspace.subscriptionStatus);
+  }
+
+  return false;
 }
 
 export function userCanManageBilling(

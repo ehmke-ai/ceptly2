@@ -11,8 +11,24 @@ const unprotectedPaths = [
 
 const billingExemptPaths = ["/subscribe", "/subscription-required", "/settings/billing"];
 
+const sessionCookieNames = [
+  "access_token",
+  "refresh_token",
+  "onboarding_complete",
+  "subscription_active",
+  "billing_role",
+  "billing_can_manage",
+  "workspace_name",
+] as const;
+
 function isBillingEnforced() {
   return process.env.NEXT_PUBLIC_BILLING_ENFORCED !== "false";
+}
+
+function clearSessionCookies(response: NextResponse) {
+  for (const name of sessionCookieNames) {
+    response.cookies.set(name, "", { path: "/", maxAge: 0 });
+  }
 }
 
 function matchesPath(pathname: string, paths: string[]) {
@@ -32,8 +48,8 @@ export function middleware(request: NextRequest) {
     request.cookies.get("onboarding_complete")?.value === "1";
   const subscriptionActive =
     request.cookies.get("subscription_active")?.value === "1";
-  const billingCanManage =
-    request.cookies.get("billing_can_manage")?.value === "1";
+  const billingCanManageCookie =
+    request.cookies.get("billing_can_manage")?.value;
   const isPublic = isUnprotected(pathname);
 
   if (!token && !isPublic) {
@@ -44,6 +60,14 @@ export function middleware(request: NextRequest) {
     const invite = request.nextUrl.searchParams.get("invite");
     if (invite) {
       return NextResponse.redirect(new URL(`/invite/${invite}`, request.url));
+    }
+
+    const isSignUp = request.nextUrl.searchParams.get("mode") === "sign-up";
+    if (isSignUp) {
+      const response = NextResponse.next();
+      clearSessionCookies(response);
+      response.headers.set("x-pathname", pathname);
+      return response;
     }
 
     return NextResponse.redirect(
@@ -66,13 +90,13 @@ export function middleware(request: NextRequest) {
     !subscriptionActive &&
     !matchesPath(pathname, billingExemptPaths)
   ) {
-    if (billingCanManage) {
-      return NextResponse.redirect(new URL("/subscribe", request.url));
+    if (billingCanManageCookie === "0") {
+      return NextResponse.redirect(
+        new URL("/subscription-required", request.url),
+      );
     }
 
-    return NextResponse.redirect(
-      new URL("/subscription-required", request.url),
-    );
+    return NextResponse.redirect(new URL("/subscribe", request.url));
   }
 
   const response = NextResponse.next();
