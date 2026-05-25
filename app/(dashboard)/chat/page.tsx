@@ -1,5 +1,7 @@
 import { EmployeeChatPrompt } from "@/components/employee-chat-prompt";
+import { listAppContextOptions } from "@/lib/api/conversations";
 import { getLinearConnectionStatus } from "@/lib/api/linear";
+import { listSlackChannels } from "@/lib/api/slack-channels";
 import { getSlackConnectionStatus } from "@/lib/api/slack";
 import { getAccessToken, requireAuth } from "@/lib/auth/server";
 
@@ -11,16 +13,23 @@ export default async function ChatPage() {
   const canEdit = workspace ? ADMIN_ROLES.has(workspace.role) : false;
   const token = await getAccessToken();
 
-  const [linearStatusResult, slackStatusResult] =
+  const [linearStatusResult, slackStatusResult, appContextsResult, slackChannelsResult] =
     workspace?.id && token
       ? await Promise.all([
           getLinearConnectionStatus(token, workspace.id),
           getSlackConnectionStatus(token, workspace.id),
+          listAppContextOptions(token, workspace.id),
+          listSlackChannels(token, workspace.id),
         ])
-      : [null, null];
+      : [null, null, null, null];
 
   const linearConnected = linearStatusResult?.data?.connected ?? false;
   const slackSearchEnabled = slackStatusResult?.data?.searchEnabled ?? false;
+  const appContextOptions = appContextsResult?.data?.app_contexts ?? [];
+  const slackChannels = slackChannelsResult?.data?.channels ?? [];
+  const slackChannelsError = slackChannelsResult?.success
+    ? null
+    : (slackChannelsResult?.error ?? null);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col px-4 py-8 sm:py-12">
@@ -31,6 +40,9 @@ export default async function ChatPage() {
             canEdit={canEdit}
             linearConnected={linearConnected}
             slackSearchEnabled={slackSearchEnabled}
+            appContextOptions={appContextOptions}
+            slackChannels={slackChannels}
+            slackChannelsError={slackChannelsError}
           />
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center text-center">

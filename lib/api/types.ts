@@ -129,6 +129,10 @@ export interface ProposedConversation {
   purpose: string;
   schedule: ProposedSchedule;
   questions: string[];
+  template_id?: string | null;
+  roster_member_ids?: string[];
+  context_integrations?: string[];
+  result_destinations?: ConversationResultDestination[];
   /** Present on chat proposals when this entry matches an existing saved conversation. */
   unchanged_from_existing?: boolean;
 }
@@ -154,7 +158,24 @@ export interface MemberPickerUiComponent {
   selected_member_ids: string[];
 }
 
-export type SetupChatUiComponent = DayPickerUiComponent | MemberPickerUiComponent;
+export interface SetupRecapUiComponent {
+  type: "setup_recap";
+  days_of_week: number[];
+  members: {
+    id: string;
+    display_name: string;
+    email: string;
+  }[];
+  selected_member_ids: string[];
+  selected_context_integrations: string[];
+  selected_channel_ids: string[];
+  selected_roster_dm_ids: string[];
+}
+
+export type SetupChatUiComponent =
+  | DayPickerUiComponent
+  | MemberPickerUiComponent
+  | SetupRecapUiComponent;
 
 export interface AdhocConversationMember {
   id: string;

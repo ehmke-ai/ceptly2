@@ -4,11 +4,18 @@ import { Sparkles } from "lucide-react";
 import { useEffect, useRef } from "react";
 
 import { AgentActivityFeed } from "@/components/chat/agent-activity-feed";
+import { SetupRecapPickers } from "@/components/chat/setup-recap-pickers";
 import { ScheduleDaysPicker } from "@/components/settings/schedule-days-picker";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { AgentActivityState } from "@/lib/api/workspace-chat-stream";
-import type { SetupChatMessage } from "@/lib/api/types";
+import type { RosterMember } from "@/lib/api/roster";
+import type { SlackChannel } from "@/lib/api/slack-channels";
+import type {
+  AppContextOption,
+  SetupChatMessage,
+  SetupRecapUiComponent,
+} from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 interface ChatMessageListProps {
@@ -18,6 +25,13 @@ interface ChatMessageListProps {
   className?: string;
   onDaysChange?: (messageIndex: number, days: number[]) => void;
   onMembersChange?: (messageIndex: number, memberIds: string[]) => void;
+  onSetupRecapChange?: (
+    messageIndex: number,
+    recap: SetupRecapUiComponent,
+  ) => void;
+  appContextOptions?: AppContextOption[];
+  slackChannels?: SlackChannel[];
+  slackChannelsError?: string | null;
   interactiveDisabled?: boolean;
 }
 
@@ -28,6 +42,10 @@ export function ChatMessageList({
   className,
   onDaysChange,
   onMembersChange,
+  onSetupRecapChange,
+  appContextOptions = [],
+  slackChannels = [],
+  slackChannelsError,
   interactiveDisabled = false,
 }: ChatMessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -46,6 +64,10 @@ export function ChatMessageList({
             : null;
         const memberPicker =
           !isUser && message.ui_component?.type === "member_picker"
+            ? message.ui_component
+            : null;
+        const setupRecap =
+          !isUser && message.ui_component?.type === "setup_recap"
             ? message.ui_component
             : null;
 
@@ -146,6 +168,17 @@ export function ChatMessageList({
                     })}
                   </div>
                 </div>
+              ) : null}
+
+              {setupRecap ? (
+                <SetupRecapPickers
+                  recap={setupRecap}
+                  appContextOptions={appContextOptions}
+                  slackChannels={slackChannels}
+                  slackChannelsError={slackChannelsError}
+                  disabled={interactiveDisabled}
+                  onChange={(recap) => onSetupRecapChange?.(index, recap)}
+                />
               ) : null}
             </div>
           </div>

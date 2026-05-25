@@ -34,12 +34,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
+import type { SlackChannel } from "@/lib/api/slack-channels";
 import type {
   AdhocConversationProposal,
+  AppContextOption,
   ChatAgentId,
   ConversationSetupPlan,
   SetupChatMessage,
+  SetupRecapUiComponent,
 } from "@/lib/api/types";
+import { buildResultDestinations } from "@/lib/result-destinations";
 import {
   createInitialActivity,
   streamChatWorkspace,
@@ -62,11 +66,11 @@ const setupSuggestions = [
       "Friday at 4pm — quick team energy pulse and anything to flag before the weekend.",
   },
   {
-    label: "Daily standup topics",
+    label: "Daily standup",
     icon: MessageCircleQuestion,
     agent: "conversation_setup" as const,
     prompt:
-      "Every weekday at 9am — short standup: priorities today, progress since yesterday, blockers.",
+      "Set up a daily standup using Ceptly's standup template — weekdays, team members, Linear context, and where to post results.",
   },
 ];
 
@@ -142,6 +146,9 @@ interface EmployeeChatPromptProps {
   canEdit?: boolean;
   linearConnected?: boolean;
   slackSearchEnabled?: boolean;
+  appContextOptions?: AppContextOption[];
+  slackChannels?: SlackChannel[];
+  slackChannelsError?: string | null;
 }
 
 function getEditableConversationIndex(plan: ConversationSetupPlan): number {
@@ -189,6 +196,37 @@ function getProposalDays(
   return conversation?.schedule.days_of_week ?? [];
 }
 
+function updateProposalFromSetupRecap(
+  plan: ConversationSetupPlan,
+  recap: SetupRecapUiComponent,
+  slackChannels: SlackChannel[],
+): ConversationSetupPlan {
+  const index = getEditableConversationIndex(plan);
+
+  return {
+    ...plan,
+    conversations: plan.conversations.map((conversation, conversationIndex) =>
+      conversationIndex === index
+        ? {
+            ...conversation,
+            schedule: {
+              ...conversation.schedule,
+              frequency: "specific_days",
+              days_of_week: recap.days_of_week,
+            },
+            roster_member_ids: recap.selected_member_ids,
+            context_integrations: recap.selected_context_integrations,
+            result_destinations: buildResultDestinations({
+              channelIds: recap.selected_channel_ids,
+              channels: slackChannels,
+              rosterDmIds: recap.selected_roster_dm_ids,
+            }),
+          }
+        : conversation,
+    ),
+  };
+}
+
 function updateAdhocProposalMembers(
   proposal: AdhocConversationProposal,
   memberIds: string[],
@@ -214,6 +252,9 @@ export function EmployeeChatPrompt({
   canEdit = true,
   linearConnected = false,
   slackSearchEnabled = false,
+  appContextOptions = [],
+  slackChannels = [],
+  slackChannelsError = null,
 }: EmployeeChatPromptProps) {
   const { client } = useStatsigClient();
 
@@ -249,11 +290,27 @@ export function EmployeeChatPrompt({
   const pickerDays = useMemo(() => {
     for (let index = messages.length - 1; index >= 0; index -= 1) {
       const message = messages[index];
+      if (message?.role !== "assistant" || !message.ui_component) {
+        continue;
+      }
+      if (message.ui_component.type === "setup_recap") {
+        return message.ui_component.days_of_week;
+      }
+      if (message.ui_component.type === "day_picker") {
+        return message.ui_component.days_of_week;
+      }
+    }
+    return undefined;
+  }, [messages]);
+
+  const setupRecapSelection = useMemo(() => {
+    for (let index = messages.length - 1; index >= 0; index -= 1) {
+      const message = messages[index];
       if (
         message?.role === "assistant" &&
-        message.ui_component?.type === "day_picker"
+        message.ui_component?.type === "setup_recap"
       ) {
-        return message.ui_component.days_of_week;
+        return message.ui_component;
       }
     }
     return undefined;
@@ -277,8 +334,27 @@ export function EmployeeChatPrompt({
       return true;
     }
 
-    return getProposalDays(proposal, pickerDays).length === 0;
-  }, [proposal, publishPending, chatPending, pickerDays, activeAgent]);
+    const days = getProposalDays(proposal, pickerDays);
+    if (days.length === 0) {
+      return true;
+    }
+
+    const index = getEditableConversationIndex(proposal);
+    const conversation = proposal.conversations[index];
+    const memberCount =
+      setupRecapSelection?.selected_member_ids.length ??
+      conversation?.roster_member_ids?.length ??
+      0;
+
+    return memberCount === 0;
+  }, [
+    proposal,
+    publishPending,
+    chatPending,
+    pickerDays,
+    activeAgent,
+    setupRecapSelection,
+  ]);
 
   const adhocStartDisabled = useMemo(() => {
     if (!adhocProposal || adhocPending || chatPending || !isAdhocAgent) {
@@ -386,15 +462,20 @@ export function EmployeeChatPrompt({
     }
 
     if (result.agent === "conversation_setup" && result.proposal) {
-      const daysFromPicker =
-        result.ui_component?.type === "day_picker"
-          ? result.ui_component.days_of_week
-          : undefined;
-      setProposal(
-        daysFromPicker
-          ? updateProposalDays(result.proposal, daysFromPicker)
-          : result.proposal,
-      );
+      let nextProposal = result.proposal;
+      if (result.ui_component?.type === "setup_recap") {
+        nextProposal = updateProposalFromSetupRecap(
+          nextProposal,
+          result.ui_component,
+          slackChannels,
+        );
+      } else if (result.ui_component?.type === "day_picker") {
+        nextProposal = updateProposalDays(
+          nextProposal,
+          result.ui_component.days_of_week,
+        );
+      }
+      setProposal(nextProposal);
     }
 
     if (result.agent === "adhoc_conversation" && result.adhoc_proposal) {
@@ -435,18 +516,62 @@ export function EmployeeChatPrompt({
       return;
     }
 
-    const updatedProposal = updateProposalDays(proposal, days);
+    setMessages((current) =>
+      current.map((message, index) => {
+        if (index !== messageIndex || !message.ui_component) {
+          return message;
+        }
+        if (message.ui_component.type === "day_picker") {
+          return {
+            ...message,
+            ui_component: { ...message.ui_component, days_of_week: days },
+          };
+        }
+        if (message.ui_component.type === "setup_recap") {
+          return {
+            ...message,
+            ui_component: { ...message.ui_component, days_of_week: days },
+          };
+        }
+        return message;
+      }),
+    );
+
+    const recap =
+      messages[messageIndex]?.ui_component?.type === "setup_recap"
+        ? { ...messages[messageIndex]!.ui_component!, days_of_week: days }
+        : setupRecapSelection
+          ? { ...setupRecapSelection, days_of_week: days }
+          : null;
+
+    if (recap) {
+      setProposal(
+        updateProposalFromSetupRecap(proposal, recap, slackChannels),
+      );
+      return;
+    }
+
+    setProposal(updateProposalDays(proposal, days));
+  }
+
+  function handleSetupRecapChange(
+    messageIndex: number,
+    recap: SetupRecapUiComponent,
+  ) {
+    if (!proposal || interactiveDisabled()) {
+      return;
+    }
+
+    const updatedProposal = updateProposalFromSetupRecap(
+      proposal,
+      recap,
+      slackChannels,
+    );
     setProposal(updatedProposal);
     setMessages((current) =>
       current.map((message, index) =>
-        index === messageIndex && message.ui_component?.type === "day_picker"
-          ? {
-              ...message,
-              ui_component: {
-                ...message.ui_component,
-                days_of_week: days,
-              },
-            }
+        index === messageIndex && message.ui_component?.type === "setup_recap"
+          ? { ...message, ui_component: recap }
           : message,
       ),
     );
@@ -515,9 +640,16 @@ export function EmployeeChatPrompt({
       return;
     }
 
-    const planToPublish = pickerDays
-      ? updateProposalDays(proposal, pickerDays)
-      : proposal;
+    let planToPublish = proposal;
+    if (setupRecapSelection) {
+      planToPublish = updateProposalFromSetupRecap(
+        planToPublish,
+        setupRecapSelection,
+        slackChannels,
+      );
+    } else if (pickerDays) {
+      planToPublish = updateProposalDays(planToPublish, pickerDays);
+    }
 
     setPublishPending(true);
     setPublishError(null);
@@ -711,6 +843,10 @@ export function EmployeeChatPrompt({
             pendingActivity={pendingActivity}
             onDaysChange={handleDaysChange}
             onMembersChange={handleMembersChange}
+            onSetupRecapChange={handleSetupRecapChange}
+            appContextOptions={appContextOptions}
+            slackChannels={slackChannels}
+            slackChannelsError={slackChannelsError}
             interactiveDisabled={interactiveDisabled()}
           />
         </div>
