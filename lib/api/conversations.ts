@@ -1,7 +1,9 @@
 import { resolveApiBaseUrl } from "./auth";
 import type {
+  AppContextOption,
   ConversationPreview,
   ConversationQuestion,
+  ConversationTemplate,
   ScheduledConversation,
   ScheduleFrequency,
   WorkspaceSchedule,
@@ -31,10 +33,107 @@ function authHeaders(accessToken: string, json = false): HeadersInit {
   return headers;
 }
 
+export async function listAppContextOptions(
+  accessToken: string,
+  workspaceId: string,
+): Promise<{
+  success: boolean;
+  error?: string;
+  data?: { app_contexts: AppContextOption[] };
+}> {
+  try {
+    const base = await resolveApiBaseUrl();
+    const response = await fetch(
+      `${base}/api/workspaces/${workspaceId}/conversations/app-contexts`,
+      {
+        method: "GET",
+        headers: authHeaders(accessToken),
+        cache: "no-store",
+      },
+    );
+    return parseJsonResponse<{ data?: { app_contexts: AppContextOption[] } }>(
+      response,
+    );
+  } catch {
+    return { success: false, error: "Could not reach the API. Is the backend running?" };
+  }
+}
+
+export async function listConversationTemplates(
+  accessToken: string,
+  workspaceId: string,
+): Promise<{
+  success: boolean;
+  error?: string;
+  data?: { templates: ConversationTemplate[] };
+}> {
+  try {
+    const base = await resolveApiBaseUrl();
+    const response = await fetch(
+      `${base}/api/workspaces/${workspaceId}/conversations/templates`,
+      {
+        method: "GET",
+        headers: authHeaders(accessToken),
+        cache: "no-store",
+      },
+    );
+    const parsed = await parseJsonResponse<{
+      data?: { templates: ConversationTemplate[] };
+    }>(response);
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error:
+          parsed.error ??
+          `Failed to load templates (HTTP ${response.status}).`,
+      };
+    }
+
+    return parsed;
+  } catch {
+    return { success: false, error: "Could not reach the API. Is the backend running?" };
+  }
+}
+
+export async function createConversationFromTemplate(
+  accessToken: string,
+  workspaceId: string,
+  body: {
+    template_id: string;
+    name?: string;
+    summary?: string | null;
+    schedule?: WorkspaceSchedule;
+    roster_member_ids?: string[];
+    context_integrations?: string[];
+  },
+): Promise<{
+  success: boolean;
+  error?: string;
+  data?: { conversation: ScheduledConversation };
+}> {
+  try {
+    const base = await resolveApiBaseUrl();
+    const response = await fetch(
+      `${base}/api/workspaces/${workspaceId}/conversations/from-template`,
+      {
+        method: "POST",
+        headers: authHeaders(accessToken, true),
+        body: JSON.stringify(body),
+      },
+    );
+    return parseJsonResponse<{ data?: { conversation: ScheduledConversation } }>(
+      response,
+    );
+  } catch {
+    return { success: false, error: "Could not reach the API. Is the backend running?" };
+  }
+}
+
 export async function listConversations(
   accessToken: string,
   workspaceId: string,
-  includeQuestions = true,
+  options?: { includeQuestions?: boolean; includeMembers?: boolean },
 ): Promise<{
   success: boolean;
   error?: string;
@@ -42,7 +141,13 @@ export async function listConversations(
 }> {
   try {
     const base = await resolveApiBaseUrl();
-    const query = includeQuestions ? "?include=questions" : "";
+    const params = new URLSearchParams();
+    if (options?.includeQuestions) {
+      params.set("include", "questions");
+    } else if (options?.includeMembers) {
+      params.set("include", "members");
+    }
+    const query = params.size > 0 ? `?${params.toString()}` : "";
     const response = await fetch(
       `${base}/api/workspaces/${workspaceId}/conversations${query}`,
       {
@@ -91,7 +196,12 @@ export async function createConversation(
   workspaceId: string,
   body: {
     name: string;
+    summary?: string | null;
+    template_id?: string | null;
     schedule: WorkspaceSchedule;
+    roster_member_ids?: string[];
+    questions?: string[];
+    context_integrations?: string[];
   },
 ): Promise<{
   success: boolean;
@@ -122,7 +232,11 @@ export async function updateConversation(
   conversationId: string,
   body: {
     name?: string;
+    summary?: string | null;
+    template_id?: string | null;
     schedule?: WorkspaceSchedule;
+    roster_member_ids?: string[];
+    context_integrations?: string[];
   },
 ): Promise<{
   success: boolean;

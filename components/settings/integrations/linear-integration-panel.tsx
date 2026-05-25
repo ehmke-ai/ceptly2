@@ -61,6 +61,10 @@ export function LinearIntegrationPanel({
   const connectedLabel = formatConnectedDate(status.connectedAt);
   const organizationName = status.organizationName ?? "Linear";
 
+  const connectedHint = status.connected
+    ? "Standup agents can link tickets and update status when your team says they finished or started work. If status updates fail, disconnect and reconnect Linear to grant write access."
+    : null;
+
   const handleConnect = () => {
     setError(null);
     startTransition(async () => {
@@ -127,6 +131,9 @@ export function LinearIntegrationPanel({
                   <p className="text-sm text-muted-foreground">
                     Connected {connectedLabel}
                   </p>
+                ) : null}
+                {connectedHint ? (
+                  <p className="text-sm text-muted-foreground">{connectedHint}</p>
                 ) : null}
               </div>
 

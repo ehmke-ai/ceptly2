@@ -18,6 +18,8 @@ export interface ConversationQuestion {
 export interface ScheduledConversation {
   id: string;
   name: string;
+  summary?: string | null;
+  template_id?: string | null;
   timezone: string;
   frequency: ScheduleFrequency;
   days_of_week: number[];
@@ -25,6 +27,73 @@ export interface ScheduledConversation {
   enabled: boolean;
   sort_order: number;
   questions?: ConversationQuestion[];
+  roster_member_ids?: string[];
+  context_integrations?: string[];
+}
+
+export interface ConversationTemplate {
+  id: string;
+  name: string;
+  summary: string;
+  schedule: {
+    frequency: ScheduleFrequency;
+    days_of_week: number[];
+    time_local: string;
+    enabled: boolean;
+  };
+  questions: string[];
+  suggested_context_integrations?: string[];
+}
+
+export interface AppContextOption {
+  id: string;
+  label: string;
+  description: string;
+  coming_soon?: boolean;
+  connected: boolean;
+  selectable: boolean;
+}
+
+export interface ConversationRunSummary {
+  run_id: string;
+  fired_at: string;
+  expected_count: number;
+  responded_count: number;
+  not_responded_count: number;
+}
+
+export interface ConversationRunMemberRef {
+  roster_member_id: string;
+  display_name: string;
+  email: string;
+}
+
+export interface ConversationRunTranscriptMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ConversationRunLegacyResponse {
+  question_prompt: string;
+  answer_text: string;
+}
+
+export interface ConversationRunRespondedMember {
+  roster_member_id: string;
+  display_name: string;
+  email: string;
+  session_id: string;
+  status: "completed" | "in_progress" | "abandoned";
+  transcript?: ConversationRunTranscriptMessage[];
+  legacy_responses?: ConversationRunLegacyResponse[];
+}
+
+export interface ConversationRunDetail {
+  run_id: string;
+  fired_at: string;
+  expected_members: ConversationRunMemberRef[];
+  responded: ConversationRunRespondedMember[];
+  not_responded: ConversationRunMemberRef[];
 }
 
 export interface ConversationPreview {

@@ -6,33 +6,33 @@ import { useRouter } from "next/navigation";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
 
 import { removeConversation } from "@/actions/conversations";
-import { ConversationEditForm } from "@/components/settings/conversation-edit-form";
-import { ConversationIcPreview } from "@/components/settings/conversation-ic-preview";
+import { ConversationRecipientsToggle } from "@/components/settings/conversation-recipients-toggle";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import type { RosterMember } from "@/lib/api/roster";
 import type { ScheduledConversation } from "@/lib/api/types";
 import { formatSchedulePreview } from "@/lib/schedule/preview";
 
 interface ConversationListProps {
   conversations: ScheduledConversation[];
   workspaceId: string;
+  rosterMembers: RosterMember[];
   canEdit: boolean;
 }
 
 export function ConversationList({
   conversations,
   workspaceId,
+  rosterMembers,
   canEdit,
 }: ConversationListProps) {
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -45,11 +45,20 @@ export function ConversationList({
     return (
       <p className="text-sm text-muted-foreground">
         No scheduled conversations yet.{" "}
+        {canEdit ? (
+          <Link
+            href="/settings/conversations/new"
+            className="font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Add a conversation
+          </Link>
+        ) : null}
+        {canEdit ? " or " : null}
         <Link
           href="/chat"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Describe your check-ins on the home page
+          describe check-ins on the home page
         </Link>
         .
       </p>
@@ -85,16 +94,8 @@ export function ConversationList({
 
       setConfirmDeleteId(null);
       setDeletingId(null);
-      setEditingId((current) =>
-        current === conversationId ? null : current,
-      );
       router.refresh();
     });
-  };
-
-  const handleSaved = () => {
-    setEditingId(null);
-    router.refresh();
   };
 
   return (
@@ -106,7 +107,6 @@ export function ConversationList({
       ) : null}
 
       {conversations.map((conversation) => {
-        const isEditing = editingId === conversation.id;
         const isDeleting = deletingId === conversation.id;
         const isConfirmingDelete = confirmDeleteId === conversation.id;
         const schedulePreview = formatSchedulePreview(
@@ -116,39 +116,39 @@ export function ConversationList({
           conversation.days_of_week,
           conversation.enabled,
         );
-        const enabledQuestions =
-          conversation.questions?.filter((question) => question.enabled) ?? [];
-        const sortedQuestions = [...(conversation.questions ?? [])].sort(
-          (a, b) => a.sort_order - b.sort_order,
-        );
+        const summary =
+          conversation.summary?.trim() ||
+          schedulePreview;
 
         return (
           <Card key={conversation.id} className="dark:border-white/20">
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 flex-1">
+                <Link
+                  href={`/settings/conversations/${conversation.id}`}
+                  className="min-w-0 flex-1 rounded-md outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
+                >
                   <CardTitle className="text-lg">{conversation.name}</CardTitle>
-                  {!isEditing ? (
-                    <CardDescription className="mt-1">
-                      {schedulePreview}
-                    </CardDescription>
-                  ) : null}
-                </div>
+                  <CardDescription className="mt-1 line-clamp-2">
+                    {summary}
+                  </CardDescription>
+                </Link>
                 <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                   {!conversation.enabled ? (
                     <Badge variant="outline">Paused</Badge>
                   ) : null}
-                  {canEdit && !isEditing ? (
+                  {canEdit ? (
                     <>
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          setEditingId(conversation.id);
-                          setConfirmDeleteId(null);
-                          setError(null);
-                        }}
+                        nativeButton={false}
+                        render={
+                          <Link
+                            href={`/settings/conversations/${conversation.id}/edit`}
+                          />
+                        }
                       >
                         <Pencil className="size-3.5" />
                         Edit
@@ -175,12 +175,20 @@ export function ConversationList({
               </div>
             </CardHeader>
 
-            <CardContent className="space-y-4">
-              {isConfirmingDelete ? (
+            <div className="border-t px-6 py-3 dark:border-white/10">
+              <ConversationRecipientsToggle
+                rosterMemberIds={conversation.roster_member_ids}
+                rosterMembers={rosterMembers}
+              />
+            </div>
+
+            {isConfirmingDelete ? (
+              <div className="px-6 pb-4">
                 <Alert variant="destructive">
                   <AlertDescription className="space-y-3">
                     <p>
-                      Delete <span className="font-medium">{conversation.name}</span>?
+                      Delete{" "}
+                      <span className="font-medium">{conversation.name}</span>?
                       This cannot be undone.
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -212,43 +220,8 @@ export function ConversationList({
                     </div>
                   </AlertDescription>
                 </Alert>
-              ) : null}
-
-              {isEditing ? (
-                <ConversationEditForm
-                  conversation={conversation}
-                  workspaceId={workspaceId}
-                  onCancel={() => setEditingId(null)}
-                  onSaved={handleSaved}
-                />
-              ) : (
-                <>
-                  <p className="text-sm">
-                    {enabledQuestions.length} question
-                    {enabledQuestions.length === 1 ? "" : "s"} enabled
-                  </p>
-
-                  {sortedQuestions.length > 0 ? (
-                    <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-                      {sortedQuestions.map((question) => (
-                        <li
-                          key={question.id}
-                          className={question.enabled ? "" : "opacity-60"}
-                        >
-                          {question.prompt_text}
-                          {!question.enabled ? " (disabled)" : null}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-
-                  <ConversationIcPreview
-                    name={conversation.name}
-                    questions={sortedQuestions}
-                  />
-                </>
-              )}
-            </CardContent>
+              </div>
+            ) : null}
           </Card>
         );
       })}

@@ -20,11 +20,19 @@ export function getApiBaseUrl(): string {
  * Server-side base URL. Prefers API_URL when the local backend is reachable,
  * otherwise falls back to NEXT_PUBLIC_API_URL (e.g. Render).
  */
-export async function resolveApiBaseUrl(): Promise<string> {
-  if (cachedServerApiBaseUrl) {
-    return cachedServerApiBaseUrl;
+async function probeLocalBackend(localUrl: string): Promise<boolean> {
+  try {
+    const response = await fetch(`${localUrl}/health`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(800),
+    });
+    return response.ok;
+  } catch {
+    return false;
   }
+}
 
+export async function resolveApiBaseUrl(): Promise<string> {
   const publicUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
   const localUrl = process.env.API_URL?.replace(/\/$/, "");
 
@@ -33,18 +41,15 @@ export async function resolveApiBaseUrl(): Promise<string> {
   }
 
   if (localUrl && localUrl !== publicUrl) {
-    try {
-      const response = await fetch(`${localUrl}/health`, {
-        cache: "no-store",
-        signal: AbortSignal.timeout(800),
-      });
-      if (response.ok) {
-        cachedServerApiBaseUrl = localUrl;
-        return localUrl;
-      }
-    } catch {
-      // Local backend unavailable — use deployed API.
+    const localUp = await probeLocalBackend(localUrl);
+    if (localUp) {
+      cachedServerApiBaseUrl = localUrl;
+      return localUrl;
     }
+  }
+
+  if (cachedServerApiBaseUrl) {
+    return cachedServerApiBaseUrl;
   }
 
   cachedServerApiBaseUrl = publicUrl;

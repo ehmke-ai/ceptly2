@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { DigestChannelForm } from "@/components/settings/digest-channel-form";
 import { LinearIntegrationPanel } from "@/components/settings/integrations/linear-integration-panel";
 import { SlackIntegrationPanel } from "@/components/settings/integrations/slack-integration-panel";
+import { getDigestSlackChannel } from "@/lib/api/digest-channel";
 import { buttonVariants } from "@/components/ui/button";
 import { listIntegrations } from "@/lib/api/integrations";
 import { resolveIntegration } from "@/lib/integrations/catalog";
@@ -56,15 +58,36 @@ export default async function IntegrationDetailPage({
     const slackStatusResult = await getSlackConnectionStatus(token, workspace.id);
     const slackStatus = slackStatusResult?.data ?? { connected: false };
 
+    const digestResult = await getDigestSlackChannel(token, workspace.id);
+    const digestChannelId =
+      digestResult.data?.digest_slack_channel_id ?? null;
+
     panel = (
-      <SlackIntegrationPanel
-        workspaceId={workspace.id}
-        canEdit={canEdit}
-        status={slackStatus}
-        description={integration.description}
-        showConnectedAlert={showSlackConnectedAlert}
-        showErrorAlert={showSlackErrorAlert}
-      />
+      <div className="space-y-10">
+        <SlackIntegrationPanel
+          workspaceId={workspace.id}
+          canEdit={canEdit}
+          status={slackStatus}
+          description={integration.description}
+          showConnectedAlert={showSlackConnectedAlert}
+          showErrorAlert={showSlackErrorAlert}
+        />
+        {slackStatus.connected ? (
+          <section className="space-y-4 border-t pt-8 dark:border-white/10">
+            <div>
+              <h2 className="text-sm font-semibold">Leadership digest channel</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Daily standup rollups, weekly digests, and blocker alerts post here.
+              </p>
+            </div>
+            <DigestChannelForm
+              workspaceId={workspace.id}
+              initialChannelId={digestChannelId}
+              canEdit={canEdit}
+            />
+          </section>
+        ) : null}
+      </div>
     );
   }
 

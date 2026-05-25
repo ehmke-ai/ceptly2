@@ -48,6 +48,9 @@ const saveConversationSchema = z.object({
   workspaceId: z.string().uuid(),
   conversationId: z.string().uuid(),
   name: z.string().trim().min(1).max(100),
+  summary: z.string().trim().max(200).optional().nullable(),
+  roster_member_ids: z.array(z.string().uuid()).min(1).optional(),
+  context_integrations: z.array(z.enum(["linear", "jira", "monday"])).optional(),
   schedule: workspaceScheduleSchema,
   questions: z.array(conversationQuestionInputSchema).min(1),
 });
@@ -100,6 +103,9 @@ export async function saveConversation(input: {
   workspaceId: string;
   conversationId: string;
   name: string;
+  summary?: string | null;
+  roster_member_ids?: string[];
+  context_integrations?: string[];
   schedule: WorkspaceSchedule;
   questions: { id?: string; prompt_text: string; enabled: boolean }[];
 }): Promise<{ error?: string }> {
@@ -146,7 +152,13 @@ export async function saveConversation(input: {
     token,
     workspaceId,
     conversationId,
-    { name, schedule: schedule as WorkspaceSchedule },
+    {
+      name,
+      summary: parsed.data.summary,
+      roster_member_ids: parsed.data.roster_member_ids,
+      context_integrations: parsed.data.context_integrations,
+      schedule: schedule as WorkspaceSchedule,
+    },
   );
   if (!updateResult.success) {
     return { error: updateResult.error ?? "Failed to update conversation." };

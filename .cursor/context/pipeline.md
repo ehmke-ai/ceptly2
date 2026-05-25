@@ -128,16 +128,18 @@ Use this file as the execution checklist. Check items when shipped and verified 
 ```
 Workspace
   timezone (shared default for all conversations)
+  roster_members[]          workspace-wide pool (Slack-linked)
   └── ScheduledConversation[]
-        ├── name            e.g. "Monday sprint check-in"
-        ├── purpose         e.g. "Track progress and blockers"
-        ├── schedule        days, time, frequency, enabled (same shape as workspace schedule today)
-        ├── last_fire_at    idempotency per conversation (replaces workspace-level fire for multi-conv)
+        ├── name            e.g. "Daily standup"
+        ├── summary         short description shown on list card (purpose / one-liner)
+        ├── template_id?    optional — e.g. "daily_standup" seeds questions + default schedule
+        ├── roster_member_ids[]  subset who receive this conversation (default: all active)
+        ├── schedule        days, time, frequency, enabled
+        ├── last_fire_at    idempotency per conversation
         └── questions[]     ordered prompt_text rows
-              ├── "What did you ship since last check-in?"
-              ├── "Any blockers?"
-              └── "How's team energy?"
 ```
+
+**Templates (Phase 2C):** Preset programs users can pick when creating a conversation — first template: **Daily standup** (weekday schedule + yesterday / today / blockers questions). User selects template → adjusts schedule → picks which roster members participate. Replaces synchronous standups without forcing everyone into one timezone on a call.
 
 **IC Slack UX (default):** Short greeting → bullet list of topics → conversational turn per topic → session complete.
 
@@ -283,7 +285,9 @@ Workspace
 
 ## Phase 2C — Intelligence (Weeks 8–10)
 
-**Goal:** Synthesis, alerts, and Q&A on top of stored conversation data. AI question suggester optional enhancement.
+**Goal:** Synthesis, alerts, and Q&A on top of stored conversation data so teams can **replace daily agile standups** with async Slack check-ins plus leadership rollups — without losing visibility or blocker surfacing.
+
+**Why standups:** Live standups force everyone into one calendar slot (painful across timezones) and mostly repeat information people could read async. Ceptly captures status when each IC is ready; founders review responses on their own time.
 
 **Prerequisite:** Phase 2B complete (or 2A if multi-conversation deferred — do not start 2C before custom questions work).
 
@@ -291,6 +295,49 @@ Workspace
 
 - [x] **As a founder**, I describe what I care about and get suggested questions I can edit before saving (per conversation). *(Merged into AI conversation setup chat.)*
 - [x] **As a manager**, I preview what the agent will say to an IC before publishing (extends 2A preview). *(Proposal preview on Conversations page.)*
+
+### User stories — Replace daily agile standups
+
+*Outcome:* The team stops (or materially shortens) a recurring synchronous standup because status, priorities, and blockers are captured async and rolled up for leads on a predictable cadence — no single timezone, no “everyone on Zoom for 15 minutes.”
+
+**Individual contributor**
+
+- [ ] **As an IC**, I answer standup-style prompts (what I did, what I’m doing, blockers) in a short Slack DM when my conversation is due, so I stay aligned without a daily meeting on my calendar.
+- [ ] **As an IC**, the check-in feels like a quick chat, not a form or Jira export, so I’m willing to do it every day instead of tuning out.
+- [ ] **As an IC**, I flag a blocker once in the DM and leadership sees it without me repeating it in a live standup round.
+
+**Founder / team lead — template & roster**
+
+- [ ] **As a founder**, I choose the **Daily standup** template (preset questions + weekday-friendly defaults), then set schedule and timezone, so setup is one click—not a blank slate.
+- [ ] **As a founder**, I select **which team members** are in a standup conversation (subset of workspace roster), so only the right squad gets DMs—not the whole company.
+- [ ] **As a founder**, I can still refine the plan via AI setup chat or edit schedule/questions after picking a template.
+
+**Founder / team lead — visibility (web + Slack)**
+
+- [ ] **As a founder**, I open a conversation on the **Conversations** page and see **who responded** and **what they said** for the latest run (and recent history), so I don’t need the live standup to hear updates.
+- [ ] **As a founder**, I see **who has not responded** for the current or most recent scheduled run, so missing status is obvious without calling on people in a meeting.
+- [ ] **As a founder**, I receive a **daily standup rollup** in `#leadership-digest` after the check-in window (who’s on what, blockers, gaps), so I can run the team without gathering everyone on a call.
+- [ ] **As a founder**, I get a **real-time blocker alert** when someone reports one during the standup conversation.
+- [ ] **As a founder**, I ask “what did the team share in standup today?” in the web Q&A agent and get answers grounded in today’s stored responses only.
+
+**Team / program**
+
+- [ ] **As a team**, we can **cancel or shorten** the daily synchronous standup once async check-ins, the conversations results view, and leadership rollup are reliable for at least two weeks (product success = meeting removed from calendar, not just Ceptly configured).
+
+### User stories — Conversations page (list + results)
+
+*Replace the current expanded cards (questions list, IC preview inline). List is scannable; detail is for outcomes.*
+
+**List** (`/settings/conversations`)
+
+- [ ] **As a founder**, I see each scheduled conversation as a **card with title and summary only** (name + one-line purpose/summary + schedule hint optional), plus **Edit** and **Delete** — not the full question list or IC preview on the list.
+- [ ] **As a founder**, I click a conversation **card** (not Edit/Delete) to open its **results** view.
+
+**Detail** (`/settings/conversations/[id]` or equivalent)
+
+- [ ] **As a founder**, on the results view I see the **latest run** (or selected date/run) for that conversation: responded members with their answers/transcript, and **not responded** members (assigned to this conversation but no completed session for that run).
+- [ ] **As a founder**, I can switch to **previous runs** (by date or fire window) to review past standups/check-ins.
+- [ ] **As a founder**, **Edit** from the list opens schedule/questions/member assignment (modal, drawer, or sub-route)—separate from clicking the card for results.
 
 ### User stories — Executive / founder (Slack + web)
 
@@ -302,25 +349,66 @@ Workspace
 
 ### Tasks
 
-**Backend**
+**Backend — standup template & per-conversation roster**
+
+- [ ] `conversation_templates` catalog (or static config): first entry `daily_standup` with default name, summary, weekday schedule, question prompts
+- [ ] `scheduled_conversation_members` (or equivalent): `conversation_id` + `roster_member_id`; empty = all active roster (migration: backfill all members for existing conversations)
+- [ ] Conversation create/update API: accept `template_id`, `summary`, `roster_member_ids`; scheduler DMs only assigned members
+- [ ] Setup chat / commit: support template pick + member picker for scheduled conversations (reuse ad-hoc `member_picker` pattern)
+
+**Backend — conversation results API**
+
+- [ ] `GET /api/workspaces/:id/conversations/:conversationId/runs` — list recent runs (fire window / date, counts responded vs expected)
+- [ ] `GET .../runs/:runId` or `?date=` — per-member: `responded` | `not_responded` | `in_progress`, plus transcript or Q/A pairs (build on `checkin-context-service` filtered by `scheduled_conversation_id` + run boundary)
+- [ ] “Expected” members for a run = conversation’s assigned roster (not whole workspace)
+
+**Backend — intelligence (existing 2C)**
 
 - [x] AI Question Suggester endpoint (goal + optional conversation context → suggested prompts via Claude) *(merged into `conversation-setup/chat`)*
 - [ ] `/internal/synthesis-scheduler` (same cron pattern as check-in)
 - [ ] Synthesis Agent: digest generation + post to digest channel (aggregate across conversations)
+- [ ] **Daily standup rollup:** after weekday standup conversation window, synthesize per-IC status + blockers → post to digest channel (distinct from weekly digest; filter by `template_id` or conversation name)
+- [ ] **Pre-standup missing roster:** optional same-day alert listing assigned ICs who have not completed before cutoff
 - [ ] Disengagement alert job (per IC, any conversation missed 2+ times)
 - [ ] Q&A Agent (Slack DM): RAG over stored responses only; no unsourced claims
 - [ ] Strategy chat API for web (streaming optional v2)
 - [ ] Question set versioning (optional — defer full history to Phase 3)
 
-**Frontend**
+**Frontend — Conversations page remake**
+
+- [ ] **List:** slim cards — `name`, `summary` (purpose one-liner), schedule subtitle optional; **Edit** / **Delete** only; remove inline question list + `ConversationIcPreview` from list
+- [ ] **Detail route:** `/settings/conversations/[id]` — responded vs not responded for latest run; expand member to show what they said
+- [ ] **Run selector:** date or “Latest” for historical standup/check-in results
+- [ ] **Create flow:** “Add conversation” → pick template (Daily standup first) → schedule + member multi-select → publish (AI chat remains alternate path)
+- [ ] **Edit:** from list, opens edit for schedule/questions/members (not the results layout)
+
+**Frontend — other 2C**
 
 - [x] “Suggest questions” flow on conversation editor (goal input → review → save) *(superseded by AI setup chat on Conversations page)*
 - [ ] Home / dashboard: Strategy Agent chat shell wired to API
 - [ ] Team Health strip placeholder (check-in sentiment only)
+- [ ] Home / chat: **Daily standup** template shortcut (same as template picker)
+- [ ] Onboarding or help copy: cancel the live standup when async + results view + rollup work (~2 weeks)
+
+### Acceptance — standup replacement (2C)
+
+- [ ] Founder creates conversation from **Daily standup** template, selects 3+ roster members, publishes; only selected members receive DMs
+- [ ] ICs in other timezones complete check-in async without a shared meeting
+- [ ] Conversations list shows title + summary only; card click opens results with responded / not responded for latest run
+- [ ] Leadership receives daily rollup in digest channel without manual trigger
+- [ ] Blocker reported in standup DM → alert in leadership channel within minutes
+- [ ] At least one pilot team removes or shortens the recurring standup meeting on calendar
+
+### Acceptance — Conversations page (2C)
+
+- [ ] List page has no per-card question bullets or IC preview
+- [ ] Detail page shows at least one member’s full response and at least one “not responded” when applicable
+- [ ] Edit and Delete work from list without navigating to results view
 
 ### Phase 2 complete (2A + 2B + 2C)
 
 - [ ] Founder runs multiple scheduled conversations with custom questions; digest and Q&A work in Slack; web Strategy chat returns answers from real data.
+- [ ] At least one team replaces daily agile standup with async check-ins + daily rollup (meeting canceled or under 15 minutes).
 
 ---
 
@@ -458,6 +546,8 @@ Track in [prd.md §11](./prd.md); resolve and check here when decided.
 - [ ] Linear OAuth: workspace vs per-user?
 - [ ] HRIS vendor for first integration?
 - [ ] Per-sub-team question sets vs one set per workspace? → **Superseded:** per **scheduled conversation** within workspace (Phase 2B)
+- [ ] Per-conversation roster: default all active members vs require explicit selection on create? (Default for migration: **all active**; new standup template flow: **explicit pick**)
+- [ ] Conversation `summary` field: new DB column vs derive from first question / purpose text? (Default: **`summary` text** on card, optional auto-fill from template)
 - [ ] Agent opener UX: bullet list in first message vs one question per message? (Default: **bullets in opener**, then chat per topic)
 - [ ] Max questions per conversation? (Default: **10**)
 - [ ] Max scheduled conversations per workspace? (Default: **5**)
@@ -485,6 +575,9 @@ Update this section when phases advance.
 | Multi-conversation schedules (2B) | Done |
 | AI conversation setup chat | Done |
 | Digest channel + blocker alerts + synthesis | Not started |
+| Daily standup template + per-conversation roster | Not started (Phase 2C) |
+| Conversations page (list cards + results detail) | Not started (Phase 2C) |
+| Daily standup rollup + missing roster (Slack) | Not started (Phase 2C) |
 | Linear / capacity | Not started |
 
 ---

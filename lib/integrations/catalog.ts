@@ -15,7 +15,7 @@ export const KNOWN_INTEGRATIONS: Record<string, KnownIntegration> = {
     id: "linear",
     name: "Linear",
     description:
-      "Connect Linear so Ceptly can answer questions about assigned issues alongside check-in data.",
+      "Connect Linear so standup check-ins reference assigned issues (with links) and can update ticket status when someone finishes or starts work. Reconnect after upgrading to enable status updates.",
   },
 };
 

@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 
 import { saveConversation } from "@/actions/conversations";
+import { AppContextPicker } from "@/components/settings/app-context-picker";
 import { ConversationIcPreview } from "@/components/settings/conversation-ic-preview";
 import { ScheduleDaysPicker } from "@/components/settings/schedule-days-picker";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -12,7 +13,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OptionSelector } from "@/components/ui/option-selector";
 import { Textarea } from "@/components/ui/textarea";
+import { RosterMemberPicker } from "@/components/settings/roster-member-picker";
+import type { RosterMember } from "@/lib/api/roster";
 import type {
+  AppContextOption,
   ConversationQuestion,
   ScheduleFrequency,
   ScheduledConversation,
@@ -34,6 +38,8 @@ type QuestionDraft = {
 interface ConversationEditFormProps {
   conversation: ScheduledConversation;
   workspaceId: string;
+  rosterMembers: RosterMember[];
+  appContextOptions: AppContextOption[];
   onCancel: () => void;
   onSaved: () => void;
 }
@@ -52,10 +58,18 @@ function toQuestionDrafts(questions: ConversationQuestion[]): QuestionDraft[] {
 export function ConversationEditForm({
   conversation,
   workspaceId,
+  rosterMembers,
+  appContextOptions,
   onCancel,
   onSaved,
 }: ConversationEditFormProps) {
   const [name, setName] = useState(conversation.name);
+  const [summary, setSummary] = useState(conversation.summary ?? "");
+  const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
+    conversation.roster_member_ids?.length
+      ? conversation.roster_member_ids
+      : rosterMembers.filter((member) => !member.paused).map((member) => member.id),
+  );
   const [timezone, setTimezone] = useState(conversation.timezone);
   const [frequency, setFrequency] = useState<ScheduleFrequency>(
     conversation.frequency,
@@ -67,6 +81,9 @@ export function ConversationEditForm({
   const [enabled, setEnabled] = useState(conversation.enabled);
   const [questions, setQuestions] = useState<QuestionDraft[]>(() =>
     toQuestionDrafts(conversation.questions ?? []),
+  );
+  const [contextIntegrations, setContextIntegrations] = useState<string[]>(
+    conversation.context_integrations ?? [],
   );
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -139,11 +156,19 @@ export function ConversationEditForm({
       return;
     }
 
+    if (selectedMemberIds.length === 0) {
+      setError("Select at least one team member.");
+      return;
+    }
+
     startTransition(async () => {
       const result = await saveConversation({
         workspaceId,
         conversationId: conversation.id,
         name: name.trim(),
+        summary: summary.trim() || null,
+        roster_member_ids: selectedMemberIds,
+        context_integrations: contextIntegrations,
         schedule: {
           ...conversationToSchedule(conversation),
           timezone,
@@ -186,6 +211,40 @@ export function ConversationEditForm({
             maxLength={100}
           />
         </div>
+
+        <div className="space-y-2">
+          <Label htmlFor={`conversation-summary-${conversation.id}`}>
+            Summary
+          </Label>
+          <Textarea
+            id={`conversation-summary-${conversation.id}`}
+            value={summary}
+            onChange={(event) => setSummary(event.target.value)}
+            maxLength={200}
+            rows={2}
+            placeholder="Short description for the conversations list (generated on create; you can edit)"
+          />
+        </div>
+
+        {conversation.template_id ? (
+          <p className="text-sm text-muted-foreground">
+            Template: {conversation.template_id.replace(/_/g, " ")}
+          </p>
+        ) : null}
+
+        <RosterMemberPicker
+          members={rosterMembers}
+          selectedIds={selectedMemberIds}
+          onChange={setSelectedMemberIds}
+          disabled={isPending}
+        />
+
+        <AppContextPicker
+          options={appContextOptions}
+          selectedIds={contextIntegrations}
+          onChange={setContextIntegrations}
+          disabled={isPending}
+        />
 
         <div className="space-y-2">
           <Label htmlFor={`conversation-timezone-${conversation.id}`}>

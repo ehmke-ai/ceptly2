@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { buttonVariants } from "@/components/ui/button";
 import { listConversations } from "@/lib/api/conversations";
+import { listRosterMembers } from "@/lib/api/roster";
 import { getAccessToken, requireAuth } from "@/lib/auth/server";
 import { cn } from "@/lib/utils";
 
@@ -14,12 +15,16 @@ export default async function ConversationsPage() {
   const canEdit = workspace ? ADMIN_ROLES.has(workspace.role) : false;
 
   const token = await getAccessToken();
-  const result =
+  const [conversationsResult, rosterResult] =
     workspace?.id && token
-      ? await listConversations(token, workspace.id, true)
-      : null;
+      ? await Promise.all([
+          listConversations(token, workspace.id, { includeMembers: true }),
+          listRosterMembers(token, workspace.id),
+        ])
+      : [null, null];
 
-  const conversations = result?.data?.conversations ?? [];
+  const conversations = conversationsResult?.data?.conversations ?? [];
+  const rosterMembers = rosterResult?.data?.members ?? [];
 
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-8 px-6 py-8">
@@ -33,23 +38,34 @@ export default async function ConversationsPage() {
             home page and publish a new plan with AI.
           </p>
         </div>
-        <Link
-          href="/chat"
-          className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-        >
-          Edit with AI
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {canEdit ? (
+            <Link
+              href="/settings/conversations/new"
+              className={cn(buttonVariants({ variant: "default", size: "sm" }))}
+            >
+              Add conversation
+            </Link>
+          ) : null}
+          <Link
+            href="/chat"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+          >
+            Edit with AI
+          </Link>
+        </div>
       </div>
 
-      {result?.success && workspace?.id ? (
+      {conversationsResult?.success && workspace?.id ? (
         <ConversationList
           conversations={conversations}
           workspaceId={workspace.id}
+          rosterMembers={rosterMembers}
           canEdit={canEdit}
         />
       ) : (
         <p className="text-sm text-muted-foreground">
-          {result?.error ?? "Could not load conversations."}
+          {conversationsResult?.error ?? "Could not load conversations."}
         </p>
       )}
     </div>
