@@ -1,6 +1,7 @@
 import { signOut } from "@/actions/auth";
+import { ActivateSubscriptionRedirect } from "@/components/subscribe/activate-subscription-redirect";
 import { SyncSubscriptionCookies } from "@/components/subscribe/sync-subscription-cookies";
-import { requireAuth, setSubscriptionCookies } from "@/lib/auth/server";
+import { requireAuth } from "@/lib/auth/server";
 import {
   getPrimaryWorkspace,
   userCanManageBilling,
@@ -13,8 +14,7 @@ export default async function SubscriptionRequiredPage() {
   const workspace = getPrimaryWorkspace(user);
 
   if (workspaceHasActiveSubscription(workspace)) {
-    await setSubscriptionCookies(user);
-    redirect("/chat");
+    return <ActivateSubscriptionRedirect />;
   }
 
   if (userCanManageBilling(workspace)) {
