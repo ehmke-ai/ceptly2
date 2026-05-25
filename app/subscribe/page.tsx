@@ -1,9 +1,10 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
+import { ActivateSubscriptionRedirect } from "@/components/subscribe/activate-subscription-redirect";
 import { SubscribeClient } from "@/components/subscribe/subscribe-client";
 import { SyncSubscriptionCookies } from "@/components/subscribe/sync-subscription-cookies";
-import { requireAuth, setSubscriptionCookies } from "@/lib/auth/server";
+import { requireAuth } from "@/lib/auth/server";
 import {
   getPrimaryWorkspace,
   userCanManageBilling,
@@ -20,8 +21,7 @@ export default async function SubscribePage() {
   }
 
   if (workspaceHasActiveSubscription(workspace) && !userNeedsSubscribe(user)) {
-    await setSubscriptionCookies(user);
-    redirect("/chat");
+    return <ActivateSubscriptionRedirect />;
   }
 
   return (

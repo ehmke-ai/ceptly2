@@ -2,13 +2,9 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 import { OnboardingWizard } from "@/components/onboarding/onboarding-wizard";
+import { ActivateSubscriptionRedirect } from "@/components/subscribe/activate-subscription-redirect";
 import { fetchOnboardingStatus } from "@/lib/api/onboarding";
-import {
-  getAccessToken,
-  getCurrentUser,
-  setOnboardingCompleteCookie,
-  setSubscriptionCookies,
-} from "@/lib/auth/server";
+import { getAccessToken, getCurrentUser } from "@/lib/auth/server";
 
 export default async function OnboardingPage() {
   const user = await getCurrentUser();
@@ -18,9 +14,7 @@ export default async function OnboardingPage() {
   }
 
   if (user.onboardingCompleted) {
-    await setOnboardingCompleteCookie(true);
-    await setSubscriptionCookies(user);
-    redirect("/chat");
+    return <ActivateSubscriptionRedirect syncOnboarding />;
   }
 
   const token = await getAccessToken();
