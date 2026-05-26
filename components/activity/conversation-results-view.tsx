@@ -6,6 +6,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type {
   ConversationRunDetail,
+  ConversationRunRespondedMember,
   ConversationRunSummary,
 } from "@/lib/api/types";
 
@@ -25,10 +26,10 @@ function formatRunLabel(firedAt: string): string {
   });
 }
 
-function MemberResponse({
+export function MemberResponse({
   member,
 }: {
-  member: ConversationRunDetail["responded"][number];
+  member: ConversationRunRespondedMember;
 }) {
   const [open, setOpen] = useState(false);
 

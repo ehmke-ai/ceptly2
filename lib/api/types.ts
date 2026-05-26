@@ -34,6 +34,7 @@ export interface ScheduledConversation {
   name: string;
   summary?: string | null;
   template_id?: string | null;
+  kind?: "scheduled" | "adhoc";
   timezone: string;
   frequency: ScheduleFrequency;
   days_of_week: number[];
@@ -109,6 +110,81 @@ export interface ConversationRunDetail {
   expected_members: ConversationRunMemberRef[];
   responded: ConversationRunRespondedMember[];
   not_responded: ConversationRunMemberRef[];
+}
+
+export type ActivityAttentionItem =
+  | {
+      type: "missing_responses";
+      conversation_id: string;
+      conversation_name: string;
+      run_id: string;
+      missing_count: number;
+      missing_names: string[];
+    }
+  | {
+      type: "blocker";
+      conversation_id: string;
+      session_id: string;
+      member_name: string;
+      conversation_name: string;
+      excerpt: string;
+      occurred_at: string;
+    }
+  | {
+      type: "awaiting_reply";
+      conversation_id: string;
+      session_id: string;
+      member_name: string;
+      topic: string;
+      started_at: string;
+    };
+
+export interface ActivityScheduledConversation {
+  id: string;
+  name: string;
+  summary: string | null;
+  template_id: string | null;
+  timezone: string;
+  frequency: ScheduleFrequency;
+  days_of_week: number[];
+  time_local: string;
+  enabled: boolean;
+  latest_run: ConversationRunSummary | null;
+  missing_members: ConversationRunMemberRef[];
+}
+
+export interface ActivityAdhocSession {
+  conversation_id: string;
+  session_id: string;
+  member_name: string;
+  status: "completed" | "in_progress" | "abandoned";
+  started_at: string;
+  completed_at: string | null;
+  intent: "gather" | "inform";
+  intent_label: string;
+  topic: string | null;
+  delivery_facts: string | null;
+}
+
+export interface WorkspaceActivity {
+  attention_count: number;
+  attention_items: ActivityAttentionItem[];
+  scheduled_conversations: ActivityScheduledConversation[];
+  adhoc_sessions: ActivityAdhocSession[];
+}
+
+export interface ConversationSessionSummary {
+  session_id: string;
+  roster_member_id: string | null;
+  display_name: string;
+  email: string;
+  status: "completed" | "in_progress" | "abandoned";
+  started_at: string;
+  completed_at: string | null;
+  intent: "gather" | "inform";
+  intent_label: string;
+  topic: string | null;
+  delivery_facts: string | null;
 }
 
 export interface ConversationPreview {

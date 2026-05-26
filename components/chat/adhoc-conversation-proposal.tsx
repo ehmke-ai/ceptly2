@@ -19,9 +19,9 @@ function intentEyebrow(intent: AdhocConversationProposal["intent"]): string {
 
 function intentFooter(intent: AdhocConversationProposal["intent"]): string {
   if (intent === "inform") {
-    return "Ceptly explains in Slack and checks understanding before closing out.";
+    return "Goal: Ceptly informs recipients until recipients understand.";
   }
-  return "Follow-ups in Slack until Ceptly has a clear picture.";
+  return "Goal: Message recipients until Ceptly has a clear picture.";
 }
 
 function formatMemberNames(
@@ -66,9 +66,7 @@ export function AdhocConversationProposalCard({
       </p>
 
       <p className="mt-2 text-sm">
-        <span className="font-medium">To {recipientNames}</span>
-        {" → "}
-        {proposal.topic}
+        <span className="font-medium">Recipients: {recipientNames}</span>
       </p>
 
       <p className="mt-2 text-sm leading-relaxed">{proposal.summary}</p>

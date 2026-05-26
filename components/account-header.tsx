@@ -7,9 +7,11 @@ import { LogOut, User, Settings } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useStatsigClient } from "@statsig/react-bindings";
 
+import { fetchActivityAttentionCount } from "@/actions/activity";
 import { signOut } from "@/actions/auth";
 import type { AuthUser } from "@/lib/api/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -20,9 +22,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { isLeadershipRole } from "@/lib/roles";
 
-const navigationItems = [
+const baseNavigationItems = [
   { label: "Chat", path: "/chat" },
+  { label: "Activity", path: "/activity", leadershipOnly: true },
   { label: "Team", path: "/team" },
   { label: "Settings", path: "/settings", matchPrefix: "/settings" },
 ];
@@ -50,10 +54,27 @@ export function AccountHeader({ user }: AccountHeaderProps) {
   const { theme, resolvedTheme } = useTheme();
   const { client } = useStatsigClient();
   const [mounted, setMounted] = useState(false);
+  const [attentionCount, setAttentionCount] = useState(0);
+
+  const workspace = user.workspaces?.[0];
+  const showActivity = isLeadershipRole(workspace?.role);
+  const navigationItems = baseNavigationItems.filter(
+    (item) => !item.leadershipOnly || showActivity,
+  );
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!showActivity || !workspace?.id) {
+      return;
+    }
+
+    void fetchActivityAttentionCount({ workspaceId: workspace.id }).then(
+      setAttentionCount,
+    );
+  }, [showActivity, workspace?.id]);
 
   if (pathname.startsWith("/auth")) {
     return null;
@@ -117,8 +138,17 @@ export function AccountHeader({ user }: AccountHeaderProps) {
                     client.logEvent("navigation_click", item.path);
                     router.push(item.path);
                   }}
+                  className="relative"
                 >
                   {item.label}
+                  {item.path === "/activity" && attentionCount > 0 ? (
+                    <Badge
+                      variant="destructive"
+                      className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full p-0 text-[10px]"
+                    >
+                      {attentionCount > 9 ? "9+" : attentionCount}
+                    </Badge>
+                  ) : null}
                 </Button>
               ))}
             </nav>

@@ -125,7 +125,7 @@ export function ConversationList({
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between gap-4">
                 <Link
-                  href={`/settings/conversations/${conversation.id}`}
+                  href={`/activity/${conversation.id}`}
                   className="min-w-0 flex-1 rounded-md outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   <CardTitle className="text-lg">{conversation.name}</CardTitle>

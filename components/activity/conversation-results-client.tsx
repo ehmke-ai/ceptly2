@@ -1,7 +1,7 @@
 "use client";
 
 import { fetchConversationRunDetail } from "@/actions/conversation-results";
-import { ConversationResultsView } from "@/components/settings/conversation-results-view";
+import { ConversationResultsView } from "@/components/activity/conversation-results-view";
 import type {
   ConversationRunDetail,
   ConversationRunSummary,
