@@ -11,7 +11,7 @@ const included = [
   "AI scheduling and team insights chat",
   "One-off Slack reach-out",
   "Linear integration",
-  "Unlimited workspace members",
+  "Per-seat pricing for workspace members",
 ];
 
 export function SubscribeClient() {
@@ -48,8 +48,9 @@ export function SubscribeClient() {
           Start your free trial
         </h1>
         <p className="text-muted-foreground">
-          Ceptly is $20/month per workspace after a 10-day free trial. No credit
-          card required to start.
+          Ceptly is $20/seat/month after a 10-day free trial. You are billed for
+          each workspace member and pending invite. No credit card required to
+          start.
         </p>
         {checkoutState === "success" ? (
           <p className="rounded-lg border border-[#56FF3C]/25 bg-[#E6F9E6]/60 px-4 py-3 text-sm">
@@ -73,7 +74,7 @@ export function SubscribeClient() {
           <p className="mt-2 text-4xl font-extrabold tracking-tight">
             $20
             <span className="text-lg font-medium text-muted-foreground">
-              /month
+              /seat/month
             </span>
           </p>
         </div>

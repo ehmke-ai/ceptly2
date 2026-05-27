@@ -6,6 +6,8 @@ import { WorkspaceNameForm } from "@/components/settings/workspace-name-form";
 import { WorkspaceTimezoneForm } from "@/components/settings/workspace-timezone-form";
 import { buttonVariants } from "@/components/ui/button";
 import { getWorkspaceTimezone } from "@/lib/api/conversations";
+import { SeatUsageBanner } from "@/components/settings/seat-usage-banner";
+import { fetchBillingStatus } from "@/lib/api/billing";
 import { listInvites } from "@/lib/api/invites";
 import { listWorkspaceMembers } from "@/lib/api/members";
 import { getAccessToken, requireAuth } from "@/lib/auth/server";
@@ -39,6 +41,11 @@ export default async function SettingsPage() {
 
   const members = membersResult?.data?.members ?? [];
 
+  const billingStatus =
+    workspace?.id && token
+      ? await fetchBillingStatus(token, workspace.id)
+      : null;
+
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-8">
       <div className="space-y-4">
@@ -66,6 +73,11 @@ export default async function SettingsPage() {
             />
           ) : null}
 
+          <SeatUsageBanner
+            billing={billingStatus}
+            canManageBilling={canEdit}
+          />
+
           <WorkspaceMembersTable
             workspaceId={workspace.id}
             canEdit={canEdit}
@@ -78,6 +90,7 @@ export default async function SettingsPage() {
             canEdit={canEdit}
             userEmail={user.email}
             invites={pendingInvites}
+            billing={billingStatus}
           />
 
         </>

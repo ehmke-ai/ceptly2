@@ -1,18 +1,26 @@
 import { resolveApiBaseUrl } from "./auth";
 import type { InvitePreview, WorkspaceInvite } from "./types";
 
+export interface ApiErrorBody {
+  success: boolean;
+  error?: string;
+  code?: string;
+  seatUsage?: number;
+  paidSeats?: number;
+}
+
 async function parseJsonResponse<T>(
   response: Response,
-): Promise<T & { success: boolean; error?: string }> {
+): Promise<T & ApiErrorBody> {
   const contentType = response.headers.get("content-type");
   if (!contentType?.includes("application/json")) {
     return {
       success: false,
       error: `Unexpected response (HTTP ${response.status}).`,
-    } as T & { success: boolean; error?: string };
+    } as T & ApiErrorBody;
   }
 
-  return (await response.json()) as T & { success: boolean; error?: string };
+  return (await response.json()) as T & ApiErrorBody;
 }
 
 export async function listInvites(
@@ -54,6 +62,9 @@ export async function createInvite(
 ): Promise<{
   success: boolean;
   error?: string;
+  code?: string;
+  seatUsage?: number;
+  paidSeats?: number;
   data?: { invite: WorkspaceInvite };
 }> {
   try {

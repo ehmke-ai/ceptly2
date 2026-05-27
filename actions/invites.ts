@@ -22,9 +22,19 @@ const revokeSchema = z.object({
 });
 
 export async function createInviteAction(
-  _state: { error?: string; success?: boolean; inviteUrl?: string },
+  _state: {
+    error?: string;
+    success?: boolean;
+    inviteUrl?: string;
+    seatLimitReached?: boolean;
+  },
   formData: FormData,
-): Promise<{ error?: string; success?: boolean; inviteUrl?: string }> {
+): Promise<{
+  error?: string;
+  success?: boolean;
+  inviteUrl?: string;
+  seatLimitReached?: boolean;
+}> {
   const parsed = emailSchema.safeParse({
     workspaceId: formData.get("workspaceId"),
     email: formData.get("email"),
@@ -46,6 +56,14 @@ export async function createInviteAction(
   );
 
   if (!result.success || !result.data?.invite) {
+    if (result.code === "SEAT_LIMIT_REACHED") {
+      return {
+        error:
+          result.error ??
+          "All seats are in use. Add seats in billing settings to invite more teammates.",
+        seatLimitReached: true as const,
+      };
+    }
     return { error: result.error ?? "Failed to send invite." };
   }
 
@@ -53,6 +71,7 @@ export async function createInviteAction(
   return {
     success: true,
     inviteUrl: result.data.invite.inviteUrl,
+    seatLimitReached: false,
   };
 }
 

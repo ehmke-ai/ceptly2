@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { Check, Copy, Loader2, Mail, Trash2 } from "lucide-react";
 
 import { createInviteAction, revokeInviteAction } from "@/actions/invites";
+import type { WorkspaceBillingStatus } from "@/lib/api/billing";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +17,7 @@ interface WorkspaceInvitesProps {
   canEdit: boolean;
   userEmail: string;
   invites: WorkspaceInvite[];
+  billing: WorkspaceBillingStatus | null;
 }
 
 function formatDate(iso: string): string {
@@ -30,7 +33,10 @@ export function WorkspaceInvites({
   canEdit,
   userEmail,
   invites,
+  billing,
 }: WorkspaceInvitesProps) {
+  const atCapacity =
+    billing?.hasActiveSubscription === true && billing.seatsAvailable <= 0;
   const [createState, createAction, createPending] = useActionState(
     createInviteAction,
     {},
@@ -84,7 +90,7 @@ export function WorkspaceInvites({
                   required
                 />
               </div>
-              <Button type="submit" disabled={createPending}>
+              <Button type="submit" disabled={createPending || atCapacity}>
                 {createPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -97,7 +103,17 @@ export function WorkspaceInvites({
             </div>
           </div>
           {createState.error ? (
-            <p className="text-sm text-destructive">{createState.error}</p>
+            <div className="space-y-2">
+              <p className="text-sm text-destructive">{createState.error}</p>
+              {createState.seatLimitReached ? (
+                <Link
+                  href="/settings/billing"
+                  className="text-sm font-medium text-foreground underline-offset-4 hover:underline"
+                >
+                  Add seats in billing settings
+                </Link>
+              ) : null}
+            </div>
           ) : null}
           {createState.success && createState.inviteUrl ? (
             <Alert>

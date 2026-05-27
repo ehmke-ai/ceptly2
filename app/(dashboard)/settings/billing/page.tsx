@@ -25,6 +25,10 @@ export default async function BillingSettingsPage() {
             currentPeriodEnd: workspace.currentPeriodEnd ?? null,
             cancelAtPeriodEnd: workspace.cancelAtPeriodEnd ?? false,
             hasActiveSubscription: workspace.hasActiveSubscription ?? false,
+            seatUsage: 0,
+            paidSeats: 0,
+            seatsAvailable: 0,
+            pricePerSeatCents: null,
           }
         }
       />

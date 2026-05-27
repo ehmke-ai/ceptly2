@@ -13,6 +13,10 @@ export interface WorkspaceBillingStatus {
   currentPeriodEnd: string | null;
   cancelAtPeriodEnd: boolean;
   hasActiveSubscription: boolean;
+  seatUsage: number;
+  paidSeats: number;
+  seatsAvailable: number;
+  pricePerSeatCents: number | null;
 }
 
 export interface BillingCheckoutResponse {
@@ -107,4 +111,48 @@ export async function createBillingPortalSession(
   }
 
   return { url: result.data?.url };
+}
+
+export interface UpdateSeatsResponse {
+  success: boolean;
+  data?: WorkspaceBillingStatus;
+  error?: string;
+}
+
+export async function updateSubscriptionSeats(
+  token: string,
+  workspaceId: string,
+  quantity: number,
+): Promise<{ data?: WorkspaceBillingStatus; error?: string }> {
+  const base = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+  if (!base) {
+    return { error: "API is not configured" };
+  }
+
+  const response = await fetch(`${base}${billingBase(workspaceId)}/seats`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ quantity }),
+  });
+
+  const result = (await response.json()) as UpdateSeatsResponse;
+  if (!response.ok || !result.success) {
+    return { error: result.error ?? "Failed to update seats" };
+  }
+
+  return { data: result.data };
+}
+
+export function formatPricePerSeat(cents: number | null | undefined): string {
+  if (cents == null) {
+    return "$20";
+  }
+  return new Intl.NumberFormat(undefined, {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(cents / 100);
 }
