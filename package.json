@@ -2,6 +2,7 @@
   "name": "ceptly2",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "yarn@4.15.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
