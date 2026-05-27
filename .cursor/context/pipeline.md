@@ -1,7 +1,7 @@
 # Ceptly — User Story Pipeline
 
 **Sources:** [prd.md](./prd.md) · [spec.md](./spec.md) · [conversation.md](./conversation.md)  
-**Repos:** `ceptly2` (Next.js / Vercel) · `ceptly-backend` (Express / Render)  
+**Repos:** `ceptly2` (Next.js / Amplify → app.ceptly.ai) · `ceptly-public` (Amplify → ceptly.ai) · `ceptly-backend` (Express API)  
 **Last updated:** May 2026
 
 Use this file as the execution checklist. Check items when shipped and verified in staging or with one real team.
@@ -22,7 +22,7 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 ## Phase 0 — Platform & Auth (foundation)
 
-**Goal:** Vercel app and Render API share auth; workspace exists in Postgres.
+**Goal:** Amplify app and API share auth; workspace exists in Postgres.
 
 ### User stories
 

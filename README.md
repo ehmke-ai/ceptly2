@@ -1,39 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Ceptly (app)
 
-## Getting Started
+Next.js app for Ceptly — workspace settings, check-ins, billing, and team chat.
 
-First, run the development server:
+- **Production:** [https://app.ceptly.ai](https://app.ceptly.ai) (AWS Amplify)
+- **Marketing site:** [https://ceptly.ai](https://ceptly.ai) (`ceptly-public` repo)
+- **API:** `ceptly-backend` (set `NEXT_PUBLIC_API_URL` to your API host)
+
+## Local development
 
 ```bash
-npm run dev
-# or
+cp .env.example .env.local
+# Edit .env.local — API URL, Statsig key, etc.
+
+yarn install
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy (Amplify)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Build settings are in [`amplify.yml`](./amplify.yml). Requires `packageManager` (Yarn 4) and **WEB_COMPUTE** platform for SSR/middleware.
 
-## Learn More
+Set in Amplify Console → Environment variables:
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Example |
+|----------|---------|
+| `NEXT_PUBLIC_API_URL` | `https://api.ceptly.ai` (your backend) |
+| `NEXT_PUBLIC_STATSIG_CLIENT_KEY` | Statsig client key |
+| `NEXT_PUBLIC_BILLING_ENFORCED` | `true` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-
-This app will replace many meaningless managers.
+Ensure backend `FRONTEND_URL` is `https://app.ceptly.ai` for CORS and invite links.

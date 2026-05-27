@@ -18,7 +18,7 @@ export function getApiBaseUrl(): string {
 
 /**
  * Server-side base URL. Prefers API_URL when the local backend is reachable,
- * otherwise falls back to NEXT_PUBLIC_API_URL (e.g. Render).
+ * otherwise falls back to NEXT_PUBLIC_API_URL (production API host).
  */
 async function probeLocalBackend(localUrl: string): Promise<boolean> {
   try {
