@@ -137,6 +137,13 @@ export type ActivityAttentionItem =
       member_name: string;
       topic: string;
       started_at: string;
+    }
+  | {
+      type: "roster_tracker_mismatch";
+      roster_member_id: string;
+      member_name: string;
+      member_email: string;
+      missing_trackers: ("linear" | "jira")[];
     };
 
 export interface ActivityScheduledConversation {

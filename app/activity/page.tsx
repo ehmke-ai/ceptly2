@@ -54,7 +54,10 @@ export default async function ActivityPage() {
         </p>
       </div>
 
-      <ActivityAttentionList items={activity.attention_items} />
+      <ActivityAttentionList
+        workspaceId={workspace.id}
+        items={activity.attention_items}
+      />
 
       <section className="space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">

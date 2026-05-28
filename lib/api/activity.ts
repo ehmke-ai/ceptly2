@@ -47,3 +47,33 @@ export async function getWorkspaceActivity(
     };
   }
 }
+
+export async function dismissActivityAttentionItem(
+  accessToken: string,
+  workspaceId: string,
+  input: {
+    item_type: "roster_tracker_mismatch";
+    item_key: string;
+  },
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const base = await resolveApiBaseUrl();
+    const response = await fetch(
+      `${base}/api/workspaces/${workspaceId}/activity/dismiss`,
+      {
+        method: "POST",
+        headers: {
+          ...authHeaders(accessToken),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
+      },
+    );
+    return parseJsonResponse<Record<string, never>>(response);
+  } catch {
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
+  }
+}
