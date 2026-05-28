@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { LogOut, User, Settings } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -12,7 +13,7 @@ import { signOut } from "@/actions/auth";
 import type { AuthUser } from "@/lib/api/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,6 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { canManageWorkspace } from "@/lib/roles";
+import { cn } from "@/lib/utils";
 
 const baseNavigationItems = [
   { label: "Chat", path: "/chat" },
@@ -49,7 +51,6 @@ interface AccountHeaderProps {
 }
 
 export function AccountHeader({ user }: AccountHeaderProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const { theme, resolvedTheme } = useTheme();
   const { client } = useStatsigClient();
@@ -93,12 +94,11 @@ export function AccountHeader({ user }: AccountHeaderProps) {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => {
-                  client.logEvent("logo_click");
-                  router.push("/chat");
-                }}
+              <Link
+                href="/chat"
+                prefetch
                 className="cursor-pointer"
+                onClick={() => client.logEvent("logo_click")}
               >
                 <Image
                   src={
@@ -111,46 +111,51 @@ export function AccountHeader({ user }: AccountHeaderProps) {
                   height={32}
                   className="rounded"
                 />
-              </button>
+              </Link>
             </div>
 
             <nav className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  client.logEvent("workspace_nav_click");
-                  router.push("/settings");
-                }}
+              <Link
+                href="/settings"
+                prefetch
+                className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+                onClick={() => client.logEvent("workspace_nav_click")}
               >
                 {workspaceName}
-              </Button>
-              {navigationItems.map((item) => (
-                <Button
-                  key={item.path}
-                  variant={
-                    pathname.startsWith(item.matchPrefix ?? item.path)
-                      ? "default"
-                      : "ghost"
-                  }
-                  size="sm"
-                  onClick={() => {
-                    client.logEvent("navigation_click", item.path);
-                    router.push(item.path);
-                  }}
-                  className="relative"
-                >
-                  {item.label}
-                  {item.path === "/activity" && attentionCount > 0 ? (
-                    <Badge
-                      variant="destructive"
-                      className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full p-0 text-[10px]"
-                    >
-                      {attentionCount > 9 ? "9+" : attentionCount}
-                    </Badge>
-                  ) : null}
-                </Button>
-              ))}
+              </Link>
+              {navigationItems.map((item) => {
+                const active = pathname.startsWith(
+                  item.matchPrefix ?? item.path,
+                );
+
+                return (
+                  <Link
+                    key={item.path}
+                    href={item.path}
+                    prefetch
+                    className={cn(
+                      buttonVariants({
+                        variant: active ? "default" : "ghost",
+                        size: "sm",
+                      }),
+                      "relative",
+                    )}
+                    onClick={() =>
+                      client.logEvent("navigation_click", item.path)
+                    }
+                  >
+                    {item.label}
+                    {item.path === "/activity" && attentionCount > 0 ? (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full p-0 text-[10px]"
+                      >
+                        {attentionCount > 9 ? "9+" : attentionCount}
+                      </Badge>
+                    ) : null}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 
@@ -185,19 +190,27 @@ export function AccountHeader({ user }: AccountHeaderProps) {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => {
-                    client.logEvent("account_settings_click");
-                    router.push("/settings/account");
-                  }}
+                  render={
+                    <Link
+                      href="/settings/account"
+                      prefetch
+                      onClick={() =>
+                        client.logEvent("account_settings_click")
+                      }
+                    />
+                  }
                 >
                   <User />
                   <span>Account Settings</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem
-                  onClick={() => {
-                    client.logEvent("settings_click");
-                    router.push("/settings");
-                  }}
+                  render={
+                    <Link
+                      href="/settings"
+                      prefetch
+                      onClick={() => client.logEvent("settings_click")}
+                    />
+                  }
                 >
                   <Settings />
                   <span>Team Settings</span>

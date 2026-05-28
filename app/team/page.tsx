@@ -19,35 +19,24 @@ export default async function TeamPage() {
 
   const token = await getAccessToken();
 
-  const slackStatusResult =
+  const [
+    slackStatusResult,
+    linearStatusResult,
+    jiraStatusResult,
+    rosterResult,
+    timezoneResult,
+    languageResult,
+  ] =
     workspace?.id && token
-      ? await getSlackConnectionStatus(token, workspace.id)
-      : null;
-
-  const linearStatusResult =
-    workspace?.id && token
-      ? await getLinearConnectionStatus(token, workspace.id)
-      : null;
-
-  const jiraStatusResult =
-    workspace?.id && token
-      ? await getJiraConnectionStatus(token, workspace.id)
-      : null;
-
-  const rosterResult =
-    workspace?.id && token
-      ? await listRosterMembers(token, workspace.id)
-      : null;
-
-  const timezoneResult =
-    workspace?.id && token
-      ? await getWorkspaceTimezone(token, workspace.id)
-      : null;
-
-  const languageResult =
-    workspace?.id && token
-      ? await getWorkspaceLanguage(token, workspace.id)
-      : null;
+      ? await Promise.all([
+          getSlackConnectionStatus(token, workspace.id),
+          getLinearConnectionStatus(token, workspace.id),
+          getJiraConnectionStatus(token, workspace.id),
+          listRosterMembers(token, workspace.id),
+          getWorkspaceTimezone(token, workspace.id),
+          getWorkspaceLanguage(token, workspace.id),
+        ])
+      : [null, null, null, null, null, null];
 
   const slackStatus = slackStatusResult?.data ?? { connected: false };
   const linearStatus = linearStatusResult?.data ?? { connected: false };

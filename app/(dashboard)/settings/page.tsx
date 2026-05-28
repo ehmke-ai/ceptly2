@@ -17,34 +17,26 @@ export default async function SettingsPage() {
   const canEdit = workspace ? canManageWorkspace(workspace.role) : false;
 
   const token = await getAccessToken();
-  const timezoneResult =
-    workspace?.id && token
-      ? await getWorkspaceTimezone(token, workspace.id)
-      : null;
 
-  const languageResult =
+  const [
+    timezoneResult,
+    languageResult,
+    invitesResult,
+    membersResult,
+    billingStatus,
+  ] =
     workspace?.id && token
-      ? await getWorkspaceLanguage(token, workspace.id)
-      : null;
-
-  const invitesResult =
-    workspace?.id && token
-      ? await listInvites(token, workspace.id)
-      : null;
+      ? await Promise.all([
+          getWorkspaceTimezone(token, workspace.id),
+          getWorkspaceLanguage(token, workspace.id),
+          listInvites(token, workspace.id),
+          listWorkspaceMembers(token, workspace.id),
+          fetchBillingStatus(token, workspace.id),
+        ])
+      : [null, null, null, null, null];
 
   const pendingInvites = invitesResult?.data?.invites ?? [];
-
-  const membersResult =
-    workspace?.id && token
-      ? await listWorkspaceMembers(token, workspace.id)
-      : null;
-
   const members = membersResult?.data?.members ?? [];
-
-  const billingStatus =
-    workspace?.id && token
-      ? await fetchBillingStatus(token, workspace.id)
-      : null;
 
   return (
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-8">
