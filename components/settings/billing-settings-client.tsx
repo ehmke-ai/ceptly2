@@ -2,9 +2,15 @@
 
 import { useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-import { openBillingPortalAction } from "@/actions/billing";
+import {
+  endTrialAction,
+  openBillingPortalAction,
+  refreshSubscriptionCookiesAction,
+} from "@/actions/billing";
 import { SeatManagement } from "@/components/settings/seat-management";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -40,11 +46,15 @@ export function BillingSettingsClient({
   pendingInviteCount: number;
   autoOpenManage?: boolean;
 }) {
-  const [status] = useState(initialStatus);
+  const router = useRouter();
+  const [status, setStatus] = useState(initialStatus);
   const [portalPending, setPortalPending] = useState(false);
+  const [endTrialPending, setEndTrialPending] = useState(false);
+  const [confirmEndTrial, setConfirmEndTrial] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const priceLabel = formatPricePerSeat(status.pricePerSeatCents);
+  const isTrialing = status.subscriptionStatus === "trialing";
 
   async function handleManageBilling() {
     setPortalPending(true);
@@ -52,12 +62,52 @@ export function BillingSettingsClient({
 
     try {
       const result = await openBillingPortalAction();
-      if (result?.error) {
+      if (result.error) {
         setError(result.error);
-        setPortalPending(false);
+      } else if (result.url) {
+        window.open(result.url, "_blank", "noopener,noreferrer");
       }
     } catch {
+      setError("Unable to open billing portal.");
+    } finally {
       setPortalPending(false);
+    }
+  }
+
+  async function handleEndTrial() {
+    if (!isTrialing) {
+      return;
+    }
+
+    if (!confirmEndTrial) {
+      setConfirmEndTrial(true);
+      setError(null);
+      return;
+    }
+
+    setEndTrialPending(true);
+    setError(null);
+
+    try {
+      const result = await endTrialAction();
+      if (result.error) {
+        setError(result.error);
+        setConfirmEndTrial(false);
+        return;
+      }
+
+      if (result.data) {
+        setStatus(result.data);
+      }
+
+      await refreshSubscriptionCookiesAction();
+      setConfirmEndTrial(false);
+      router.refresh();
+    } catch {
+      setError("Unable to start paid subscription.");
+      setConfirmEndTrial(false);
+    } finally {
+      setEndTrialPending(false);
     }
   }
 
@@ -125,21 +175,79 @@ export function BillingSettingsClient({
             </div>
           </dl>
 
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => void handleManageBilling()}
-            disabled={portalPending || !status.hasActiveSubscription}
-          >
-            {portalPending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Opening portal…
-              </>
-            ) : (
-              "Payment method & invoices"
-            )}
-          </Button>
+          {isTrialing && canManage ? (
+            <div className="space-y-3 rounded-lg border border-border bg-muted/30 px-4 py-4">
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Ready to go paid?</p>
+                <p className="text-sm text-muted-foreground">
+                  End your free trial now and start billing at {priceLabel}/seat/month.
+                  Add a payment method first if you haven&apos;t already.
+                </p>
+              </div>
+              {confirmEndTrial ? (
+                <Alert>
+                  <AlertDescription className="space-y-3">
+                    <p>
+                      Your card will be charged immediately and seat limits will
+                      match your team size.
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => void handleEndTrial()}
+                        disabled={endTrialPending}
+                      >
+                        {endTrialPending ? (
+                          <>
+                            <Loader2 className="size-3.5 animate-spin" />
+                            Starting subscription…
+                          </>
+                        ) : (
+                          "Yes, start paid subscription"
+                        )}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setConfirmEndTrial(false)}
+                        disabled={endTrialPending}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              ) : (
+                <Button
+                  type="button"
+                  onClick={() => void handleEndTrial()}
+                  disabled={endTrialPending}
+                >
+                  Start paid subscription
+                </Button>
+              )}
+            </div>
+          ) : null}
+
+          <div className="flex flex-wrap gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => void handleManageBilling()}
+              disabled={portalPending || !status.hasActiveSubscription}
+            >
+              {portalPending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  Opening portal…
+                </>
+              ) : (
+                "Payment method & invoices"
+              )}
+            </Button>
+          </div>
 
           {!status.hasActiveSubscription ? (
             <p className="text-sm text-muted-foreground">

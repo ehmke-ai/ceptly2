@@ -121,6 +121,12 @@ export interface UpdateSeatsResponse {
   error?: string;
 }
 
+export interface EndTrialResponse {
+  success: boolean;
+  data?: WorkspaceBillingStatus;
+  error?: string;
+}
+
 export async function updateSubscriptionSeats(
   token: string,
   workspaceId: string,
@@ -140,6 +146,31 @@ export async function updateSubscriptionSeats(
     const result = (await response.json()) as UpdateSeatsResponse;
     if (!response.ok || !result.success) {
       return { error: result.error ?? "Failed to update seats" };
+    }
+
+    return { data: result.data };
+  } catch {
+    return { error: "Could not reach the billing API. Try again in a moment." };
+  }
+}
+
+export async function endWorkspaceTrial(
+  token: string,
+  workspaceId: string,
+): Promise<{ data?: WorkspaceBillingStatus; error?: string }> {
+  try {
+    const base = await resolveApiBaseUrl();
+    const response = await fetch(`${base}${billingBase(workspaceId)}/end-trial`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    });
+
+    const result = (await response.json()) as EndTrialResponse;
+    if (!response.ok || !result.success) {
+      return { error: result.error ?? "Failed to end trial" };
     }
 
     return { data: result.data };

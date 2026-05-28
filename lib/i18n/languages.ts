@@ -13,7 +13,6 @@ export const SUPPORTED_LANGUAGES = [
   { code: "ko", label: "Korean" },
   { code: "ru", label: "Russian" },
   { code: "uk", label: "Ukrainian" },
-  { code: "nl", label: "Dutch" },
   { code: "sv", label: "Swedish" },
   { code: "no", label: "Norwegian" },
   { code: "da", label: "Danish" },

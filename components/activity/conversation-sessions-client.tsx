@@ -1,11 +1,18 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { AdhocReachOutSummary } from "@/components/activity/adhoc-reach-out-summary";
 import { CheckinTranscriptMessageList } from "@/components/activity/checkin-transcript-message-list";
+import {
+  abandonConversationSessionAction,
+  fetchConversationSessionDetail,
+} from "@/actions/conversation-sessions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { fetchConversationSessionDetail } from "@/actions/conversation-sessions";
+import { Button } from "@/components/ui/button";
 import type {
   ConversationRunRespondedMember,
   ConversationSessionSummary,
@@ -31,11 +38,13 @@ function formatSessionLabel(startedAt: string): string {
 export function ConversationSessionsClient({
   workspaceId,
   conversationId,
-  sessions,
+  sessions: initialSessions,
   initialSession = null,
 }: ConversationSessionsClientProps) {
+  const router = useRouter();
+  const [sessions, setSessions] = useState(initialSessions);
   const [selectedSessionId, setSelectedSessionId] = useState(
-    initialSession?.session_id ?? sessions[0]?.session_id ?? "",
+    initialSession?.session_id ?? initialSessions[0]?.session_id ?? "",
   );
   const [loading, setLoading] = useState(false);
   const [loadedSessionId, setLoadedSessionId] = useState<string | null>(
@@ -43,9 +52,14 @@ export function ConversationSessionsClient({
   );
   const [sessionDetail, setSessionDetail] =
     useState<ConversationRunRespondedMember | null>(initialSession);
+  const [confirmAbandon, setConfirmAbandon] = useState(false);
+  const [abandonError, setAbandonError] = useState<string | null>(null);
+  const [isAbandoning, startAbandonTransition] = useTransition();
 
   const handleSessionChange = async (sessionId: string) => {
     setSelectedSessionId(sessionId);
+    setConfirmAbandon(false);
+    setAbandonError(null);
     if (sessionId === loadedSessionId && sessionDetail) {
       return;
     }
@@ -82,6 +96,48 @@ export function ConversationSessionsClient({
     (session) => session.session_id === selectedSessionId,
   );
 
+  const handleAbandon = () => {
+    if (!selectedSummary || selectedSummary.status !== "in_progress") {
+      return;
+    }
+
+    if (!confirmAbandon) {
+      setConfirmAbandon(true);
+      setAbandonError(null);
+      return;
+    }
+
+    setAbandonError(null);
+    startAbandonTransition(async () => {
+      const result = await abandonConversationSessionAction({
+        workspaceId,
+        conversationId,
+        sessionId: selectedSummary.session_id,
+      });
+
+      if (result.error) {
+        setAbandonError(result.error);
+        setConfirmAbandon(false);
+        return;
+      }
+
+      setSessions((current) =>
+        current.map((session) =>
+          session.session_id === selectedSummary.session_id
+            ? { ...session, status: "abandoned" as const }
+            : session,
+        ),
+      );
+      setSessionDetail((current) =>
+        current && current.session_id === selectedSummary.session_id
+          ? { ...current, status: "abandoned" }
+          : current,
+      );
+      setConfirmAbandon(false);
+      router.refresh();
+    });
+  };
+
   return (
     <div className="space-y-8">
       {sessions.length > 1 ? (
@@ -116,8 +172,68 @@ export function ConversationSessionsClient({
                   {selectedSummary.email}
                 </p>
               </div>
-              <Badge variant="outline">{selectedSummary.status}</Badge>
+              <div className="flex flex-wrap items-center gap-2">
+                <Badge variant="outline">{selectedSummary.status}</Badge>
+                {selectedSummary.status === "in_progress" ? (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleAbandon}
+                    disabled={isAbandoning}
+                  >
+                    {isAbandoning ? (
+                      <Loader2 className="size-3.5 animate-spin" />
+                    ) : null}
+                    Abandon
+                  </Button>
+                ) : null}
+              </div>
             </div>
+
+            {confirmAbandon ? (
+              <Alert variant="destructive">
+                <AlertDescription className="space-y-3">
+                  <p>
+                    Abandon this check-in? Ceptly will stop following up in
+                    Slack.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleAbandon}
+                      disabled={isAbandoning}
+                    >
+                      {isAbandoning ? (
+                        <>
+                          <Loader2 className="size-3.5 animate-spin" />
+                          Abandoning...
+                        </>
+                      ) : (
+                        "Yes, abandon"
+                      )}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setConfirmAbandon(false)}
+                      disabled={isAbandoning}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            ) : null}
+
+            {abandonError ? (
+              <Alert variant="destructive">
+                <AlertDescription>{abandonError}</AlertDescription>
+              </Alert>
+            ) : null}
 
             <AdhocReachOutSummary
               intentLabel={selectedSummary.intent_label}

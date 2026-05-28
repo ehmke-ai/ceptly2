@@ -1,8 +1,12 @@
 "use server";
 
-import { getConversationSession } from "@/lib/api/conversation-sessions";
+import {
+  abandonConversationSession,
+  getConversationSession,
+} from "@/lib/api/conversation-sessions";
 import type { ConversationRunRespondedMember } from "@/lib/api/types";
 import { getAccessToken } from "@/lib/auth/server";
+import { revalidatePath } from "next/cache";
 
 export async function fetchConversationSessionDetail(input: {
   workspaceId: string;
@@ -29,4 +33,31 @@ export async function fetchConversationSessionDetail(input: {
   }
 
   return { session: result.data.session };
+}
+
+export async function abandonConversationSessionAction(input: {
+  workspaceId: string;
+  conversationId: string;
+  sessionId: string;
+}): Promise<{ error?: string }> {
+  const token = await getAccessToken();
+  if (!token) {
+    return { error: "You must be signed in." };
+  }
+
+  const result = await abandonConversationSession(
+    token,
+    input.workspaceId,
+    input.conversationId,
+    input.sessionId,
+  );
+
+  if (!result.success) {
+    return { error: result.error ?? "Failed to abandon check-in." };
+  }
+
+  revalidatePath("/activity");
+  revalidatePath(`/activity/${input.conversationId}`);
+
+  return {};
 }

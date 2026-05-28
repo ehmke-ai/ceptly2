@@ -82,3 +82,36 @@ export async function getConversationSession(
     };
   }
 }
+
+export async function abandonConversationSession(
+  accessToken: string,
+  workspaceId: string,
+  conversationId: string,
+  sessionId: string,
+): Promise<{
+  success: boolean;
+  error?: string;
+  data?: { session_id: string; status: "abandoned" };
+}> {
+  try {
+    const base = await resolveApiBaseUrl();
+    const response = await fetch(
+      `${base}/api/workspaces/${workspaceId}/conversations/${conversationId}/sessions/${sessionId}/abandon`,
+      {
+        method: "POST",
+        headers: {
+          ...authHeaders(accessToken),
+          "Content-Type": "application/json",
+        },
+      },
+    );
+    return parseJsonResponse<{
+      data?: { session_id: string; status: "abandoned" };
+    }>(response);
+  } catch {
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
+  }
+}
