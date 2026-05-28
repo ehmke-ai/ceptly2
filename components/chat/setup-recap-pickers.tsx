@@ -6,10 +6,7 @@ import { ScheduleDaysPicker } from "@/components/settings/schedule-days-picker";
 import { Badge } from "@/components/ui/badge";
 import type { RosterMember } from "@/lib/api/roster";
 import type { SlackChannel } from "@/lib/api/slack-channels";
-import type {
-  AppContextOption,
-  SetupRecapUiComponent,
-} from "@/lib/api/types";
+import type { AppContextOption, SetupRecapUiComponent } from "@/lib/api/types";
 
 interface SetupRecapPickersProps {
   recap: SetupRecapUiComponent;
@@ -46,9 +43,7 @@ export function SetupRecapPickers({
     <div className="w-full space-y-6 rounded-2xl border border-border bg-card p-4 shadow-sm dark:border-white/20">
       <ScheduleDaysPicker
         daysOfWeek={recap.days_of_week}
-        onChange={(days) =>
-          onChange({ ...recap, days_of_week: days })
-        }
+        onChange={(days) => onChange({ ...recap, days_of_week: days })}
         disabled={disabled}
         showLabel
       />
@@ -74,7 +69,9 @@ export function SetupRecapPickers({
               >
                 <div>
                   <p className="text-sm font-medium">{member.display_name}</p>
-                  <p className="text-xs text-muted-foreground">{member.email}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {member.email}
+                  </p>
                 </div>
                 <Badge variant={selected ? "default" : "outline"}>
                   {selected ? "Selected" : "Select"}

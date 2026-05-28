@@ -24,7 +24,10 @@ import type {
   ScheduleFrequency,
   ScheduledConversation,
 } from "@/lib/api/types";
-import { buildResultDestinations, parseResultDestinations } from "@/lib/result-destinations";
+import {
+  buildResultDestinations,
+  parseResultDestinations,
+} from "@/lib/result-destinations";
 import { conversationToSchedule } from "@/lib/api/conversations";
 import { formatSchedulePreview } from "@/lib/schedule/preview";
 import {
@@ -76,7 +79,9 @@ export function ConversationEditForm({
   const [selectedMemberIds, setSelectedMemberIds] = useState<string[]>(
     conversation.roster_member_ids?.length
       ? conversation.roster_member_ids
-      : rosterMembers.filter((member) => !member.paused).map((member) => member.id),
+      : rosterMembers
+          .filter((member) => !member.paused)
+          .map((member) => member.id),
   );
   const [timezone, setTimezone] = useState(conversation.timezone);
   const [frequency, setFrequency] = useState<ScheduleFrequency>(
@@ -379,7 +384,12 @@ export function ConversationEditForm({
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-4">
           <Label>Questions</Label>
-          <Button type="button" variant="outline" size="sm" onClick={addQuestion}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addQuestion}
+          >
             <Plus className="size-4" />
             Add question
           </Button>
@@ -435,7 +445,10 @@ export function ConversationEditForm({
         </div>
       </div>
 
-      <ConversationIcPreview name={name.trim() || conversation.name} questions={previewQuestions} />
+      <ConversationIcPreview
+        name={name.trim() || conversation.name}
+        questions={previewQuestions}
+      />
 
       <div className="flex flex-wrap gap-2">
         <Button type="button" onClick={handleSave} disabled={isPending}>
@@ -448,7 +461,12 @@ export function ConversationEditForm({
             "Save changes"
           )}
         </Button>
-        <Button type="button" variant="outline" onClick={onCancel} disabled={isPending}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={onCancel}
+          disabled={isPending}
+        >
           Cancel
         </Button>
       </div>

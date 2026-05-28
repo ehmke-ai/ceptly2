@@ -65,9 +65,7 @@ export default async function ActivityPage() {
           {canManageConversations ? (
             <Link
               href="/activity/new"
-              className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-              )}
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
             >
               Add conversation
             </Link>
@@ -112,7 +110,6 @@ export default async function ActivityPage() {
         <h2 className="text-sm font-semibold">Recent reach-outs</h2>
         <ActivityAdhocList sessions={activity.adhoc_sessions} />
       </section>
-
     </div>
   );
 }

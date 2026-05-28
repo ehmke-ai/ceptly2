@@ -7,15 +7,16 @@ export const MENTION_TEXT_COLOR_LIGHT = "#69C35B";
 /** 50% opacity highlight for mention picker selection */
 export const MENTION_HIGHLIGHT_COLOR = "rgba(86, 255, 60, 0.5)";
 
-export const MENTION_TEXT_CLASS =
-  "text-[#1B7A14] dark:text-[#56FF3C]";
+export const MENTION_TEXT_CLASS = "text-[#1B7A14] dark:text-[#56FF3C]";
 
 export interface ActiveMentionState {
   query: string;
   start: number;
 }
 
-export function getActiveRosterMembers(members: RosterMember[]): RosterMember[] {
+export function getActiveRosterMembers(
+  members: RosterMember[],
+): RosterMember[] {
   return members.filter((member) => !member.paused);
 }
 

@@ -1,7 +1,9 @@
 import { resolveApiBaseUrl } from "./auth";
 import type { WorkspaceSchedule } from "./types";
 
-async function parseJsonResponse<T>(response: Response): Promise<T & { success: boolean; error?: string }> {
+async function parseJsonResponse<T>(
+  response: Response,
+): Promise<T & { success: boolean; error?: string }> {
   const contentType = response.headers.get("content-type");
   if (!contentType?.includes("application/json")) {
     return {
@@ -23,15 +25,20 @@ export async function getWorkspaceSchedule(
 }> {
   try {
     const base = await resolveApiBaseUrl();
-    const response = await fetch(`${base}/api/workspaces/${workspaceId}/schedule`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+    const response = await fetch(
+      `${base}/api/workspaces/${workspaceId}/schedule`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        cache: "no-store",
       },
-      cache: "no-store",
-    });
+    );
 
-    return parseJsonResponse<{ data?: { schedule: WorkspaceSchedule } }>(response);
+    return parseJsonResponse<{ data?: { schedule: WorkspaceSchedule } }>(
+      response,
+    );
   } catch {
     return {
       success: false,
@@ -51,16 +58,21 @@ export async function putWorkspaceSchedule(
 }> {
   try {
     const base = await resolveApiBaseUrl();
-    const response = await fetch(`${base}/api/workspaces/${workspaceId}/schedule`, {
-      method: "PUT",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${base}/api/workspaces/${workspaceId}/schedule`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(schedule),
       },
-      body: JSON.stringify(schedule),
-    });
+    );
 
-    return parseJsonResponse<{ data?: { schedule: WorkspaceSchedule } }>(response);
+    return parseJsonResponse<{ data?: { schedule: WorkspaceSchedule } }>(
+      response,
+    );
   } catch {
     return {
       success: false,
@@ -89,9 +101,9 @@ export async function patchWorkspaceName(
       body: JSON.stringify({ name }),
     });
 
-    return parseJsonResponse<{ data?: { workspace: { id: string; name: string; role: string } } }>(
-      response,
-    );
+    return parseJsonResponse<{
+      data?: { workspace: { id: string; name: string; role: string } };
+    }>(response);
   } catch {
     return {
       success: false,

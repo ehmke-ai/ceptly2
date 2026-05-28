@@ -14,7 +14,9 @@ export async function fetchSlackInstallUrl(
     return { error: "You must be signed in to connect Slack." };
   }
 
-  const safeReturnTo = returnTo.startsWith("/") ? returnTo : "/settings/integrations/slack";
+  const safeReturnTo = returnTo.startsWith("/")
+    ? returnTo
+    : "/settings/integrations/slack";
   const result = await getSlackInstallUrl(token, workspaceId, safeReturnTo);
 
   if (!result.success || !result.data?.url) {

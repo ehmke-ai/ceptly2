@@ -53,7 +53,8 @@ export async function POST(request: Request, context: RouteContext) {
     status: upstream.status,
     headers: {
       "Content-Type":
-        upstream.headers.get("Content-Type") ?? "text/event-stream; charset=utf-8",
+        upstream.headers.get("Content-Type") ??
+        "text/event-stream; charset=utf-8",
       "Cache-Control": "no-cache, no-transform",
       Connection: "keep-alive",
     },

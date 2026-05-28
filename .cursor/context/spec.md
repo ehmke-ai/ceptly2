@@ -9,12 +9,12 @@ This spec narrows the PRD into implementable decisions for **Render deployment**
 
 **Scope split:**
 
-| Area | In this spec now | Deferred to implementation tickets |
-|------|------------------|-------------------------------------|
-| Render + cron + schedule | Detailed (§2–§9) | — |
-| Executive dashboard + Strategy Agent | Architecture + API boundaries (§13) | Chart library, full chart catalog |
-| Linear + capacity + overload | Data model + sync outline (§14–§16) | OAuth UI, full assignment agent |
-| HRIS onboarding | Outline only (§17) | Provider choice |
+| Area                                 | In this spec now                    | Deferred to implementation tickets |
+| ------------------------------------ | ----------------------------------- | ---------------------------------- |
+| Render + cron + schedule             | Detailed (§2–§9)                    | —                                  |
+| Executive dashboard + Strategy Agent | Architecture + API boundaries (§13) | Chart library, full chart catalog  |
+| Linear + capacity + overload         | Data model + sync outline (§14–§16) | OAuth UI, full assignment agent    |
+| HRIS onboarding                      | Outline only (§17)                  | Provider choice                    |
 
 ---
 
@@ -24,11 +24,11 @@ This spec narrows the PRD into implementable decisions for **Render deployment**
 
 Ceptly on Render needs three services:
 
-| # | Render service | Purpose | Build order |
-|---|----------------|---------|-------------|
-| 1 | **Web Service** | Express backend API — Slack webhooks, agents, permissions, all DB access | **First** |
-| 2 | **Postgres** | Primary data store | **Second** (connection string → backend env) |
-| 3 | **Cron Job** | Hits an internal scheduler endpoint on a fixed cadence | **Third** (after web service is deployed) |
+| #   | Render service  | Purpose                                                                  | Build order                                  |
+| --- | --------------- | ------------------------------------------------------------------------ | -------------------------------------------- |
+| 1   | **Web Service** | Express backend API — Slack webhooks, agents, permissions, all DB access | **First**                                    |
+| 2   | **Postgres**    | Primary data store                                                       | **Second** (connection string → backend env) |
+| 3   | **Cron Job**    | Hits an internal scheduler endpoint on a fixed cadence                   | **Third** (after web service is deployed)    |
 
 The Next.js app stays on **Vercel** and talks only to the Express API (unchanged from PRD §7).
 
@@ -70,12 +70,12 @@ Managers configure schedules in the web app — not in Render. Render only provi
 
 **Render cron configuration:**
 
-| Field | Value |
-|-------|--------|
-| Method | `POST` |
-| URL | `https://<your-api-host>/internal/checkin-scheduler` |
+| Field    | Value                                                   |
+| -------- | ------------------------------------------------------- |
+| Method   | `POST`                                                  |
+| URL      | `https://<your-api-host>/internal/checkin-scheduler`    |
 | Schedule | `*/15 * * * *` (every 15 minutes — recommended default) |
-| Header | `X-Cron-Secret: <CRON_SECRET>` (must match backend env) |
+| Header   | `X-Cron-Secret: <CRON_SECRET>` (must match backend env) |
 
 **Why every 15 minutes?** Manager schedules are workspace-local times (e.g. Monday 09:00 in `America/Chicago`). A 15-minute poll gives ±7.5 minute accuracy without needing one Render cron per workspace. The scheduler compares “now” in each workspace timezone against configured day + time.
 
@@ -98,9 +98,9 @@ X-Cron-Secret: <value from CRON_SECRET env>
 **Express** validates before any scheduler work:
 
 ```js
-app.post('/internal/checkin-scheduler', async (req, res) => {
-  if (req.headers['x-cron-secret'] !== process.env.CRON_SECRET) {
-    return res.status(401).json({ error: 'Unauthorized' });
+app.post("/internal/checkin-scheduler", async (req, res) => {
+  if (req.headers["x-cron-secret"] !== process.env.CRON_SECRET) {
+    return res.status(401).json({ error: "Unauthorized" });
   }
   // run scheduler logic
 });
@@ -125,12 +125,12 @@ Same pattern applies to future internal routes (e.g. `/internal/synthesis-schedu
 
 Location: **Settings** (or dedicated **Check-in schedule** section under workspace settings).
 
-| Control | Type | Behavior |
-|---------|------|----------|
-| **Days of week** | Checkboxes | Mon, Tue, Wed, Thu, Fri (Sat/Sun optional — product decision: include all 7 or weekdays-only in v1) |
-| **Time of day** | Time picker | Single daily anchor time, e.g. `09:00` |
-| **Frequency** | Radio or segmented control | See §4.2 |
-| **Timezone** | Select (searchable) | Workspace-level; used for all schedule math |
+| Control          | Type                       | Behavior                                                                                            |
+| ---------------- | -------------------------- | --------------------------------------------------------------------------------------------------- |
+| **Days of week** | Checkboxes                 | Mon, Tue, Wed, Thu, Fri (Sat/Sun optional — product decision: include all 7 or weekdays-only in v1) |
+| **Time of day**  | Time picker                | Single daily anchor time, e.g. `09:00`                                                              |
+| **Frequency**    | Radio or segmented control | See §4.2                                                                                            |
+| **Timezone**     | Select (searchable)        | Workspace-level; used for all schedule math                                                         |
 
 **Timezone onboarding:**
 
@@ -142,11 +142,11 @@ Location: **Settings** (or dedicated **Check-in schedule** section under workspa
 
 ### 4.2 Frequency modes
 
-| Mode | UI | Stored behavior |
-|------|-----|-----------------|
-| **Daily** | Frequency = Daily; day checkboxes disabled or ignored | Run at `time_local` every day |
-| **Specific days** | Frequency = Specific days; enable day checkboxes | Run only on selected weekdays |
-| **Custom** | Same as specific days — label in UI only | e.g. Mon + Thu = check Mon and Thu boxes |
+| Mode              | UI                                                    | Stored behavior                          |
+| ----------------- | ----------------------------------------------------- | ---------------------------------------- |
+| **Daily**         | Frequency = Daily; day checkboxes disabled or ignored | Run at `time_local` every day            |
+| **Specific days** | Frequency = Specific days; enable day checkboxes      | Run only on selected weekdays            |
+| **Custom**        | Same as specific days — label in UI only              | e.g. Mon + Thu = check Mon and Thu boxes |
 
 Implementation: **Daily** vs **specific_days** is one enum; “custom” is not a separate backend mode — it is “specific_days” with any combination of checkboxes.
 
@@ -213,11 +213,11 @@ export interface WorkspaceSchedule {
 
 All routes require auth; role check on mutating routes.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/api/workspaces/:id/schedule` | Get current schedule + timezone |
-| `PUT` | `/api/workspaces/:id/schedule` | Update schedule (founder/admin only) |
-| `GET` | `/api/timezones` | Optional: list common IANA zones for picker |
+| Method | Path                           | Description                                 |
+| ------ | ------------------------------ | ------------------------------------------- |
+| `GET`  | `/api/workspaces/:id/schedule` | Get current schedule + timezone             |
+| `PUT`  | `/api/workspaces/:id/schedule` | Update schedule (founder/admin only)        |
+| `GET`  | `/api/timezones`               | Optional: list common IANA zones for picker |
 
 **PUT body example:**
 
@@ -268,7 +268,7 @@ For each workspace with `schedule_enabled`:
 1. Convert `now` (UTC) to `workspace.timezone`.
 2. If `frequency === specific_days` and today's weekday ∉ `schedule_days`, skip.
 3. Parse `schedule_time` as local HH:mm.
-4. **Due** if local time is within `[schedule_time, schedule_time + tick_interval)`  
+4. **Due** if local time is within `[schedule_time, schedule_time + tick_interval)`
    - With 15-minute cron: due if `floor(now_local to 15m bucket) === floor(schedule_time to 15m bucket)` **or** simpler: `abs(minutes_since_midnight(now) - minutes_since_midnight(schedule)) < 15` and same calendar day.
 5. **Idempotency:** Record last run per workspace per local date+slot (e.g. `last_checkin_schedule_fire_at`) so a duplicate cron tick in the same window does not double-DM ICs.
 
@@ -289,25 +289,25 @@ Synthesis / digest scheduling can follow the same pattern on a separate internal
 
 ### Web Service (Express)
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `DATABASE_URL` | Yes | Render Postgres connection string |
-| `CRON_SECRET` | Yes | Shared secret for `X-Cron-Secret` |
-| `SLACK_*` | Yes | Bot token, signing secret, client id/secret (per Slack app) |
-| `GEMINI_API_KEY` | Yes | Gemini for agents |
-| `JWT_SECRET` / session secret | Yes | Vercel ↔ API auth |
-| `FRONTEND_URL` | Yes | Vercel origin for OAuth redirects / CORS |
+| Variable                      | Required | Description                                                 |
+| ----------------------------- | -------- | ----------------------------------------------------------- |
+| `DATABASE_URL`                | Yes      | Render Postgres connection string                           |
+| `CRON_SECRET`                 | Yes      | Shared secret for `X-Cron-Secret`                           |
+| `SLACK_*`                     | Yes      | Bot token, signing secret, client id/secret (per Slack app) |
+| `GEMINI_API_KEY`              | Yes      | Gemini for agents                                           |
+| `JWT_SECRET` / session secret | Yes      | Vercel ↔ API auth                                           |
+| `FRONTEND_URL`                | Yes      | Vercel origin for OAuth redirects / CORS                    |
 
 ### Cron Job (Render)
 
-| Setting | Value |
-|---------|--------|
+| Setting                | Value                                      |
+| ---------------------- | ------------------------------------------ |
 | `X-Cron-Secret` header | Same value as `CRON_SECRET` on Web Service |
 
 ### Vercel (Next.js)
 
-| Variable | Description |
-|----------|-------------|
+| Variable              | Description      |
+| --------------------- | ---------------- |
 | `NEXT_PUBLIC_API_URL` | Express base URL |
 
 ---
@@ -316,36 +316,36 @@ Synthesis / digest scheduling can follow the same pattern on a separate internal
 
 ### 9.1 Implementation order
 
-1. **Express scaffold** — health check, Drizzle, migrations for `Workspace` + schedule fields  
-   - Verify: `GET /health` returns 200 on Render  
-2. **Postgres** — provision, migrate, seed one test workspace  
-   - Verify: API reads/writes workspace row  
-3. **Schedule API** — `GET`/`PUT` schedule endpoints + auth  
-   - Verify: Vercel settings page saves and reloads schedule  
-4. **Internal scheduler** — `POST /internal/checkin-scheduler` + secret check + due logic + idempotency  
-   - Verify: manual `curl` with header triggers check-in for test workspace; without header → 401  
-5. **Render Cron Job** — `*/15 * * * *` → production URL  
-   - Verify: Render cron logs show 200; `SchedulerRun` or app logs show evaluations  
-6. **Slack Check-In Agent** — wire scheduler to DM flow  
+1. **Express scaffold** — health check, Drizzle, migrations for `Workspace` + schedule fields
+   - Verify: `GET /health` returns 200 on Render
+2. **Postgres** — provision, migrate, seed one test workspace
+   - Verify: API reads/writes workspace row
+3. **Schedule API** — `GET`/`PUT` schedule endpoints + auth
+   - Verify: Vercel settings page saves and reloads schedule
+4. **Internal scheduler** — `POST /internal/checkin-scheduler` + secret check + due logic + idempotency
+   - Verify: manual `curl` with header triggers check-in for test workspace; without header → 401
+5. **Render Cron Job** — `*/15 * * * *` → production URL
+   - Verify: Render cron logs show 200; `SchedulerRun` or app logs show evaluations
+6. **Slack Check-In Agent** — wire scheduler to DM flow
 
 ### 9.2 Acceptance criteria
 
-- [ ] Founder can set Mon+Thu, 9:00 AM, workspace timezone in Settings UI  
-- [ ] Changing timezone updates displayed preview without redeploying cron  
-- [ ] Cron tick at wrong secret returns 401, no DMs sent  
-- [ ] Cron tick at correct secret only DMs workspaces due in their local window  
-- [ ] Same workspace not double-triggered within one 15-minute window  
-- [ ] PRD tech stack table lists Render Cron Jobs, not Inngest  
+- [ ] Founder can set Mon+Thu, 9:00 AM, workspace timezone in Settings UI
+- [ ] Changing timezone updates displayed preview without redeploying cron
+- [ ] Cron tick at wrong secret returns 401, no DMs sent
+- [ ] Cron tick at correct secret only DMs workspaces due in their local window
+- [ ] Same workspace not double-triggered within one 15-minute window
+- [ ] PRD tech stack table lists Render Cron Jobs, not Inngest
 
 ---
 
 ## 10. Out of Scope (this spec)
 
-- Per-day different times (Mon 9am, Thu 4pm) — v1.1 unless explicitly pulled into MVP  
-- Per-user or per-sub-team schedules (PRD open question)  
-- Inngest or other job queues  
-- Synthesis cron (specify in Phase 2 spec addendum)  
-- Email/Teams  
+- Per-day different times (Mon 9am, Thu 4pm) — v1.1 unless explicitly pulled into MVP
+- Per-user or per-sub-team schedules (PRD open question)
+- Inngest or other job queues
+- Synthesis cron (specify in Phase 2 spec addendum)
+- Email/Teams
 - Full LangGraph/CrewAI multi-agent graph (Phase 5; PRD §4.6)
 
 ---
@@ -356,11 +356,11 @@ Synthesis / digest scheduling can follow the same pattern on a separate internal
 
 ### 13.1 Layout (v1 foundation)
 
-| Region | Purpose |
-|--------|---------|
-| **Chat panel** | Strategy Agent thread; streaming text responses |
-| **Context panel** | Charts/metrics the agent attaches to a turn (velocity, sentiment, capacity list) |
-| **Team Health strip** | Color-coded roster; overload = orange/red + one-line reason |
+| Region                | Purpose                                                                          |
+| --------------------- | -------------------------------------------------------------------------------- |
+| **Chat panel**        | Strategy Agent thread; streaming text responses                                  |
+| **Context panel**     | Charts/metrics the agent attaches to a turn (velocity, sentiment, capacity list) |
+| **Team Health strip** | Color-coded roster; overload = orange/red + one-line reason                      |
 
 v1 may ship chat + Team Health fed by **check-in data only**; Linear-backed charts land in Phase 4 (PRD §10).
 
@@ -393,11 +393,11 @@ interface TeamHealthRow {
 
 ### 13.3 REST API (exec-only)
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `POST` | `/api/workspaces/:id/strategy/chat` | Send message; returns reply + optional `visualizations` |
-| `GET` | `/api/workspaces/:id/team-health` | Current Team Health rows (for strip refresh without chat) |
-| `GET` | `/api/workspaces/:id/metrics/sentiment` | Check-in-derived sentiment series (v1 chart data) |
+| Method | Path                                    | Description                                               |
+| ------ | --------------------------------------- | --------------------------------------------------------- |
+| `POST` | `/api/workspaces/:id/strategy/chat`     | Send message; returns reply + optional `visualizations`   |
+| `GET`  | `/api/workspaces/:id/team-health`       | Current Team Health rows (for strip refresh without chat) |
+| `GET`  | `/api/workspaces/:id/metrics/sentiment` | Check-in-derived sentiment series (v1 chart data)         |
 
 **Authorization:** `founder` / admin only for strategy routes; same trust boundary as PRD §7.
 
@@ -442,11 +442,11 @@ Persist as `LinearIssueSnapshot` rows or aggregated daily rollups per user.
 
 ### 15.1 Components (0–1 each, weighted)
 
-| Component | Source | Example signal |
-|-----------|--------|----------------|
-| `linear_load` | Linear sync | Active issues + estimate overrun |
-| `slack_stress` | Slack analysis | After-hours ratio, latency spike, keyword flags (configurable) |
-| `checkin_workload` | Check-In Agent | Latest 1–5 workload; trend vs 4-week avg |
+| Component          | Source         | Example signal                                                 |
+| ------------------ | -------------- | -------------------------------------------------------------- |
+| `linear_load`      | Linear sync    | Active issues + estimate overrun                               |
+| `slack_stress`     | Slack analysis | After-hours ratio, latency spike, keyword flags (configurable) |
+| `checkin_workload` | Check-In Agent | Latest 1–5 workload; trend vs 4-week avg                       |
 
 **Formula (v1 implementation):**
 
@@ -529,25 +529,25 @@ Store summarized JSON on `User.performance_profile_summary`; Strategy Agent read
 
 When this spec is accepted, [prd.md](./prd.md) should stay aligned on:
 
-| Topic | PRD section | Spec section |
-|-------|-------------|--------------|
-| Workspace schedule UI | §4.1 | §4 |
-| Render Cron Jobs | §7 | §2–§3, §7 |
-| Executive dashboard | §4.5 | §13 |
-| Linear + capacity | §4.7–§4.8 | §14–§16 |
-| HRIS + performance | §4.6–§4.9 | §17–§18 |
-| Build phases | §10 | §9 + PRD Phase 4–5 |
+| Topic                 | PRD section | Spec section       |
+| --------------------- | ----------- | ------------------ |
+| Workspace schedule UI | §4.1        | §4                 |
+| Render Cron Jobs      | §7          | §2–§3, §7          |
+| Executive dashboard   | §4.5        | §13                |
+| Linear + capacity     | §4.7–§4.8   | §14–§16            |
+| HRIS + performance    | §4.6–§4.9   | §17–§18            |
+| Build phases          | §10         | §9 + PRD Phase 4–5 |
 
 ---
 
 ## 12. Open Questions
 
-- [ ] Weekends in day picker for v1, or Mon–Fri only?  
-- [ ] Single `time_local` vs per-weekday times for Mon 9am / Thu 4pm default  
-- [ ] Can `lead` role edit schedule or founder-only?  
-- [ ] Cron interval: 15 vs 5 minutes (cost vs precision)  
-- [ ] Separate cron job for synthesis digest or same endpoint with `?job=digest`  
-- [ ] Chart library for executive dashboard (Recharts vs Tremor vs custom)  
-- [ ] Slack stress signals: run in Express batch job vs stream processing  
-- [ ] Linear webhook vs poll-only for v1 of sync  
-- [ ] IC consent: Slack button ("OK to reassign X") vs explicit text reply  
+- [ ] Weekends in day picker for v1, or Mon–Fri only?
+- [ ] Single `time_local` vs per-weekday times for Mon 9am / Thu 4pm default
+- [ ] Can `lead` role edit schedule or founder-only?
+- [ ] Cron interval: 15 vs 5 minutes (cost vs precision)
+- [ ] Separate cron job for synthesis digest or same endpoint with `?job=digest`
+- [ ] Chart library for executive dashboard (Recharts vs Tremor vs custom)
+- [ ] Slack stress signals: run in Express batch job vs stream processing
+- [ ] Linear webhook vs poll-only for v1 of sync
+- [ ] IC consent: Slack button ("OK to reassign X") vs explicit text reply

@@ -19,10 +19,14 @@ export async function dismissActivityAttentionAction(input: {
     return { error: "You must be signed in." };
   }
 
-  const result = await dismissActivityAttentionItemApi(token, input.workspaceId, {
-    item_type: input.itemType,
-    item_key: input.itemKey,
-  });
+  const result = await dismissActivityAttentionItemApi(
+    token,
+    input.workspaceId,
+    {
+      item_type: input.itemType,
+      item_key: input.itemKey,
+    },
+  );
 
   if (!result.success) {
     return { error: result.error ?? "Failed to dismiss alert." };

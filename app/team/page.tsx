@@ -2,7 +2,10 @@ import Link from "next/link";
 
 import { TeamRoster } from "@/components/team/team-roster";
 import { buttonVariants } from "@/components/ui/button";
-import { getWorkspaceLanguage, getWorkspaceTimezone } from "@/lib/api/conversations";
+import {
+  getWorkspaceLanguage,
+  getWorkspaceTimezone,
+} from "@/lib/api/conversations";
 import { getJiraConnectionStatus } from "@/lib/api/jira";
 import { getLinearConnectionStatus } from "@/lib/api/linear";
 import { listRosterMembers } from "@/lib/api/roster";
@@ -42,8 +45,7 @@ export default async function TeamPage() {
   const linearStatus = linearStatusResult?.data ?? { connected: false };
   const jiraStatus = jiraStatusResult?.data ?? { connected: false };
   const rosterMembers = rosterResult?.data?.members ?? [];
-  const workspaceTimezone =
-    timezoneResult?.data?.timezone ?? "America/Chicago";
+  const workspaceTimezone = timezoneResult?.data?.timezone ?? "America/Chicago";
   const workspaceLanguage = languageResult?.data?.language ?? "en";
 
   return (
@@ -73,7 +75,6 @@ export default async function TeamPage() {
           No team found for your account.
         </p>
       )}
-
     </div>
   );
 }

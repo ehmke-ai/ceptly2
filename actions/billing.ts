@@ -13,7 +13,9 @@ import {
 import { getAccessToken, requireAuth } from "@/lib/auth/server";
 import { getPrimaryWorkspace } from "@/lib/subscription";
 
-export async function startBillingCheckoutAction(): Promise<{ error?: string }> {
+export async function startBillingCheckoutAction(): Promise<{
+  error?: string;
+}> {
   const user = await requireAuth();
   const token = await getAccessToken();
   const workspace = getPrimaryWorkspace(user);
@@ -76,9 +78,7 @@ export async function endTrialAction(): Promise<{
   return { data: result.data };
 }
 
-export async function updateSubscriptionSeatsAction(
-  quantity: number,
-): Promise<{
+export async function updateSubscriptionSeatsAction(quantity: number): Promise<{
   error?: string;
   success?: boolean;
   data?: Awaited<ReturnType<typeof updateSubscriptionSeats>>["data"];

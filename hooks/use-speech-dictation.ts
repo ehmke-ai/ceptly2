@@ -138,12 +138,7 @@ export function useSpeechDictation({
         (committedRef.current.length > 0 || interim.length > 0)
           ? " "
           : "";
-      onChange(
-        prefixRef.current +
-          spacer +
-          committedRef.current +
-          interim,
-      );
+      onChange(prefixRef.current + spacer + committedRef.current + interim);
     };
 
     recognition.onerror = (event) => {

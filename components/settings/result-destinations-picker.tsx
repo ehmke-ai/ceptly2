@@ -61,8 +61,9 @@ export function ResultDestinationsPicker({
       <div className="space-y-1">
         <Label>Send standup results to</Label>
         <p className="text-sm text-muted-foreground">
-          After each check-in window, Ceptly posts a rollup for this conversation
-          only. Pick one or more Slack channels, and optionally DM team members.
+          After each check-in window, Ceptly posts a rollup for this
+          conversation only. Pick one or more Slack channels, and optionally DM
+          team members.
         </p>
       </div>
 
@@ -130,7 +131,9 @@ export function ResultDestinationsPicker({
       </div>
 
       <div className="space-y-2">
-        <Label className="text-muted-foreground">Direct messages (optional)</Label>
+        <Label className="text-muted-foreground">
+          Direct messages (optional)
+        </Label>
         {activeMembers.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             Add team members to your roster to DM them standup rollups.

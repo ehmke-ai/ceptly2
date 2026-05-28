@@ -111,9 +111,7 @@ export function SeatManagement({
 
     if (result.data) {
       setStatus(result.data);
-      setTargetSeats(
-        Math.max(result.data.paidSeats, result.data.seatUsage, 1),
-      );
+      setTargetSeats(Math.max(result.data.paidSeats, result.data.seatUsage, 1));
     }
 
     closeManageDialog();
@@ -165,9 +163,7 @@ export function SeatManagement({
           <Progress value={usagePercent} className="gap-0">
             <ProgressTrack className="h-1.5">
               <ProgressIndicator
-                className={cn(
-                  atCapacity ? "bg-amber-500" : "bg-primary",
-                )}
+                className={cn(atCapacity ? "bg-amber-500" : "bg-primary")}
               />
             </ProgressTrack>
           </Progress>
@@ -267,8 +263,7 @@ export function SeatManagement({
                     variant="outline"
                     size="icon"
                     disabled={
-                      pending ||
-                      (maxSeats != null && targetSeats >= maxSeats)
+                      pending || (maxSeats != null && targetSeats >= maxSeats)
                     }
                     onClick={() => setTargetSeats((value) => value + 1)}
                     aria-label="Add seat"

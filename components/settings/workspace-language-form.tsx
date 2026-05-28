@@ -17,10 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import {
-  getLanguageLabel,
-  SUPPORTED_LANGUAGES,
-} from "@/lib/i18n/languages";
+import { getLanguageLabel, SUPPORTED_LANGUAGES } from "@/lib/i18n/languages";
 
 interface WorkspaceLanguageFormProps {
   workspaceId: string;

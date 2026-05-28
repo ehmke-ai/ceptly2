@@ -82,8 +82,8 @@ export default async function NewActivityConversationPage() {
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Start from a template, choose who receives check-in DMs, and where
-            standup rollups are posted. A short summary is generated automatically
-            after you publish.
+            standup rollups are posted. A short summary is generated
+            automatically after you publish.
           </p>
         </div>
       </div>
@@ -91,10 +91,9 @@ export default async function NewActivityConversationPage() {
       {templatesLoadFailed ? (
         <Alert variant="destructive">
           <AlertDescription>
-            {templatesResult.error ??
-              "Could not load templates from the API."}{" "}
-            Showing the default Daily standup template offline — publish may fail
-            until the backend is reachable.
+            {templatesResult.error ?? "Could not load templates from the API."}{" "}
+            Showing the default Daily standup template offline — publish may
+            fail until the backend is reachable.
           </AlertDescription>
         </Alert>
       ) : usedTemplateFallback ? (

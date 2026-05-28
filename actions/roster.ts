@@ -187,15 +187,11 @@ function formatImportResult(data: {
   const parts: string[] = [];
 
   if (data.added > 0) {
-    parts.push(
-      `Added ${data.added} member${data.added === 1 ? "" : "s"}`,
-    );
+    parts.push(`Added ${data.added} member${data.added === 1 ? "" : "s"}`);
   }
 
   if (data.skipped > 0) {
-    parts.push(
-      `Skipped ${data.skipped} already on roster or without a match`,
-    );
+    parts.push(`Skipped ${data.skipped} already on roster or without a match`);
   }
 
   if (data.failed > 0) {

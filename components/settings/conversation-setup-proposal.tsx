@@ -73,7 +73,9 @@ export function ConversationSetupProposal({
     onProposalChange({
       ...proposal,
       conversations: proposal.conversations.map((conversation, index) =>
-        index === conversationIndex ? { ...conversation, ...patch } : conversation,
+        index === conversationIndex
+          ? { ...conversation, ...patch }
+          : conversation,
       ),
     });
   }
@@ -110,9 +112,9 @@ export function ConversationSetupProposal({
   }
 
   function removeQuestion(conversationIndex: number, questionIndex: number) {
-    const questions = proposal.conversations[conversationIndex]!.questions.filter(
-      (_, index) => index !== questionIndex,
-    );
+    const questions = proposal.conversations[
+      conversationIndex
+    ]!.questions.filter((_, index) => index !== questionIndex);
     updateConversation(conversationIndex, { questions });
   }
 
@@ -142,7 +144,10 @@ export function ConversationSetupProposal({
             .filter((question) => question.enabled);
 
           return (
-            <Card key={`${conversation.name}-${index}`} className="dark:border-white/20">
+            <Card
+              key={`${conversation.name}-${index}`}
+              className="dark:border-white/20"
+            >
               <CardHeader className="pb-3">
                 <div className="space-y-2">
                   <Label htmlFor={`proposal-name-${index}`}>Name</Label>
@@ -161,7 +166,9 @@ export function ConversationSetupProposal({
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm text-muted-foreground">{schedulePreview}</p>
+                <p className="text-sm text-muted-foreground">
+                  {schedulePreview}
+                </p>
                 <ScheduleDaysPicker
                   daysOfWeek={conversation.schedule.days_of_week}
                   onChange={(daysOfWeek) =>
@@ -217,7 +224,11 @@ export function ConversationSetupProposal({
                         <Textarea
                           value={question}
                           onChange={(event) =>
-                            updateQuestion(index, questionIndex, event.target.value)
+                            updateQuestion(
+                              index,
+                              questionIndex,
+                              event.target.value,
+                            )
                           }
                           placeholder="What should we ask?"
                           rows={2}
@@ -241,7 +252,9 @@ export function ConversationSetupProposal({
 
       {daysValidationError ? (
         <Alert variant="destructive">
-          <AlertDescription>Select at least one day before publishing.</AlertDescription>
+          <AlertDescription>
+            Select at least one day before publishing.
+          </AlertDescription>
         </Alert>
       ) : null}
 
@@ -269,7 +282,12 @@ export function ConversationSetupProposal({
 
       <Button
         onClick={onPublish}
-        disabled={publishing || publishSuccess || daysValidationError || contentValidationError}
+        disabled={
+          publishing ||
+          publishSuccess ||
+          daysValidationError ||
+          contentValidationError
+        }
         className="w-full sm:w-auto"
       >
         {publishing ? (

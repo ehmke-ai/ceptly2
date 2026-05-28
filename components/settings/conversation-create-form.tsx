@@ -63,7 +63,8 @@ export function ConversationCreateForm({
     templates[0];
 
   const [templateId, setTemplateId] = useState(dailyStandup?.id ?? "");
-  const template = templates.find((item) => item.id === templateId) ?? dailyStandup;
+  const template =
+    templates.find((item) => item.id === templateId) ?? dailyStandup;
 
   const [name, setName] = useState(template?.name ?? "");
   const [timezone, setTimezone] = useState(workspaceTimezone);
@@ -177,13 +178,18 @@ export function ConversationCreateForm({
               onClick={() => applyTemplate(item.id)}
             >
               <p className="font-medium">{item.name}</p>
-              <p className="mt-1 text-sm text-muted-foreground">{item.summary}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {item.summary}
+              </p>
             </button>
           ))}
         </div>
         <p className="text-sm text-muted-foreground">
           Or{" "}
-          <Link href="/chat" className="font-medium underline-offset-4 hover:underline">
+          <Link
+            href="/chat"
+            className="font-medium underline-offset-4 hover:underline"
+          >
             describe your check-ins with AI
           </Link>
           .
@@ -269,7 +275,10 @@ export function ConversationCreateForm({
         </div>
 
         {frequency === "specific_days" ? (
-          <ScheduleDaysPicker daysOfWeek={daysOfWeek} onChange={setDaysOfWeek} />
+          <ScheduleDaysPicker
+            daysOfWeek={daysOfWeek}
+            onChange={setDaysOfWeek}
+          />
         ) : null}
 
         <div className="space-y-2">

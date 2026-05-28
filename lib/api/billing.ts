@@ -71,13 +71,16 @@ export async function createBillingCheckout(
 ): Promise<{ url?: string; error?: string }> {
   try {
     const base = await resolveApiBaseUrl();
-    const response = await fetch(`${base}${billingBase(workspaceId)}/checkout`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${base}${billingBase(workspaceId)}/checkout`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
 
     const result = (await response.json()) as BillingCheckoutResponse;
     if (!response.ok || !result.success) {
@@ -160,13 +163,16 @@ export async function endWorkspaceTrial(
 ): Promise<{ data?: WorkspaceBillingStatus; error?: string }> {
   try {
     const base = await resolveApiBaseUrl();
-    const response = await fetch(`${base}${billingBase(workspaceId)}/end-trial`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+    const response = await fetch(
+      `${base}${billingBase(workspaceId)}/end-trial`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       },
-    });
+    );
 
     const result = (await response.json()) as EndTrialResponse;
     if (!response.ok || !result.success) {

@@ -68,7 +68,9 @@ export function MemberResponse({
               <p className="text-xs font-medium text-muted-foreground">
                 Q: {response.question_prompt}
               </p>
-              <p className="mt-0.5 whitespace-pre-wrap">{response.answer_text}</p>
+              <p className="mt-0.5 whitespace-pre-wrap">
+                {response.answer_text}
+              </p>
             </div>
           ))}
         </div>

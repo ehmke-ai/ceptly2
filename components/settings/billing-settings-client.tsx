@@ -180,8 +180,9 @@ export function BillingSettingsClient({
               <div className="space-y-1">
                 <p className="text-sm font-medium">Ready to go paid?</p>
                 <p className="text-sm text-muted-foreground">
-                  End your free trial now and start billing at {priceLabel}/seat/month.
-                  Add a payment method first if you haven&apos;t already.
+                  End your free trial now and start billing at {priceLabel}
+                  /seat/month. Add a payment method first if you haven&apos;t
+                  already.
                 </p>
               </div>
               {confirmEndTrial ? (

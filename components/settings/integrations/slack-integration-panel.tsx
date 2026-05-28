@@ -2,12 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CheckCircle2,
-  ChevronDown,
-  Loader2,
-  Unplug,
-} from "lucide-react";
+import { CheckCircle2, ChevronDown, Loader2, Unplug } from "lucide-react";
 
 import {
   disconnectSlackConnection,
@@ -203,8 +198,8 @@ export function SlackIntegrationPanel({
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Slack is not connected. Ask a workspace owner or admin to install Ceptly for
-          your team.
+          Slack is not connected. Ask a workspace owner or admin to install
+          Ceptly for your team.
         </p>
       )}
     </div>

@@ -58,9 +58,9 @@ export function DigestChannelForm({
           disabled={!canEdit || isPending}
         />
         <p className="text-sm text-muted-foreground">
-          Slack channel ID for daily standup rollups, weekly digests, and blocker
-          alerts. In Slack, open the channel → channel details → copy the channel
-          ID at the bottom.
+          Slack channel ID for daily standup rollups, weekly digests, and
+          blocker alerts. In Slack, open the channel → channel details → copy
+          the channel ID at the bottom.
         </p>
       </div>
 

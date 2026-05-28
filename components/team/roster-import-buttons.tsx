@@ -29,8 +29,7 @@ export function RosterImportButtons({
   jiraConnected,
 }: RosterImportButtonsProps) {
   const { resolvedTheme, theme } = useTheme();
-  const logoTheme =
-    (resolvedTheme ?? theme) === "dark" ? "dark" : "light";
+  const logoTheme = (resolvedTheme ?? theme) === "dark" ? "dark" : "light";
   const slackLogo = getIntegrationLogo("slack", logoTheme);
   const linearLogo = getIntegrationLogo("linear", logoTheme);
   const jiraLogo = getIntegrationLogo("jira", logoTheme);
@@ -41,8 +40,7 @@ export function RosterImportButtons({
   const [isLinearPending, startLinearTransition] = useTransition();
   const [isJiraPending, startJiraTransition] = useTransition();
 
-  const importDisabled =
-    isSlackPending || isLinearPending || isJiraPending;
+  const importDisabled = isSlackPending || isLinearPending || isJiraPending;
 
   const handleSlackImport = () => {
     setMessage(null);

@@ -61,11 +61,7 @@ function buildOnboardingBody(
   };
 
   const other = payload.referralSourceOther?.trim();
-  if (
-    payload.referralSource === "other" &&
-    other &&
-    other !== "$undefined"
-  ) {
+  if (payload.referralSource === "other" && other && other !== "$undefined") {
     body.referralSourceOther = other;
   }
 
@@ -88,17 +84,14 @@ export async function postOnboardingComplete(
 
   try {
     const base = await resolveApiBaseUrl();
-    response = await fetch(
-      `${base}${ONBOARDING_ENDPOINTS.complete}`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(buildOnboardingBody(payload)),
+    response = await fetch(`${base}${ONBOARDING_ENDPOINTS.complete}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify(buildOnboardingBody(payload)),
+    });
   } catch {
     return {
       success: false,

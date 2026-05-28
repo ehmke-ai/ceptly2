@@ -17,6 +17,10 @@ export function toggleDayInList(days: number[], day: number): number[] {
 export function formatSelectedDays(days: number[]): string {
   return [...days]
     .sort((a, b) => a - b)
-    .map((day) => DAY_OPTIONS.find((option) => option.value === day)?.label ?? String(day))
+    .map(
+      (day) =>
+        DAY_OPTIONS.find((option) => option.value === day)?.label ??
+        String(day),
+    )
     .join(", ");
 }

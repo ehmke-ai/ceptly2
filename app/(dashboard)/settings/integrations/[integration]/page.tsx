@@ -34,9 +34,7 @@ export default async function IntegrationDetailPage({
   const token = await getAccessToken();
 
   const integrationsResult =
-    workspace?.id && token
-      ? await listIntegrations(token, workspace.id)
-      : null;
+    workspace?.id && token ? await listIntegrations(token, workspace.id) : null;
 
   const integrationFromApi = integrationsResult?.data?.integrations.find(
     (item) => item.id === integrationId,
@@ -58,12 +56,14 @@ export default async function IntegrationDetailPage({
   let panel: React.ReactNode = null;
 
   if (integration.id === "slack" && workspace?.id && token) {
-    const slackStatusResult = await getSlackConnectionStatus(token, workspace.id);
+    const slackStatusResult = await getSlackConnectionStatus(
+      token,
+      workspace.id,
+    );
     const slackStatus = slackStatusResult?.data ?? { connected: false };
 
     const digestResult = await getDigestSlackChannel(token, workspace.id);
-    const digestChannelId =
-      digestResult.data?.digest_slack_channel_id ?? null;
+    const digestChannelId = digestResult.data?.digest_slack_channel_id ?? null;
 
     panel = (
       <div className="space-y-10">
@@ -78,9 +78,12 @@ export default async function IntegrationDetailPage({
         {slackStatus.connected ? (
           <section className="space-y-4 border-t pt-8 dark:border-white/10">
             <div>
-              <h2 className="text-sm font-semibold">Leadership digest channel</h2>
+              <h2 className="text-sm font-semibold">
+                Leadership digest channel
+              </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Daily standup rollups, weekly digests, and blocker alerts post here.
+                Daily standup rollups, weekly digests, and blocker alerts post
+                here.
               </p>
             </div>
             <DigestChannelForm
@@ -95,7 +98,10 @@ export default async function IntegrationDetailPage({
   }
 
   if (integration.id === "linear" && workspace?.id && token) {
-    const linearStatusResult = await getLinearConnectionStatus(token, workspace.id);
+    const linearStatusResult = await getLinearConnectionStatus(
+      token,
+      workspace.id,
+    );
     const linearStatus = linearStatusResult?.data ?? { connected: false };
 
     panel = (

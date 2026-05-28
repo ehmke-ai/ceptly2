@@ -36,8 +36,7 @@ export function ActivityConversationCard({
   const run = conversation.latest_run;
   const responded = run?.responded_count ?? 0;
   const expected = run?.expected_count ?? 0;
-  const progress =
-    expected > 0 ? Math.round((responded / expected) * 100) : 0;
+  const progress = expected > 0 ? Math.round((responded / expected) * 100) : 0;
 
   return (
     <Link href={`/activity/${conversation.id}`} className="block">
@@ -71,8 +70,7 @@ export function ActivityConversationCard({
                   {conversation.missing_members
                     .map((member) => member.display_name)
                     .join(", ")}
-                  {run.not_responded_count >
-                  conversation.missing_members.length
+                  {run.not_responded_count > conversation.missing_members.length
                     ? ` +${run.not_responded_count - conversation.missing_members.length} more`
                     : ""}
                 </p>

@@ -194,9 +194,7 @@ export function AccountHeader({ user }: AccountHeaderProps) {
                     <Link
                       href="/settings/account"
                       prefetch
-                      onClick={() =>
-                        client.logEvent("account_settings_click")
-                      }
+                      onClick={() => client.logEvent("account_settings_click")}
                     />
                   }
                 >

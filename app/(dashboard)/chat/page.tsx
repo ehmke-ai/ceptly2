@@ -12,7 +12,12 @@ export default async function ChatPage() {
   const canEdit = workspace ? canManageWorkspace(workspace.role) : false;
   const token = await getAccessToken();
 
-  const [linearStatusResult, appContextsResult, slackChannelsResult, rosterResult] =
+  const [
+    linearStatusResult,
+    appContextsResult,
+    slackChannelsResult,
+    rosterResult,
+  ] =
     workspace?.id && token
       ? await Promise.all([
           getLinearConnectionStatus(token, workspace.id),

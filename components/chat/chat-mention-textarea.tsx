@@ -26,8 +26,10 @@ import type { RosterMember } from "@/lib/api/roster";
 import { getTextareaCaretCoordinates } from "@/lib/textarea-caret";
 import { cn } from "@/lib/utils";
 
-interface ChatMentionTextareaProps
-  extends Omit<ComponentProps<typeof Textarea>, "value" | "onChange"> {
+interface ChatMentionTextareaProps extends Omit<
+  ComponentProps<typeof Textarea>,
+  "value" | "onChange"
+> {
   value: string;
   onChange: (value: string) => void;
   rosterMembers: RosterMember[];
@@ -242,9 +244,7 @@ export function ChatMentionTextarea({
   const syncDropdownPosition = useCallback(() => {
     const textarea = textareaRef.current;
     if (!textarea || mentionStart === null) {
-      setDropdownPosition((previous) =>
-        previous === null ? previous : null,
-      );
+      setDropdownPosition((previous) => (previous === null ? previous : null));
       return;
     }
 
@@ -262,9 +262,7 @@ export function ChatMentionTextarea({
 
   useLayoutEffect(() => {
     if (!menuOpen) {
-      setDropdownPosition((previous) =>
-        previous === null ? previous : null,
-      );
+      setDropdownPosition((previous) => (previous === null ? previous : null));
       return;
     }
     syncDropdownPosition();

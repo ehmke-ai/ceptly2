@@ -59,7 +59,10 @@ export function ActivityAdhocList({ sessions }: ActivityAdhocListProps) {
                   {session.member_name} · {formatTime(session.started_at)}
                 </p>
               </div>
-              <Badge variant={statusVariant(session.status)} className="shrink-0">
+              <Badge
+                variant={statusVariant(session.status)}
+                className="shrink-0"
+              >
                 {session.status.replace("_", " ")}
               </Badge>
             </div>

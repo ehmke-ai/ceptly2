@@ -41,9 +41,7 @@ export default async function RootLayout({
   const hideHeader =
     pathname.startsWith("/auth") || pathname.startsWith("/onboarding");
   const cookieStore = await cookies();
-  const initialTheme = resolveTheme(
-    cookieStore.get(THEME_COOKIE_NAME)?.value,
-  );
+  const initialTheme = resolveTheme(cookieStore.get(THEME_COOKIE_NAME)?.value);
 
   return (
     <html

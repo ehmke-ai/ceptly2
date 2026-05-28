@@ -8,9 +8,7 @@ export default async function IntegrationsPage() {
   const token = await getAccessToken();
 
   const result =
-    workspace?.id && token
-      ? await listIntegrations(token, workspace.id)
-      : null;
+    workspace?.id && token ? await listIntegrations(token, workspace.id) : null;
 
   const integrations = result?.data?.integrations ?? [];
 

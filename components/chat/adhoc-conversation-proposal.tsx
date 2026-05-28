@@ -34,7 +34,8 @@ function startButtonLabel(
   members: AdhocConversationProposal["members"],
 ): string {
   if (members.length === 1) {
-    const firstName = members[0]!.display_name.split(/\s+/)[0] ?? members[0]!.display_name;
+    const firstName =
+      members[0]!.display_name.split(/\s+/)[0] ?? members[0]!.display_name;
     return `Message ${firstName} in Slack`;
   }
   return "Start conversations in Slack";
@@ -73,11 +74,14 @@ export function AdhocConversationProposalCard({
 
       {proposal.intent === "inform" && proposal.delivery_facts ? (
         <p className="mt-2 text-sm leading-relaxed">
-          <span className="font-medium">Will share:</span> {proposal.delivery_facts}
+          <span className="font-medium">Will share:</span>{" "}
+          {proposal.delivery_facts}
         </p>
       ) : null}
 
-      <p className="mt-2 text-sm text-muted-foreground">{intentFooter(proposal.intent)}</p>
+      <p className="mt-2 text-sm text-muted-foreground">
+        {intentFooter(proposal.intent)}
+      </p>
 
       <Button
         className="mt-4 gap-2"

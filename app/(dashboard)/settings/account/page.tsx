@@ -24,7 +24,10 @@ export default async function AccountSettingsPage() {
 
       <AccountNameForm initialFullName={displayName} email={user.email} />
 
-      <AccountRoleCard role={team?.role ?? null} teamName={team?.name ?? null} />
+      <AccountRoleCard
+        role={team?.role ?? null}
+        teamName={team?.name ?? null}
+      />
 
       <ThemeSettings />
     </div>

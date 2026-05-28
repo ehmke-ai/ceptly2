@@ -165,8 +165,9 @@ function updateAdhocProposalMembers(
     roster_member_ids: memberIds,
     members: memberIds
       .map((id) => rosterById.get(id))
-      .filter((member): member is AdhocConversationProposal["members"][number] =>
-        Boolean(member),
+      .filter(
+        (member): member is AdhocConversationProposal["members"][number] =>
+          Boolean(member),
       ),
   };
 }
@@ -199,14 +200,18 @@ export function EmployeeChatPrompt({
   const [publishSuccess, setPublishSuccess] = useState(false);
   const [adhocSuccess, setAdhocSuccess] = useState(false);
   const [activeAgent, setActiveAgent] = useState<ChatAgentId | null>(null);
-  const [agentPreference, setAgentPreference] = useState<
-    ChatAgentId | "auto"
-  >("auto");
+  const [agentPreference, setAgentPreference] = useState<ChatAgentId | "auto">(
+    "auto",
+  );
 
   const hasMessages = messages.length > 0 || chatPending;
   const isEmptyState = !hasMessages && !chatError;
   const chatDisabled =
-    chatPending || publishPending || adhocPending || adhocAbandonPending || !canEdit;
+    chatPending ||
+    publishPending ||
+    adhocPending ||
+    adhocAbandonPending ||
+    !canEdit;
   const isSetupAgent =
     activeAgent === "conversation_setup" || activeAgent === null;
   const isAdhocAgent = activeAgent === "adhoc_conversation";
@@ -254,7 +259,12 @@ export function EmployeeChatPrompt({
   }, [messages]);
 
   const publishDisabled = useMemo(() => {
-    if (!proposal || publishPending || chatPending || activeAgent !== "conversation_setup") {
+    if (
+      !proposal ||
+      publishPending ||
+      chatPending ||
+      activeAgent !== "conversation_setup"
+    ) {
       return true;
     }
 
@@ -408,8 +418,7 @@ export function EmployeeChatPrompt({
       return;
     }
 
-    const candidates =
-      memberPickerSelection?.members ?? adhocProposal.members;
+    const candidates = memberPickerSelection?.members ?? adhocProposal.members;
     const updatedProposal = updateAdhocProposalMembers(
       adhocProposal,
       memberIds,
@@ -465,9 +474,7 @@ export function EmployeeChatPrompt({
           : null;
 
     if (recap) {
-      setProposal(
-        updateProposalFromSetupRecap(proposal, recap, slackChannels),
-      );
+      setProposal(updateProposalFromSetupRecap(proposal, recap, slackChannels));
       return;
     }
 
@@ -719,11 +726,7 @@ export function EmployeeChatPrompt({
             disabled={!input.trim() || chatDisabled}
             aria-label="Send message"
           >
-            {chatPending ? (
-              <Loader2 className="animate-spin" />
-            ) : (
-              <ArrowUp />
-            )}
+            {chatPending ? <Loader2 className="animate-spin" /> : <ArrowUp />}
           </Button>
         </div>
       </div>

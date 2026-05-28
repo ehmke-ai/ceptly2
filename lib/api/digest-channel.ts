@@ -36,7 +36,10 @@ export async function getDigestSlackChannel(
       data?: { digest_slack_channel_id: string | null };
     }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -66,6 +69,9 @@ export async function updateDigestSlackChannel(
       data?: { digest_slack_channel_id: string | null };
     }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }

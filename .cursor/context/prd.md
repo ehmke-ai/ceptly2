@@ -21,15 +21,15 @@ Imagine a company, say 5 years in the future. They have developers, designers, m
 
 At full maturity, the system includes:
 
-| Agent role | Responsibility |
-|---|---|
-| **Strategy** | Takes executive input; breaks goals into OKRs, timelines, tradeoffs, and project plans |
-| **Coordination & assignment** | Matches work to people by skills, workload, capacity, and past performance |
-| **Communication** | Tailored Slack updates, summaries, and clarifying questions per person’s preferences |
-| **Check-in & feedback** | Async pulse, sentiment, burnout risk, lightweight peer feedback |
-| **Review** | First-pass design/code review; escalates only when ambiguous or high-stakes |
-| **Culture** | Nudges when company values are missing from decisions |
-| **Onboarding** | Triggered when a new hire appears in HRIS — role, channels, Linear, Slack sequence |
+| Agent role                    | Responsibility                                                                         |
+| ----------------------------- | -------------------------------------------------------------------------------------- |
+| **Strategy**                  | Takes executive input; breaks goals into OKRs, timelines, tradeoffs, and project plans |
+| **Coordination & assignment** | Matches work to people by skills, workload, capacity, and past performance             |
+| **Communication**             | Tailored Slack updates, summaries, and clarifying questions per person’s preferences   |
+| **Check-in & feedback**       | Async pulse, sentiment, burnout risk, lightweight peer feedback                        |
+| **Review**                    | First-pass design/code review; escalates only when ambiguous or high-stakes            |
+| **Culture**                   | Nudges when company values are missing from decisions                                  |
+| **Onboarding**                | Triggered when a new hire appears in HRIS — role, channels, Linear, Slack sequence     |
 
 Executives primarily interact with a **Strategy Agent** in the web app (chat + charts) and optionally in Slack. ICs interact mainly in Slack. The system learns from what gets approved, ships, and fails.
 
@@ -67,6 +67,7 @@ Ceptly is a product powered by AI agents that proactively gather context from IC
 - Assist team leads with evidence-based performance context (not firing recommendations in v1)
 
 old:
+
 - Reduce founder time spent on status gathering and team health monitoring
 - Surface problems earlier than they would appear organically
 - Reduce time spent by IC's communicating with higher ups
@@ -75,6 +76,7 @@ old:
 - Assist Team Leads with tracking performance
 - Assist Team Leads by tracking lateness etc.
 - Assist Team Leads with giving requirements to Team Leads
+
 ## 3. User Stories
 
 ### Executive / Founder / Team Lead
@@ -122,6 +124,7 @@ All IC-facing agents default to Slack. Executive Strategy Agent is **web-first**
 **Role:** Proactively contacts individual contributors on a set cadence to gather status context.
 
 **Behavior:**
+
 - DMs each IC on a configurable schedule (default: Monday morning and Thursday EOD)
 - Conducts a short, conversational async interview — not a form
 - Adapts follow-up questions based on prior responses (e.g., if someone flagged a blocker last week, asks for an update on it)
@@ -137,6 +140,7 @@ All IC-facing agents default to Slack. Executive Strategy Agent is **web-first**
 > **Sarah:** 3, it's manageable but getting full.
 
 **Questions Asked (rotating, not all every session):**
+
 - What are you working on this week?
 - Any blockers or dependencies waiting on others?
 - How is your workload feeling? (1–5)
@@ -144,6 +148,7 @@ All IC-facing agents default to Slack. Executive Strategy Agent is **web-first**
 - Is there anything you're unclear on in terms of priorities?
 
 **Configuration (per workspace):**
+
 - Check-in schedule (manager-configurable in Settings UI):
   - Days of week — checkboxes (any combination, e.g. Mon + Thu)
   - Time of day — time picker in workspace timezone
@@ -162,6 +167,7 @@ See [spec.md](./spec.md) for Render cron + scheduler implementation.
 **Role:** Processes raw check-in responses and produces structured summaries and alerts for team leads.
 
 **Behavior:**
+
 - Runs after each check-in window closes
 - Reads all IC responses for the period
 - Groups insights by theme: progress, blockers, workload, morale, open questions
@@ -204,13 +210,13 @@ Open Items for Leadership
 
 **Alert Types:**
 
-| Alert | Trigger |
-|---|---|
-| Blocker Alert | IC reports a blocker; posts immediately to `#leadership-digest` |
-| Disengagement Flag | IC misses 2+ consecutive check-ins |
-| Workload Spike | Team average workload score increases >1pt week-over-week |
-| Morale Dip | 2+ ICs report low scores in same window |
-| Unanswered Question | IC submits a question that no digest has addressed in 7+ days |
+| Alert               | Trigger                                                         |
+| ------------------- | --------------------------------------------------------------- |
+| Blocker Alert       | IC reports a blocker; posts immediately to `#leadership-digest` |
+| Disengagement Flag  | IC misses 2+ consecutive check-ins                              |
+| Workload Spike      | Team average workload score increases >1pt week-over-week       |
+| Morale Dip          | 2+ ICs report low scores in same window                         |
+| Unanswered Question | IC submits a question that no digest has addressed in 7+ days   |
 
 ---
 
@@ -219,6 +225,7 @@ Open Items for Leadership
 **Role:** Allows founders and team leads to ask natural language questions about their team and get answers synthesized from check-in history.
 
 **Behavior:**
+
 - Responds to @mentions or DMs from authorized users (founders, leads)
 - Queries the check-in data store to construct answers
 - Answers are grounded in actual IC responses — never fabricated
@@ -226,16 +233,17 @@ Open Items for Leadership
 
 **Example Queries:**
 
-| Query | Agent Response |
-|---|---|
-| "Is anyone blocked right now?" | Lists current blockers with names and context |
-| "How is team morale looking?" | Synthesizes workload and sentiment scores with trend |
-| "What is James working on?" | Summarizes James's last 2 check-ins |
-| "Who hasn't checked in this week?" | Lists non-responders |
-| "Are there any recurring blockers?" | Identifies dependencies that have appeared 2+ times |
-| "What questions does the team have for me?" | Surfaces unaddressed IC questions |
+| Query                                       | Agent Response                                       |
+| ------------------------------------------- | ---------------------------------------------------- |
+| "Is anyone blocked right now?"              | Lists current blockers with names and context        |
+| "How is team morale looking?"               | Synthesizes workload and sentiment scores with trend |
+| "What is James working on?"                 | Summarizes James's last 2 check-ins                  |
+| "Who hasn't checked in this week?"          | Lists non-responders                                 |
+| "Are there any recurring blockers?"         | Identifies dependencies that have appeared 2+ times  |
+| "What questions does the team have for me?" | Surfaces unaddressed IC questions                    |
 
 **Guardrails:**
+
 - Q&A Agent only answers questions about team members to authorized roles (founder, team lead)
 - ICs can only query their own data
 - Agent always attributes answers to timeframe and source ("Sarah mentioned this on Monday")
@@ -257,14 +265,15 @@ Managers can build and maintain a question library for their workspace.
 
 **Question Types:**
 
-| Type | Description | Example |
-|---|---|---|
-| Open text | Free-form response | "What are you working on this week?" |
-| Scale (1–5) | Numeric rating with optional label | "How is your workload? (1 = light, 5 = overwhelmed)" |
-| Yes / No | Binary with optional follow-up | "Are you blocked on anything?" |
-| Multiple choice | Select from options | "Which best describes your week: on track / behind / ahead" |
+| Type            | Description                        | Example                                                     |
+| --------------- | ---------------------------------- | ----------------------------------------------------------- |
+| Open text       | Free-form response                 | "What are you working on this week?"                        |
+| Scale (1–5)     | Numeric rating with optional label | "How is your workload? (1 = light, 5 = overwhelmed)"        |
+| Yes / No        | Binary with optional follow-up     | "Are you blocked on anything?"                              |
+| Multiple choice | Select from options                | "Which best describes your week: on track / behind / ahead" |
 
 **Question List UI:**
+
 - Displays all questions in the active question set as a drag-and-drop ordered list
 - Each question row shows: question text, type, active/inactive toggle, edit and delete controls
 - Max active questions per check-in session: configurable (default: 4)
@@ -272,6 +281,7 @@ Managers can build and maintain a question library for their workspace.
 - Changes to the active set take effect on the next scheduled check-in
 
 **Editing a Question:**
+
 - Inline edit or modal editor
 - Fields: question text, question type, follow-up prompt (optional), skip logic (optional: only ask if previous answer meets condition)
 - "Tone preview" toggle: shows how the agent will phrase the question conversationally (e.g., a stiff "Please rate your workload 1–5" becomes "How's your workload feeling this week? (1 = easy, 5 = overwhelming)")
@@ -314,6 +324,7 @@ Step 4 — Confirm active set
 ```
 
 **Guardrails on AI Suggestions:**
+
 - Agent will not suggest questions that could be used to surveil ICs beyond their work context (e.g., no questions about personal life, health, or off-hours behavior)
 - Questions framed to feel conversational, not evaluative
 - Manager can always override or write from scratch
@@ -325,6 +336,7 @@ Step 4 — Confirm active set
 Before publishing a question set, managers can preview the full check-in experience as an IC would see it in Slack.
 
 **Preview Mode:**
+
 - Renders a simulated Slack DM conversation showing the agent's exact messages
 - Manager can "respond" as a test IC and see how the agent handles follow-ups
 - Shows estimated time to complete (target: under 2 minutes)
@@ -338,12 +350,12 @@ Before publishing a question set, managers can preview the full check-in experie
 
 After at least 2 check-in cycles, the Question Editor surfaces lightweight analytics per question to help managers improve their set.
 
-| Metric | Description |
-|---|---|
-| Response rate | % of ICs who answered this question |
+| Metric              | Description                                                  |
+| ------------------- | ------------------------------------------------------------ |
+| Response rate       | % of ICs who answered this question                          |
 | Avg response length | Signals engagement (very short may mean question is unclear) |
-| Skip rate | % who skipped or said "N/A" |
-| Sentiment signal | For scale questions: avg score and trend over last 4 cycles |
+| Skip rate           | % who skipped or said "N/A"                                  |
+| Sentiment signal    | For scale questions: avg score and trend over last 4 cycles  |
 
 These are shown inline on each question row as small badges. No separate analytics page needed in v1.
 
@@ -364,6 +376,7 @@ Each time a manager publishes a change to the active question set, Ceptly saves 
 **Role:** Primary executive surface — conversational strategy plus real-time data and charts.
 
 **Behavior:**
+
 - Main UI: chat with the **Strategy Agent** (natural language in/out; optional voice later)
 - Agent responses can include inline or adjacent **visualizations**: team velocity, project timelines, budget burn, capacity heatmaps, sentiment trends, org-wide workload
 - User can click charts to drill down or ask follow-ups ("Show me who's overloaded" → highlights people on roster/org view with supporting numbers)
@@ -381,14 +394,14 @@ Each time a manager publishes a change to the active question set, Ceptly saves 
 
 Documented for roadmap alignment; not all built in v1.
 
-| Agent | Key behaviors |
-|---|---|
-| **Strategy** | Exec goals → OKRs, timelines, tradeoffs; asks clarifying questions; feeds Coordination agent |
+| Agent                         | Key behaviors                                                                                                                                   |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Strategy**                  | Exec goals → OKRs, timelines, tradeoffs; asks clarifying questions; feeds Coordination agent                                                    |
 | **Coordination & assignment** | Creates/updates/prioritizes Linear tickets; breaks vague goals into tasks with acceptance criteria; assigns by skills, workload, capacity score |
-| **Communication** | Channel/DM updates tailored per recipient (bullets vs context vs voice notes) |
-| **Feedback & culture** | Pulse surveys, chat sentiment, burnout flags, values nudges |
-| **Review** | First-pass code/design review; escalate edge cases |
-| **Onboarding (HRIS)** | On new hire in HR system: read role/team/skills → Linear profile, Slack channels, onboarding sequence |
+| **Communication**             | Channel/DM updates tailored per recipient (bullets vs context vs voice notes)                                                                   |
+| **Feedback & culture**        | Pulse surveys, chat sentiment, burnout flags, values nudges                                                                                     |
+| **Review**                    | First-pass code/design review; escalate edge cases                                                                                              |
+| **Onboarding (HRIS)**         | On new hire in HR system: read role/team/skills → Linear profile, Slack channels, onboarding sequence                                           |
 
 **Trust model (all phases):** Humans can override any agent action; critical decisions escalate; test per department before company-wide rollout.
 
@@ -424,13 +437,14 @@ Primary channel for IC check-ins, alerts, digests, and optional exec digests. Se
 
 **Purpose:** Answer "Who's overloaded?" with a **capacity score** per IC combining:
 
-| Source | Signals |
-|---|---|
-| **Linear** | Active issues, estimate load, actual vs estimated duration, slowdown vs personal baseline |
-| **Slack** | Response latency, after-hours activity, stress language ("swamped", "buried") — work-context only |
-| **Check-ins** | Periodic 1–5 workload self-report (seconds to answer; trend over weeks) |
+| Source        | Signals                                                                                           |
+| ------------- | ------------------------------------------------------------------------------------------------- |
+| **Linear**    | Active issues, estimate load, actual vs estimated duration, slowdown vs personal baseline         |
+| **Slack**     | Response latency, after-hours activity, stress language ("swamped", "buried") — work-context only |
+| **Check-ins** | Periodic 1–5 workload self-report (seconds to answer; trend over weeks)                           |
 
 **IC experience when overloaded:**
+
 1. Private, gentle Slack DM: e.g. "I've noticed a heavy load lately — want to talk about it?"
 2. If yes: quick triage in Slack (what's heaviest, what could shift, what must stay)
 3. Short summary to lead or Strategy Agent (configurable)
@@ -446,13 +460,13 @@ Primary channel for IC check-ins, alerts, digests, and optional exec digests. Se
 
 Combined automatically from:
 
-| Source | Signals |
-|---|---|
-| **Linear** | Completion rate, quality/rework, estimate accuracy |
-| **Reviews** | First-pass approval rate on code/design review (when integrated) |
+| Source         | Signals                                                                       |
+| -------------- | ----------------------------------------------------------------------------- |
+| **Linear**     | Completion rate, quality/rework, estimate accuracy                            |
+| **Reviews**    | First-pass approval rate on code/design review (when integrated)              |
 | **Peer pulse** | Low-friction Slack prompts ("How was working with Alex on the last project?") |
-| **Outcomes** | Whether shipped work moved intended business metrics (when linked) |
-| **Check-ins** | Morale, workload, blockers over time |
+| **Outcomes**   | Whether shipped work moved intended business metrics (when linked)            |
+| **Check-ins**  | Morale, workload, blockers over time                                          |
 
 Profiles update on a regular cadence (e.g. weekly). Executives query via Strategy Agent or dashboard ("How has Jordan been performing?"). **Out of scope for v1:** automated performance reviews or termination recommendations.
 
@@ -469,21 +483,21 @@ Profiles update on a regular cadence (e.g. weekly). Executives query via Strateg
 
 ### Slash Commands
 
-| Command | Description |
-|---|---|
-| `/checkin start` | IC opts into check-ins |
-| `/checkin pause [days]` | IC pauses check-ins temporarily (PTO, etc.) |
-| `/digest now` | Founder triggers an on-demand synthesis |
-| `/ask [question]` | Founder queries the Q&A Agent |
-| `/team status` | Returns a quick snapshot of current team health |
+| Command                 | Description                                     |
+| ----------------------- | ----------------------------------------------- |
+| `/checkin start`        | IC opts into check-ins                          |
+| `/checkin pause [days]` | IC pauses check-ins temporarily (PTO, etc.)     |
+| `/digest now`           | Founder triggers an on-demand synthesis         |
+| `/ask [question]`       | Founder queries the Q&A Agent                   |
+| `/team status`          | Returns a quick snapshot of current team health |
 
 ### Permissions Model
 
-| Role | Can Do |
-|---|---|
+| Role            | Can Do                                           |
+| --------------- | ------------------------------------------------ |
 | Founder / Admin | Full access: digests, alerts, Q&A, configuration |
-| Team Lead | Access to their direct team's digests and Q&A |
-| IC | Check-in only; can view their own past responses |
+| Team Lead       | Access to their direct team's digests and Q&A    |
+| IC              | Check-in only; can view their own past responses |
 
 ---
 
@@ -540,25 +554,26 @@ See [spec.md](./spec.md) for schedule fields, capacity computation notes, and da
 
 ## 7. Tech Stack
 
-| Layer | Choice | Rationale |
-|---|---|---|
-| Frontend / Config UI | Next.js on Vercel | Fast to build, optimized Vercel deployment |
-| Backend API | Node.js + Express on Render | Separate service, single trust boundary for all permissions |
-| Database | Render Postgres | Managed Postgres, co-located with backend on Render |
-| ORM | Drizzle | Type-safe queries, lightweight, pairs well with Postgres |
-| AI / Agents | Anthropic Claude API (claude-sonnet-4-20250514) | Conversational check-ins, Strategy Agent, synthesis |
-| Agent orchestration (later) | LangGraph or CrewAI | Multi-agent coordination when Strategy + Coordination ship |
-| Company memory (later) | Vector DB | Past projects, docs, who-is-good-at-what for assignment |
-| Slack Integration | Slack Bolt SDK (Node) | Events, slash commands, IC and alert flows |
-| Linear Integration (later) | Linear API + OAuth | Tickets, capacity, performance signals |
-| HRIS Integration (later) | Provider API / webhooks | Onboarding trigger on new hire |
-| Job Scheduling | Render Cron Jobs | Periodic HTTP trigger to Express `/internal/*` scheduler (see [spec.md](./spec.md)); per-workspace schedule stored in Postgres |
+| Layer                       | Choice                                          | Rationale                                                                                                                      |
+| --------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Frontend / Config UI        | Next.js on Vercel                               | Fast to build, optimized Vercel deployment                                                                                     |
+| Backend API                 | Node.js + Express on Render                     | Separate service, single trust boundary for all permissions                                                                    |
+| Database                    | Render Postgres                                 | Managed Postgres, co-located with backend on Render                                                                            |
+| ORM                         | Drizzle                                         | Type-safe queries, lightweight, pairs well with Postgres                                                                       |
+| AI / Agents                 | Anthropic Claude API (claude-sonnet-4-20250514) | Conversational check-ins, Strategy Agent, synthesis                                                                            |
+| Agent orchestration (later) | LangGraph or CrewAI                             | Multi-agent coordination when Strategy + Coordination ship                                                                     |
+| Company memory (later)      | Vector DB                                       | Past projects, docs, who-is-good-at-what for assignment                                                                        |
+| Slack Integration           | Slack Bolt SDK (Node)                           | Events, slash commands, IC and alert flows                                                                                     |
+| Linear Integration (later)  | Linear API + OAuth                              | Tickets, capacity, performance signals                                                                                         |
+| HRIS Integration (later)    | Provider API / webhooks                         | Onboarding trigger on new hire                                                                                                 |
+| Job Scheduling              | Render Cron Jobs                                | Periodic HTTP trigger to Express `/internal/*` scheduler (see [spec.md](./spec.md)); per-workspace schedule stored in Postgres |
 
 ### Permissions Architecture
 
 All role and permission checks are enforced exclusively in the **Express backend API layer**. The database is a dumb data store — no Row Level Security, no database-level access policies.
 
 **Principles:**
+
 - The frontend (Vercel/Next.js) never queries the database directly
 - Every request from the frontend goes through the backend API
 - The backend validates the requesting user's role and workspace before executing any query
@@ -566,6 +581,7 @@ All role and permission checks are enforced exclusively in the **Express backend
 - The backend is the single trust boundary for the entire application
 
 **Request flow:**
+
 ```
 Vercel (Next.js) → REST API request with auth token
   → Render (Express) → validate token → check role/permissions → query Render Postgres
@@ -621,19 +637,20 @@ Vercel (Next.js) → REST API request with auth token
 
 ## 9. Risks & Open Questions
 
-| Risk | Mitigation |
-|---|---|
-| Low IC check-in completion | Keep questions short (<3 per session); make it feel like a chat, not a form |
-| ICs feeling surveilled | Transparent opt-in; IC can see their own data; no surveillance framing |
-| AI hallucinating IC responses | Q&A Agent only synthesizes from stored responses; never generates unsourced claims |
-| Slack rate limits during large team check-ins | Stagger DM sends; use queue |
-| Founders ignoring digests | Make digest scannable in <60 seconds; mobile-friendly formatting |
+| Risk                                          | Mitigation                                                                         |
+| --------------------------------------------- | ---------------------------------------------------------------------------------- |
+| Low IC check-in completion                    | Keep questions short (<3 per session); make it feel like a chat, not a form        |
+| ICs feeling surveilled                        | Transparent opt-in; IC can see their own data; no surveillance framing             |
+| AI hallucinating IC responses                 | Q&A Agent only synthesizes from stored responses; never generates unsourced claims |
+| Slack rate limits during large team check-ins | Stagger DM sends; use queue                                                        |
+| Founders ignoring digests                     | Make digest scannable in <60 seconds; mobile-friendly formatting                   |
 
 ---
 
 ## 10. Build Phases
 
 ### Phase 1 — Core Loop (Weeks 1–4)
+
 - Render: Web Service (Express) + Postgres + Cron Job → `/internal/checkin-scheduler`
 - Slack app setup and OAuth
 - Check-In Agent: DM flow, hardcoded default question set, response storage
@@ -642,6 +659,7 @@ Vercel (Next.js) → REST API request with auth token
 - Test with 1 real team
 
 ### Phase 2 — Question Editor + Intelligence (Weeks 5–8)
+
 - Next.js app scaffolding
 - Question Editor: create, edit, reorder, toggle active questions
 - AI Question Suggester (goal input → suggested set via Claude API)
@@ -651,6 +669,7 @@ Vercel (Next.js) → REST API request with auth token
 - Q&A Agent (basic)
 
 ### Phase 3 — Polish & Retention (Weeks 9–12)
+
 - Question performance insights (response rate, skip rate, avg length)
 - Question set versioning + restore
 - Trend tracking (workload/sentiment over time)
@@ -659,12 +678,14 @@ Vercel (Next.js) → REST API request with auth token
 - Onboarding flow for new workspaces
 
 ### Phase 4 — Linear & Capacity (Weeks 13–18)
+
 - Linear OAuth and issue sync
 - Capacity score pipeline; overload detection + IC triage flow
 - Executive dashboard: capacity heatmap, "who's overloaded" drill-down
 - Strategy Agent + chart responses for capacity/velocity
 
 ### Phase 5 — Assignment & HR (Weeks 19+)
+
 - Executive goal → Linear ticket breakdown (Strategy + Coordination agents)
 - Assignment suggestions with human override
 - HRIS webhook → onboarding agent

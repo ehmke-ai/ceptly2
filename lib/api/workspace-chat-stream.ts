@@ -182,17 +182,14 @@ export async function streamChatWorkspace(
   callbacks.onActivity?.(activity);
 
   try {
-    const response = await fetch(
-      `/api/workspaces/${workspaceId}/chat/stream`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          messages: normalizeChatMessagesForApi(messages),
-          agent,
-        }),
-      },
-    );
+    const response = await fetch(`/api/workspaces/${workspaceId}/chat/stream`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: normalizeChatMessagesForApi(messages),
+        agent,
+      }),
+    });
 
     if (!response.ok) {
       const text = await response.text();

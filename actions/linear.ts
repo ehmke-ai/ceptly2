@@ -2,10 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import {
-  disconnectLinear,
-  getLinearInstallUrl,
-} from "@/lib/api/linear";
+import { disconnectLinear, getLinearInstallUrl } from "@/lib/api/linear";
 import { getAccessToken } from "@/lib/auth/server";
 
 export async function fetchLinearInstallUrl(
@@ -17,8 +14,9 @@ export async function fetchLinearInstallUrl(
     return { error: "You must be signed in to connect Linear." };
   }
 
-  const safeReturnTo =
-    returnTo.startsWith("/") ? returnTo : "/settings/integrations/linear";
+  const safeReturnTo = returnTo.startsWith("/")
+    ? returnTo
+    : "/settings/integrations/linear";
   const result = await getLinearInstallUrl(token, workspaceId, safeReturnTo);
 
   if (!result.success || !result.data?.url) {

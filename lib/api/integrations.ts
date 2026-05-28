@@ -45,9 +45,9 @@ export async function listIntegrations(
       },
     );
 
-    return parseJsonResponse<{ data?: { integrations: WorkspaceIntegration[] } }>(
-      response,
-    );
+    return parseJsonResponse<{
+      data?: { integrations: WorkspaceIntegration[] };
+    }>(response);
   } catch {
     return {
       success: false,

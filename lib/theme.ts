@@ -13,8 +13,6 @@ export function parseThemeCookie(
   return undefined;
 }
 
-export function resolveTheme(
-  value: string | undefined,
-): ThemePreference {
+export function resolveTheme(value: string | undefined): ThemePreference {
   return parseThemeCookie(value) ?? DEFAULT_THEME;
 }

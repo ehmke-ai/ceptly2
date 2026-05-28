@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ?? "https://app.ceptly.ai";
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+  "https://app.ceptly.ai";
 
 export const SITE_NAME = "Ceptly";
 

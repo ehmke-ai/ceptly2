@@ -1,14 +1,17 @@
 {
-	"folders": [
-		{
-			"path": "../.."
-		},
-		{
-			"path": "../../../ceptly-backend"
-		},
-		{
-			"path": "../../../ceptly-public"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "../..",
+    },
+    {
+      "path": "../../../ceptly-backend",
+    },
+    {
+      "path": "../../../ceptly-public",
+    },
+  ],
+  "settings": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+  },
 }

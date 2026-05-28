@@ -2,12 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CheckCircle2,
-  ChevronDown,
-  Loader2,
-  Unplug,
-} from "lucide-react";
+import { CheckCircle2, ChevronDown, Loader2, Unplug } from "lucide-react";
 
 import {
   disconnectLinearConnection,
@@ -133,7 +128,9 @@ export function LinearIntegrationPanel({
                   </p>
                 ) : null}
                 {connectedHint ? (
-                  <p className="text-sm text-muted-foreground">{connectedHint}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {connectedHint}
+                  </p>
                 ) : null}
               </div>
 
@@ -200,8 +197,8 @@ export function LinearIntegrationPanel({
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Linear is not connected. Ask a workspace owner or admin to connect Linear for
-          your team.
+          Linear is not connected. Ask a workspace owner or admin to connect
+          Linear for your team.
         </p>
       )}
     </div>

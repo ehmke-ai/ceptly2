@@ -9,7 +9,11 @@ const unprotectedPaths = [
   "/subscription-required",
 ];
 
-const billingExemptPaths = ["/subscribe", "/subscription-required", "/settings/billing"];
+const billingExemptPaths = [
+  "/subscribe",
+  "/subscription-required",
+  "/settings/billing",
+];
 
 const sessionCookieNames = [
   "access_token",

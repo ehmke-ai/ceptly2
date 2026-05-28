@@ -4,7 +4,10 @@ import { WorkspaceMembersTable } from "@/components/settings/workspace-members";
 import { WorkspaceNameForm } from "@/components/settings/workspace-name-form";
 import { WorkspaceTimezoneForm } from "@/components/settings/workspace-timezone-form";
 import { fetchBillingStatus } from "@/lib/api/billing";
-import { getWorkspaceLanguage, getWorkspaceTimezone } from "@/lib/api/conversations";
+import {
+  getWorkspaceLanguage,
+  getWorkspaceTimezone,
+} from "@/lib/api/conversations";
 import { listInvites } from "@/lib/api/invites";
 import { listWorkspaceMembers } from "@/lib/api/members";
 import { getAccessToken, requireAuth } from "@/lib/auth/server";
@@ -42,7 +45,9 @@ export default async function SettingsPage() {
     <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-6 py-8">
       <div className="space-y-4">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Team settings</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            Team settings
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage your team and integrations.
           </p>

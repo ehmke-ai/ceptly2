@@ -30,7 +30,10 @@ export async function sendSetupMessage(
 }> {
   try {
     const token = await requireToken();
-    const apiMessages = messages.map(({ role, content }) => ({ role, content }));
+    const apiMessages = messages.map(({ role, content }) => ({
+      role,
+      content,
+    }));
     const result = await chatSetup(token, workspaceId, apiMessages);
 
     if (!result.success) {

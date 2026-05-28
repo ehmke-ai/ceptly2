@@ -138,9 +138,8 @@ export function ChatMessageList({
                   <p className="text-sm font-medium">Confirm who to message</p>
                   <div className="flex flex-col gap-2">
                     {memberPicker.members.map((member) => {
-                      const selected = memberPicker.selected_member_ids.includes(
-                        member.id,
-                      );
+                      const selected =
+                        memberPicker.selected_member_ids.includes(member.id);
 
                       return (
                         <button

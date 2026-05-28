@@ -15,62 +15,60 @@ export default async function Image() {
   const logoSrc = `data:image/png;base64,${logoBuffer.toString("base64")}`;
 
   return new ImageResponse(
-    (
+    <div
+      style={{
+        height: "100%",
+        width: "100%",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        justifyContent: "center",
+        background:
+          "linear-gradient(135deg, #09090b 0%, #18181b 50%, #1e1b4b 100%)",
+        padding: "72px",
+      }}
+    >
+      <img src={logoSrc} width={88} height={88} alt="" />
       <div
         style={{
-          height: "100%",
-          width: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "center",
-          background:
-            "linear-gradient(135deg, #09090b 0%, #18181b 50%, #1e1b4b 100%)",
-          padding: "72px",
+          marginTop: 36,
+          gap: 20,
         }}
       >
-        <img src={logoSrc} width={88} height={88} alt="" />
         <div
           style={{
-            display: "flex",
-            flexDirection: "column",
-            marginTop: 36,
-            gap: 20,
+            fontSize: 72,
+            fontWeight: 700,
+            color: "#fafafa",
+            letterSpacing: "-0.03em",
           }}
         >
-          <div
-            style={{
-              fontSize: 72,
-              fontWeight: 700,
-              color: "#fafafa",
-              letterSpacing: "-0.03em",
-            }}
-          >
-            Ceptly
-          </div>
-          <div
-            style={{
-              fontSize: 34,
-              color: "#d4d4d8",
-              lineHeight: 1.35,
-              maxWidth: 920,
-            }}
-          >
-            AI chief of staff for your team
-          </div>
-          <div
-            style={{
-              fontSize: 24,
-              color: "#71717a",
-              lineHeight: 1.4,
-              maxWidth: 920,
-            }}
-          >
-            app.ceptly.ai
-          </div>
+          Ceptly
+        </div>
+        <div
+          style={{
+            fontSize: 34,
+            color: "#d4d4d8",
+            lineHeight: 1.35,
+            maxWidth: 920,
+          }}
+        >
+          AI chief of staff for your team
+        </div>
+        <div
+          style={{
+            fontSize: 24,
+            color: "#71717a",
+            lineHeight: 1.4,
+            maxWidth: 920,
+          }}
+        >
+          app.ceptly.ai
         </div>
       </div>
-    ),
+    </div>,
     { ...size },
   );
 }

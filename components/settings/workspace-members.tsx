@@ -132,8 +132,8 @@ export function WorkspaceMembersTable({
       <div>
         <h2 className="text-base font-semibold">Workspace members</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          People with access to this workspace. Workspace owners and admins use a
-          paid seat; members have full product access without billing.
+          People with access to this workspace. Workspace owners and admins use
+          a paid seat; members have full product access without billing.
         </p>
       </div>
 
@@ -166,7 +166,9 @@ export function WorkspaceMembersTable({
                   <TableRow key={member.user_id}>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <span className="font-medium">{displayName(member)}</span>
+                        <span className="font-medium">
+                          {displayName(member)}
+                        </span>
                         {isSelf ? (
                           <Badge variant="secondary" className="text-xs">
                             You

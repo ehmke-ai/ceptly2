@@ -53,7 +53,11 @@ export default async function ActivityConversationPage({
     );
   }
 
-  const conversationResult = await getConversation(token, workspace.id, conversationId);
+  const conversationResult = await getConversation(
+    token,
+    workspace.id,
+    conversationId,
+  );
   if (!conversationResult.success || !conversationResult.data?.conversation) {
     return (
       <p className="px-6 py-8 text-sm text-muted-foreground">
@@ -205,7 +209,9 @@ export default async function ActivityConversationPage({
               {conversation.summary}
             </p>
           ) : null}
-          <p className="mt-1 text-sm text-muted-foreground">{schedulePreview}</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {schedulePreview}
+          </p>
         </div>
 
         {canEdit ? (

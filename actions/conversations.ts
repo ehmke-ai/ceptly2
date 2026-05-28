@@ -54,7 +54,9 @@ const saveConversationSchema = z.object({
   name: z.string().trim().min(1).max(100),
   summary: z.string().trim().max(200).optional().nullable(),
   roster_member_ids: z.array(z.string().uuid()).min(1).optional(),
-  context_integrations: z.array(z.enum(["linear", "jira", "monday"])).optional(),
+  context_integrations: z
+    .array(z.enum(["linear", "jira", "monday"]))
+    .optional(),
   resultDestinations: z
     .array(
       z.discriminatedUnion("type", [
@@ -113,7 +115,9 @@ export async function updateWorkspaceTimezone(
   );
 
   if (!result.success) {
-    return { errors: { _form: [result.error ?? "Failed to update timezone."] } };
+    return {
+      errors: { _form: [result.error ?? "Failed to update timezone."] },
+    };
   }
 
   revalidatePath("/settings");
@@ -158,7 +162,9 @@ export async function updateWorkspaceLanguage(
   );
 
   if (!result.success) {
-    return { errors: { _form: [result.error ?? "Failed to update language."] } };
+    return {
+      errors: { _form: [result.error ?? "Failed to update language."] },
+    };
   }
 
   revalidatePath("/settings");
@@ -181,8 +187,7 @@ export async function saveConversation(input: {
   const parsed = saveConversationSchema.safeParse(input);
   if (!parsed.success) {
     return {
-      error:
-        parsed.error.issues[0]?.message ?? "Invalid conversation data.",
+      error: parsed.error.issues[0]?.message ?? "Invalid conversation data.",
     };
   }
 
@@ -322,8 +327,7 @@ export async function saveConversation(input: {
     workspaceId,
     conversationId,
   );
-  const refreshedQuestions =
-    refreshedResult.data?.conversation.questions ?? [];
+  const refreshedQuestions = refreshedResult.data?.conversation.questions ?? [];
 
   const currentOrder = [...refreshedQuestions]
     .sort((a, b) => a.sort_order - b.sort_order)

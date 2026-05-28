@@ -3,6 +3,8 @@ export const AUTH_ENDPOINTS = {
   login: "/api/auth/login",
   me: "/api/auth/me",
   logout: "/api/auth/logout",
+  google: "/api/auth/google",
+  googleFinish: "/api/auth/google/finish",
 } as const;
 
 let cachedServerApiBaseUrl: string | null = null;

@@ -2,10 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import {
-  disconnectJira,
-  getJiraInstallUrl,
-} from "@/lib/api/jira";
+import { disconnectJira, getJiraInstallUrl } from "@/lib/api/jira";
 import { getAccessToken } from "@/lib/auth/server";
 
 export async function fetchJiraInstallUrl(
@@ -17,8 +14,9 @@ export async function fetchJiraInstallUrl(
     return { error: "You must be signed in to connect Jira." };
   }
 
-  const safeReturnTo =
-    returnTo.startsWith("/") ? returnTo : "/settings/integrations/jira";
+  const safeReturnTo = returnTo.startsWith("/")
+    ? returnTo
+    : "/settings/integrations/jira";
   const result = await getJiraInstallUrl(token, workspaceId, safeReturnTo);
 
   if (!result.success || !result.data?.url) {

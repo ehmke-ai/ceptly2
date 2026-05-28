@@ -2,17 +2,9 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import {
-  CheckCircle2,
-  ChevronDown,
-  Loader2,
-  Unplug,
-} from "lucide-react";
+import { CheckCircle2, ChevronDown, Loader2, Unplug } from "lucide-react";
 
-import {
-  disconnectJiraConnection,
-  fetchJiraInstallUrl,
-} from "@/actions/jira";
+import { disconnectJiraConnection, fetchJiraInstallUrl } from "@/actions/jira";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -133,7 +125,9 @@ export function JiraIntegrationPanel({
                   </p>
                 ) : null}
                 {connectedHint ? (
-                  <p className="text-sm text-muted-foreground">{connectedHint}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {connectedHint}
+                  </p>
                 ) : null}
               </div>
 
@@ -200,8 +194,8 @@ export function JiraIntegrationPanel({
         </div>
       ) : (
         <p className="text-sm text-muted-foreground">
-          Jira is not connected. Ask a workspace owner or admin to connect Jira for
-          your team.
+          Jira is not connected. Ask a workspace owner or admin to connect Jira
+          for your team.
         </p>
       )}
     </div>

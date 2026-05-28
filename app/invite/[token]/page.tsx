@@ -53,7 +53,7 @@ export default async function InvitePage({ params }: InvitePageProps) {
             </CardTitle>
             <CardDescription>
               {!previewResult.success || !preview ? (
-                previewResult.error ?? "This invite link is invalid."
+                (previewResult.error ?? "This invite link is invalid.")
               ) : preview.status === "accepted" ? (
                 "This invite has already been used."
               ) : preview.status === "expired" ? (
@@ -103,7 +103,10 @@ export default async function InvitePage({ params }: InvitePageProps) {
                     </Link>
                     <Link
                       href={authInviteUrl}
-                      className={cn(buttonVariants({ variant: "outline" }), "w-full")}
+                      className={cn(
+                        buttonVariants({ variant: "outline" }),
+                        "w-full",
+                      )}
                     >
                       Sign in
                     </Link>

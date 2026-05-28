@@ -155,7 +155,8 @@ export function ConversationSessionsClient({
             {sessions.map((session, index) => (
               <option key={session.session_id} value={session.session_id}>
                 {index === 0 ? "Latest — " : ""}
-                {session.display_name} · {formatSessionLabel(session.started_at)}
+                {session.display_name} ·{" "}
+                {formatSessionLabel(session.started_at)}
               </option>
             ))}
           </select>

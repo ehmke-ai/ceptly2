@@ -50,4 +50,3 @@ export function parseResultDestinations(
 
   return { channelIds, rosterDmIds, includeWorkspaceDigest };
 }
-

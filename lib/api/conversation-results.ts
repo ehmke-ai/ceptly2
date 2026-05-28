@@ -1,8 +1,5 @@
 import { resolveApiBaseUrl } from "./auth";
-import type {
-  ConversationRunDetail,
-  ConversationRunSummary,
-} from "./types";
+import type { ConversationRunDetail, ConversationRunSummary } from "./types";
 
 async function parseJsonResponse<T>(
   response: Response,
@@ -45,7 +42,10 @@ export async function listConversationRuns(
       response,
     );
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -72,7 +72,10 @@ export async function getLatestConversationRun(
       response,
     );
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -96,8 +99,13 @@ export async function getConversationRun(
         cache: "no-store",
       },
     );
-    return parseJsonResponse<{ data?: { run: ConversationRunDetail } }>(response);
+    return parseJsonResponse<{ data?: { run: ConversationRunDetail } }>(
+      response,
+    );
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }

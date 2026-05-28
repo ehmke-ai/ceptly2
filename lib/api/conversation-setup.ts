@@ -61,7 +61,10 @@ export async function chatSetup(
       };
     }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -88,6 +91,9 @@ export async function commitSetup(
       data?: { conversations: ScheduledConversation[] };
     }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }

@@ -80,10 +80,9 @@ function attentionDetail(item: ActivityAttentionItem): string | null {
   return null;
 }
 
-function isDismissible(item: ActivityAttentionItem): item is Extract<
-  ActivityAttentionItem,
-  { type: "roster_tracker_mismatch" }
-> {
+function isDismissible(
+  item: ActivityAttentionItem,
+): item is Extract<ActivityAttentionItem, { type: "roster_tracker_mismatch" }> {
   return item.type === "roster_tracker_mismatch";
 }
 
@@ -141,7 +140,9 @@ export function ActivityAttentionList({
                 >
                   <AttentionIcon type={item.type} />
                   <div className="min-w-0">
-                    <p className="text-sm font-medium">{attentionLabel(item)}</p>
+                    <p className="text-sm font-medium">
+                      {attentionLabel(item)}
+                    </p>
                     {detail ? (
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                         {detail}

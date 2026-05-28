@@ -12,22 +12,22 @@ Next.js app for Ceptly — workspace settings, check-ins, billing, and team chat
 cp .env.example .env.local
 # Edit .env.local — API URL, Statsig key, etc.
 
-yarn install
-yarn dev
+npm install
+npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
 ## Deploy (Amplify)
 
-Build settings are in [`amplify.yml`](./amplify.yml). Requires `packageManager` (Yarn 4) and **WEB_COMPUTE** platform for SSR/middleware.
+Build settings are in [`amplify.yml`](./amplify.yml). Requires **WEB_COMPUTE** platform for SSR/middleware.
 
 Set in Amplify Console → Environment variables:
 
-| Variable | Example |
-|----------|---------|
-| `NEXT_PUBLIC_API_URL` | `https://api.ceptly.ai` (your backend) |
-| `NEXT_PUBLIC_STATSIG_CLIENT_KEY` | Statsig client key |
-| `NEXT_PUBLIC_BILLING_ENFORCED` | `true` |
+| Variable                         | Example                                |
+| -------------------------------- | -------------------------------------- |
+| `NEXT_PUBLIC_API_URL`            | `https://api.ceptly.ai` (your backend) |
+| `NEXT_PUBLIC_STATSIG_CLIENT_KEY` | Statsig client key                     |
+| `NEXT_PUBLIC_BILLING_ENFORCED`   | `true`                                 |
 
 Ensure backend `FRONTEND_URL` is `https://app.ceptly.ai` for CORS and invite links.

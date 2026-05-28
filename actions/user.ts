@@ -7,7 +7,11 @@ import { patchUserProfile } from "@/lib/api/user";
 import { getAccessToken } from "@/lib/auth/server";
 
 const userNameSchema = z.object({
-  fullName: z.string().trim().min(2, "Name must be at least 2 characters").max(200),
+  fullName: z
+    .string()
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(200),
 });
 
 export type AccountNameFormState = {
@@ -32,7 +36,9 @@ export async function updateUserName(
 
   const token = await getAccessToken();
   if (!token) {
-    return { errors: { _form: ["You must be signed in to update your name."] } };
+    return {
+      errors: { _form: ["You must be signed in to update your name."] },
+    };
   }
 
   const result = await patchUserProfile(token, parsed.data.fullName);

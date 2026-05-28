@@ -18,8 +18,7 @@ interface IntegrationsGridProps {
 export function IntegrationsGrid({ integrations }: IntegrationsGridProps) {
   const [query, setQuery] = useState("");
   const { resolvedTheme, theme } = useTheme();
-  const logoTheme =
-    (resolvedTheme ?? theme) === "dark" ? "dark" : "light";
+  const logoTheme = (resolvedTheme ?? theme) === "dark" ? "dark" : "light";
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();

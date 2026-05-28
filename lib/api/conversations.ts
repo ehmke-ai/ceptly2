@@ -56,7 +56,10 @@ export async function listAppContextOptions(
       response,
     );
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -86,14 +89,16 @@ export async function listConversationTemplates(
       return {
         success: false,
         error:
-          parsed.error ??
-          `Failed to load templates (HTTP ${response.status}).`,
+          parsed.error ?? `Failed to load templates (HTTP ${response.status}).`,
       };
     }
 
     return parsed;
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -124,11 +129,14 @@ export async function createConversationFromTemplate(
         body: JSON.stringify(body),
       },
     );
-    return parseJsonResponse<{ data?: { conversation: ScheduledConversation } }>(
-      response,
-    );
+    return parseJsonResponse<{
+      data?: { conversation: ScheduledConversation };
+    }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -158,11 +166,14 @@ export async function listConversations(
         cache: "no-store",
       },
     );
-    return parseJsonResponse<{ data?: { conversations: ScheduledConversation[] } }>(
-      response,
-    );
+    return parseJsonResponse<{
+      data?: { conversations: ScheduledConversation[] };
+    }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -185,11 +196,14 @@ export async function getConversation(
         cache: "no-store",
       },
     );
-    return parseJsonResponse<{ data?: { conversation: ScheduledConversation } }>(
-      response,
-    );
+    return parseJsonResponse<{
+      data?: { conversation: ScheduledConversation };
+    }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -220,11 +234,14 @@ export async function createConversation(
         body: JSON.stringify(body),
       },
     );
-    return parseJsonResponse<{ data?: { conversation: ScheduledConversation } }>(
-      response,
-    );
+    return parseJsonResponse<{
+      data?: { conversation: ScheduledConversation };
+    }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -256,11 +273,14 @@ export async function updateConversation(
         body: JSON.stringify(body),
       },
     );
-    return parseJsonResponse<{ data?: { conversation: ScheduledConversation } }>(
-      response,
-    );
+    return parseJsonResponse<{
+      data?: { conversation: ScheduledConversation };
+    }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -280,7 +300,10 @@ export async function deleteConversationApi(
     );
     return parseJsonResponse(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -304,9 +327,14 @@ export async function createConversationQuestion(
         body: JSON.stringify({ prompt_text: promptText }),
       },
     );
-    return parseJsonResponse<{ data?: { question: ConversationQuestion } }>(response);
+    return parseJsonResponse<{ data?: { question: ConversationQuestion } }>(
+      response,
+    );
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -331,9 +359,14 @@ export async function updateConversationQuestion(
         body: JSON.stringify(body),
       },
     );
-    return parseJsonResponse<{ data?: { question: ConversationQuestion } }>(response);
+    return parseJsonResponse<{ data?: { question: ConversationQuestion } }>(
+      response,
+    );
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -354,7 +387,10 @@ export async function deleteConversationQuestion(
     );
     return parseJsonResponse(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -378,9 +414,14 @@ export async function reorderConversationQuestions(
         body: JSON.stringify({ ordered_ids: orderedIds }),
       },
     );
-    return parseJsonResponse<{ data?: { questions: ConversationQuestion[] } }>(response);
+    return parseJsonResponse<{ data?: { questions: ConversationQuestion[] } }>(
+      response,
+    );
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -403,9 +444,14 @@ export async function getConversationPreview(
         cache: "no-store",
       },
     );
-    return parseJsonResponse<{ data?: { preview: ConversationPreview } }>(response);
+    return parseJsonResponse<{ data?: { preview: ConversationPreview } }>(
+      response,
+    );
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -440,7 +486,10 @@ export async function getWorkspaceTimezone(
     );
     return parseJsonResponse<{ data?: { timezone: string } }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -461,7 +510,10 @@ export async function patchWorkspaceTimezone(
     );
     return parseJsonResponse<{ data?: { timezone: string } }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -481,7 +533,10 @@ export async function getWorkspaceLanguage(
     );
     return parseJsonResponse<{ data?: { language: string } }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }
 
@@ -502,6 +557,9 @@ export async function patchWorkspaceLanguage(
     );
     return parseJsonResponse<{ data?: { language: string } }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }

@@ -49,14 +49,11 @@ export async function chatWorkspace(
 }> {
   try {
     const base = await resolveApiBaseUrl();
-    const response = await fetch(
-      `${base}/api/workspaces/${workspaceId}/chat`,
-      {
-        method: "POST",
-        headers: authHeaders(accessToken, true),
-        body: JSON.stringify({ messages, agent }),
-      },
-    );
+    const response = await fetch(`${base}/api/workspaces/${workspaceId}/chat`, {
+      method: "POST",
+      headers: authHeaders(accessToken, true),
+      body: JSON.stringify({ messages, agent }),
+    });
     return parseJsonResponse<{
       data?: {
         assistant_message: string;
@@ -67,6 +64,9 @@ export async function chatWorkspace(
       };
     }>(response);
   } catch {
-    return { success: false, error: "Could not reach the API. Is the backend running?" };
+    return {
+      success: false,
+      error: "Could not reach the API. Is the backend running?",
+    };
   }
 }

@@ -4,7 +4,10 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowRight, Check, Loader2 } from "lucide-react";
 
-import { startBillingCheckoutAction, refreshSubscriptionCookiesAction } from "@/actions/billing";
+import {
+  startBillingCheckoutAction,
+  refreshSubscriptionCookiesAction,
+} from "@/actions/billing";
 
 const included = [
   "Slack conversational check-ins",

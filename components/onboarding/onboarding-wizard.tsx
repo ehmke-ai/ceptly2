@@ -2,7 +2,14 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
-import { AlertCircle, CheckCircle2, Loader2, Mail, MessageSquare, X } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Loader2,
+  Mail,
+  MessageSquare,
+  X,
+} from "lucide-react";
 
 import { completeOnboarding } from "@/actions/onboarding";
 import { fetchSlackInstallUrl } from "@/actions/slack";
@@ -19,7 +26,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { OptionSelector } from "@/components/ui/option-selector";
-import { Progress, ProgressIndicator, ProgressTrack } from "@/components/ui/progress";
+import {
+  Progress,
+  ProgressIndicator,
+  ProgressTrack,
+} from "@/components/ui/progress";
 import type { AuthUser } from "@/lib/api/types";
 import {
   ONBOARDING_ROLE_OPTIONS,
@@ -87,7 +98,9 @@ export function OnboardingWizard({
 
   const [step, setStep] = useState(1);
   const [error, setError] = useState<string | null>(null);
-  const [slackConnectError, setSlackConnectError] = useState<string | null>(null);
+  const [slackConnectError, setSlackConnectError] = useState<string | null>(
+    null,
+  );
   const [inviteInput, setInviteInput] = useState("");
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -111,8 +124,7 @@ export function OnboardingWizard({
         const parsed = JSON.parse(saved) as OnboardingFormData;
         return {
           ...parsed,
-          organizationName:
-            parsed.organizationName || initialOrganizationName,
+          organizationName: parsed.organizationName || initialOrganizationName,
         };
       }
     } catch {
@@ -351,9 +363,7 @@ export function OnboardingWizard({
             mode="single"
             options={ONBOARDING_ROLE_OPTIONS}
             value={formData.role}
-            onChange={(value) =>
-              updateForm({ role: value as OnboardingRole })
-            }
+            onChange={(value) => updateForm({ role: value as OnboardingRole })}
           />
         ) : null}
 
@@ -475,8 +485,8 @@ export function OnboardingWizard({
                 <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-4 dark:border-white/10">
                   <MessageSquare className="h-8 w-8 shrink-0" />
                   <p className="text-sm text-muted-foreground">
-                    Install Ceptly in your Slack workspace so scheduled check-ins
-                    reach your team in DMs.
+                    Install Ceptly in your Slack workspace so scheduled
+                    check-ins reach your team in DMs.
                   </p>
                 </div>
 

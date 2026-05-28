@@ -10,11 +10,11 @@ Use this file as the execution checklist. Check items when shipped and verified 
 
 ## Legend
 
-| Symbol | Meaning |
-|--------|---------|
-| `[ ]` | Not started |
-| `[~]` | In progress (optional — replace with `[x]` when done) |
-| `[x]` | Done |
+| Symbol | Meaning                                               |
+| ------ | ----------------------------------------------------- |
+| `[ ]`  | Not started                                           |
+| `[~]`  | In progress (optional — replace with `[x]` when done) |
+| `[x]`  | Done                                                  |
 
 **Phase gates:** Do not start the next phase until the previous phase’s “Phase complete” box is checked.
 
@@ -36,12 +36,12 @@ Use this file as the execution checklist. Check items when shipped and verified 
 - [x] Express scaffold + `GET /health`
 - [x] Drizzle + Postgres connection
 - [x] `workspaces` table with:
-    - schedule columns: `timezone`, `days`, `time`, `frequency`, idempotency field (e.g. `last_checkin_schedule_fire_at`)
-    - `team_members` column (associates multiple users to a workspace)
-    - unique constraint or composite primary key as necessary for integrity
-    - workspace `name` (display), `created_at`, `updated_at`
-    - foreign key to organization (if multi-org/future-proofing)
-    - migration or seed for first workspace in dev
+  - schedule columns: `timezone`, `days`, `time`, `frequency`, idempotency field (e.g. `last_checkin_schedule_fire_at`)
+  - `team_members` column (associates multiple users to a workspace)
+  - unique constraint or composite primary key as necessary for integrity
+  - workspace `name` (display), `created_at`, `updated_at`
+  - foreign key to organization (if multi-org/future-proofing)
+  - migration or seed for first workspace in dev
 - [x] User auth routes (`/api/auth/*`) + JWT
 - [x] Link authenticated user → workspace (membership / role model)
 - [x] Seed script or admin path for first test workspace
@@ -79,7 +79,7 @@ Use this file as the execution checklist. Check items when shipped and verified 
 - [x] **As a founder**, I can add ICs to a roster (Slack user mapping) so the agent knows who to DM.
 - [ ] **As a founder**, I can designate `#leadership-digest` (or equivalent) for digests and alerts.
 - [ ] **As a founder**, I get a weekly digest in Slack summarizing what everyone is working on (manual trigger OK for Phase 1 end).
->> BLOCKED: - [ ] **As a founder**, I am alerted in Slack when someone reports a blocker during a check-in.
+  > > BLOCKED: - [ ] **As a founder**, I am alerted in Slack when someone reports a blocker during a check-in.
 
 ### Tasks
 
@@ -95,7 +95,7 @@ Use this file as the execution checklist. Check items when shipped and verified 
 - [x] Slack app: OAuth install, bot token, signing secret (per-workspace OAuth + events receiver)
 - [x] Check-In Agent: DM opener + bullet list; loads enabled questions from DB
 - [x] Persist each turn; mark session complete
-- [ ] Blocker detection on response → post to leadership channel *(detection logs only; no channel post yet)*
+- [ ] Blocker detection on response → post to leadership channel _(detection logs only; no channel post yet)_
 - [ ] Manual/internal endpoint or script to trigger synthesis digest (stub OK)
 
 **Frontend**
@@ -178,11 +178,11 @@ Workspace
 
 **Frontend (`ceptly2`)**
 
-- [x] Settings → **Conversations** editor with question list per conversation *(superseded by AI setup chat — see below)*
-- [x] Text input per question + “Add question” button *(superseded)*
-- [x] Reorder (move up/down), delete, enable/disable per question *(superseded)*
+- [x] Settings → **Conversations** editor with question list per conversation _(superseded by AI setup chat — see below)_
+- [x] Text input per question + “Add question” button _(superseded)_
+- [x] Reorder (move up/down), delete, enable/disable per question _(superseded)_
 - [x] **Preview as IC** panel: bullet list + sample opener copy (live as user edits)
-- [x] Save/load via conversation + question APIs *(commit via AI setup replaces manual save)*
+- [x] Save/load via conversation + question APIs _(commit via AI setup replaces manual save)_
 
 ### Acceptance
 
@@ -227,8 +227,8 @@ Workspace
 
 **Frontend**
 
-- [x] Settings → **Conversations** list + AI setup chat *(replaced `/settings/conversations/[id]` manual editor)*
-- [x] “Add conversation” / manual schedule + question editor *(superseded by AI setup chat)*
+- [x] Settings → **Conversations** list + AI setup chat _(replaced `/settings/conversations/[id]` manual editor)_
+- [x] “Add conversation” / manual schedule + question editor _(superseded by AI setup chat)_
 - [x] Workspace Settings → **timezone only** + link to Conversations (legacy schedule API proxies to default conversation)
 
 ### Acceptance
@@ -293,12 +293,12 @@ Workspace
 
 ### User stories — AI & editor enhancements
 
-- [x] **As a founder**, I describe what I care about and get suggested questions I can edit before saving (per conversation). *(Merged into AI conversation setup chat.)*
-- [x] **As a manager**, I preview what the agent will say to an IC before publishing (extends 2A preview). *(Proposal preview on Conversations page.)*
+- [x] **As a founder**, I describe what I care about and get suggested questions I can edit before saving (per conversation). _(Merged into AI conversation setup chat.)_
+- [x] **As a manager**, I preview what the agent will say to an IC before publishing (extends 2A preview). _(Proposal preview on Conversations page.)_
 
 ### User stories — Replace daily agile standups
 
-*Outcome:* The team stops (or materially shortens) a recurring synchronous standup because status, priorities, and blockers are captured async and rolled up for leads on a predictable cadence — no single timezone, no “everyone on Zoom for 15 minutes.”
+_Outcome:_ The team stops (or materially shortens) a recurring synchronous standup because status, priorities, and blockers are captured async and rolled up for leads on a predictable cadence — no single timezone, no “everyone on Zoom for 15 minutes.”
 
 **Individual contributor**
 
@@ -326,7 +326,7 @@ Workspace
 
 ### User stories — Conversations page (list + results)
 
-*Replace the current expanded cards (questions list, IC preview inline). List is scannable; detail is for outcomes.*
+_Replace the current expanded cards (questions list, IC preview inline). List is scannable; detail is for outcomes._
 
 **List** (`/settings/conversations`)
 
@@ -364,7 +364,7 @@ Workspace
 
 **Backend — intelligence (existing 2C)**
 
-- [x] AI Question Suggester endpoint (goal + optional conversation context → suggested prompts via Claude) *(merged into `conversation-setup/chat`)*
+- [x] AI Question Suggester endpoint (goal + optional conversation context → suggested prompts via Claude) _(merged into `conversation-setup/chat`)_
 - [ ] `/internal/synthesis-scheduler` (same cron pattern as check-in)
 - [ ] Synthesis Agent: digest generation + post to digest channel (aggregate across conversations)
 - [ ] **Daily standup rollup:** after weekday standup conversation window, synthesize per-IC status + blockers → post to digest channel (distinct from weekly digest; filter by `template_id` or conversation name)
@@ -384,7 +384,7 @@ Workspace
 
 **Frontend — other 2C**
 
-- [x] “Suggest questions” flow on conversation editor (goal input → review → save) *(superseded by AI setup chat on Conversations page)*
+- [x] “Suggest questions” flow on conversation editor (goal input → review → save) _(superseded by AI setup chat on Conversations page)_
 - [ ] Home / dashboard: Strategy Agent chat shell wired to API
 - [ ] Team Health strip placeholder (check-in sentiment only)
 - [ ] Home / chat: **Daily standup** template shortcut (same as template picker)
@@ -560,25 +560,25 @@ Track in [prd.md §11](./prd.md); resolve and check here when decided.
 
 Update this section when phases advance.
 
-| Area | Status |
-|------|--------|
-| Backend health + auth | Done |
-| Workspace schedule schema | Done |
-| Schedule API | Done |
-| Internal cron scheduler | Done (per-conversation `last_fire_at`) |
-| Slack OAuth + per-workspace install | Done |
-| Slack Check-In Agent (DMs + turn persistence) | Done |
-| Team roster (backend + Settings UI) | Done |
-| Frontend auth | Done |
-| Settings schedule UI | Done |
-| Custom question lists (2A) | Done |
-| Multi-conversation schedules (2B) | Done |
-| AI conversation setup chat | Done |
-| Digest channel + blocker alerts + synthesis | Not started |
-| Daily standup template + per-conversation roster | Not started (Phase 2C) |
-| Conversations page (list cards + results detail) | Not started (Phase 2C) |
-| Daily standup rollup + missing roster (Slack) | Not started (Phase 2C) |
-| Linear / capacity | Not started |
+| Area                                             | Status                                 |
+| ------------------------------------------------ | -------------------------------------- |
+| Backend health + auth                            | Done                                   |
+| Workspace schedule schema                        | Done                                   |
+| Schedule API                                     | Done                                   |
+| Internal cron scheduler                          | Done (per-conversation `last_fire_at`) |
+| Slack OAuth + per-workspace install              | Done                                   |
+| Slack Check-In Agent (DMs + turn persistence)    | Done                                   |
+| Team roster (backend + Settings UI)              | Done                                   |
+| Frontend auth                                    | Done                                   |
+| Settings schedule UI                             | Done                                   |
+| Custom question lists (2A)                       | Done                                   |
+| Multi-conversation schedules (2B)                | Done                                   |
+| AI conversation setup chat                       | Done                                   |
+| Digest channel + blocker alerts + synthesis      | Not started                            |
+| Daily standup template + per-conversation roster | Not started (Phase 2C)                 |
+| Conversations page (list cards + results detail) | Not started (Phase 2C)                 |
+| Daily standup rollup + missing roster (Slack)    | Not started (Phase 2C)                 |
+| Linear / capacity                                | Not started                            |
 
 ---
 

@@ -5,12 +5,11 @@ frontend:
       commands:
         - nvm install 24
         - nvm use 24
-        - corepack enable
-        - yarn install --immutable
+        - npm ci
         - env | grep -e '^NEXT_PUBLIC_' >> .env.production || true
     build:
       commands:
-        - yarn run build
+        - npm run build
   artifacts:
     baseDirectory: .next
     files:

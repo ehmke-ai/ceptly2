@@ -12,7 +12,10 @@ export async function fetchConversationSessionDetail(input: {
   workspaceId: string;
   conversationId: string;
   sessionId: string;
-}): Promise<{ session: ConversationRunRespondedMember | null; error?: string }> {
+}): Promise<{
+  session: ConversationRunRespondedMember | null;
+  error?: string;
+}> {
   const token = await getAccessToken();
   if (!token) {
     return { session: null, error: "You must be signed in." };
