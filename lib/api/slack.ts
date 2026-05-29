@@ -3,6 +3,7 @@ import { resolveApiBaseUrl } from "./auth";
 export interface SlackConnectionStatus {
   connected: boolean;
   searchEnabled?: boolean;
+  rosterChatEnabled?: boolean;
   teamId?: string | null;
   teamName?: string | null;
   installedAt?: string | null;

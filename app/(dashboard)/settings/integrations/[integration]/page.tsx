@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { DigestChannelForm } from "@/components/settings/digest-channel-form";
+import { SlackRosterChatToggle } from "@/components/settings/slack-roster-chat-toggle";
 import { JiraIntegrationPanel } from "@/components/settings/integrations/jira-integration-panel";
 import { LinearIntegrationPanel } from "@/components/settings/integrations/linear-integration-panel";
 import { SlackIntegrationPanel } from "@/components/settings/integrations/slack-integration-panel";
@@ -74,22 +75,37 @@ export default async function IntegrationDetailPage({
           showErrorAlert={showSlackErrorAlert}
         />
         {slackStatus.connected ? (
-          <section className="space-y-4 border-t pt-8 dark:border-white/10">
-            <div>
-              <h2 className="text-sm font-semibold">
-                Leadership digest channel
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Daily standup rollups, weekly digests, and blocker alerts post
-                here.
-              </p>
-            </div>
-            <DigestChannelForm
-              workspaceId={workspace.id}
-              initialChannelId={digestChannelId}
-              canEdit={canEdit}
-            />
-          </section>
+          <>
+            <section className="space-y-4 border-t pt-8 dark:border-white/10">
+              <div>
+                <h2 className="text-sm font-semibold">Channel @mentions</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Control who can @mention Ceptly in Slack channels.
+                </p>
+              </div>
+              <SlackRosterChatToggle
+                workspaceId={workspace.id}
+                initialEnabled={slackStatus.rosterChatEnabled ?? false}
+                canEdit={canEdit}
+              />
+            </section>
+            <section className="space-y-4 border-t pt-8 dark:border-white/10">
+              <div>
+                <h2 className="text-sm font-semibold">
+                  Leadership digest channel
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Daily standup rollups, weekly digests, and blocker alerts post
+                  here.
+                </p>
+              </div>
+              <DigestChannelForm
+                workspaceId={workspace.id}
+                initialChannelId={digestChannelId}
+                canEdit={canEdit}
+              />
+            </section>
+          </>
         ) : null}
       </div>
     );
