@@ -206,6 +206,8 @@ export interface Standup {
   days_of_week: number[];
   time_local: string;
   enabled: boolean;
+  context_integrations?: string[];
+  result_destinations?: ConversationResultDestination[];
   members: StandupMember[];
   created_at: string;
   updated_at: string;

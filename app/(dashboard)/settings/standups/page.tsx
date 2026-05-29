@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { StandupsSettings } from "@/components/settings/standups/standups-settings";
-import { getWorkspaceTimezone } from "@/lib/api/conversations";
+import { getWorkspaceTimezone, listAppContextOptions } from "@/lib/api/conversations";
 import { listStandups } from "@/lib/api/standups";
 import { listRosterMembers } from "@/lib/api/roster";
 import { listSlackChannels } from "@/lib/api/slack-channels";
@@ -26,17 +26,19 @@ export default async function StandupsSettingsPage() {
     redirect("/login");
   }
 
-  const [standupsResult, rosterResult, channelsResult, timezoneResult] =
+  const [standupsResult, rosterResult, channelsResult, timezoneResult, appContextsResult] =
     await Promise.all([
       listStandups(token, workspace.id),
       listRosterMembers(token, workspace.id),
       listSlackChannels(token, workspace.id),
       getWorkspaceTimezone(token, workspace.id),
+      listAppContextOptions(token, workspace.id),
     ]);
 
   const standups = standupsResult.data?.standups ?? [];
   const rosterMembers = rosterResult.data?.members ?? [];
   const slackChannels = channelsResult.data?.channels ?? [];
+  const appContextOptions = appContextsResult.data?.app_contexts ?? [];
   const workspaceTimezone =
     timezoneResult.data?.timezone ?? "America/Chicago";
 
@@ -63,6 +65,7 @@ export default async function StandupsSettingsPage() {
             standups={standups}
             rosterMembers={rosterMembers}
             slackChannels={slackChannels}
+            appContextOptions={appContextOptions}
             slackChannelsError={
               channelsResult.success ? null : channelsResult.error
             }

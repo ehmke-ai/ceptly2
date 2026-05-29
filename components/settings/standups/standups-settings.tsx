@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/card";
 import type { RosterMember } from "@/lib/api/roster";
 import type { SlackChannel } from "@/lib/api/slack-channels";
-import type { Standup } from "@/lib/api/types";
+import type { AppContextOption, Standup } from "@/lib/api/types";
 import { formatSchedulePreview } from "@/lib/schedule/preview";
 
 interface StandupsSettingsProps {
@@ -26,6 +26,7 @@ interface StandupsSettingsProps {
   standups: Standup[];
   rosterMembers: RosterMember[];
   slackChannels: SlackChannel[];
+  appContextOptions: AppContextOption[];
   slackChannelsError?: string | null;
   canEdit: boolean;
 }
@@ -36,6 +37,7 @@ export function StandupsSettings({
   standups: initialStandups,
   rosterMembers,
   slackChannels,
+  appContextOptions,
   slackChannelsError,
   canEdit,
 }: StandupsSettingsProps) {
@@ -106,6 +108,7 @@ export function StandupsSettings({
           workspaceTimezone={workspaceTimezone}
           rosterMembers={rosterMembers}
           slackChannels={slackChannels}
+          appContextOptions={appContextOptions}
           slackChannelsError={slackChannelsError}
           onSaved={handleSaved}
           onCancel={() => setCreating(false)}
@@ -123,6 +126,7 @@ export function StandupsSettings({
           workspaceTimezone={workspaceTimezone}
           rosterMembers={rosterMembers}
           slackChannels={slackChannels}
+          appContextOptions={appContextOptions}
           slackChannelsError={slackChannelsError}
           standup={editingStandup}
           onSaved={handleSaved}

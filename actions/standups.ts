@@ -49,12 +49,36 @@ const standupScheduleSchema = z
     }
   });
 
+const contextIntegrationsSchema = z.array(z.enum(["linear", "jira", "monday"]));
+
+const resultDestinationsSchema = z
+  .array(
+    z.discriminatedUnion("type", [
+      z.object({
+        type: z.literal("slack_channel"),
+        channel_id: z.string().trim().min(1).max(64),
+        name: z.string().trim().max(200).optional(),
+      }),
+      z.object({
+        type: z.literal("roster_dm"),
+        roster_member_id: z.string().uuid(),
+      }),
+      z.object({
+        type: z.literal("workspace_digest"),
+      }),
+    ]),
+  )
+  .max(20)
+  .optional();
+
 const standupBodySchema = z.object({
   name: z.string().trim().min(1).max(100),
   slack_channel_id: z.string().trim().min(1).max(64),
   style: z.enum(["broadcast", "sequential"]).default("broadcast"),
   custom_instructions: z.string().max(4000).default(""),
   roster_member_ids: z.array(z.string().uuid()).min(1).max(20),
+  context_integrations: contextIntegrationsSchema.optional(),
+  result_destinations: resultDestinationsSchema,
   schedule: standupScheduleSchema,
 });
 

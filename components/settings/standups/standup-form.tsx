@@ -4,6 +4,8 @@ import { useMemo, useState, useTransition } from "react";
 import { Loader2 } from "lucide-react";
 
 import { saveStandupAction } from "@/actions/standups";
+import { AppContextPicker } from "@/components/settings/app-context-picker";
+import { ResultDestinationsPicker } from "@/components/settings/result-destinations-picker";
 import { RosterMemberPicker } from "@/components/settings/roster-member-picker";
 import { ScheduleDaysPicker } from "@/components/settings/schedule-days-picker";
 import { StandupChannelPicker } from "@/components/settings/standups/standup-channel-picker";
@@ -16,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { RosterMember } from "@/lib/api/roster";
 import type { SlackChannel } from "@/lib/api/slack-channels";
 import type {
+  AppContextOption,
   ScheduleFrequency,
   Standup,
   StandupStyle,
@@ -26,12 +29,42 @@ import {
 } from "@/lib/schedule/timezones";
 import { ScheduleTimePicker } from "@/components/settings/schedule-time-picker";
 import { snapScheduleTimeToInterval } from "@/lib/schedule/interval";
+import {
+  buildResultDestinations,
+  parseResultDestinations,
+} from "@/lib/result-destinations";
+
+function defaultContextIntegrations(options: AppContextOption[]): string[] {
+  const linear = options.find((item) => item.id === "linear");
+  if (linear?.selectable) {
+    return ["linear"];
+  }
+  const jira = options.find((item) => item.id === "jira");
+  if (jira?.selectable) {
+    return ["jira"];
+  }
+  return [];
+}
+
+function initialContextIntegrations(
+  standup: Standup | undefined,
+  options: AppContextOption[],
+): string[] {
+  if (standup?.context_integrations?.length) {
+    return standup.context_integrations;
+  }
+  if (standup) {
+    return options.filter((option) => option.selectable).map((option) => option.id);
+  }
+  return defaultContextIntegrations(options);
+}
 
 interface StandupFormProps {
   workspaceId: string;
   workspaceTimezone: string;
   rosterMembers: RosterMember[];
   slackChannels: SlackChannel[];
+  appContextOptions: AppContextOption[];
   slackChannelsError?: string | null;
   standup?: Standup;
   onSaved?: (standup: Standup) => void;
@@ -43,6 +76,7 @@ export function StandupForm({
   workspaceTimezone,
   rosterMembers,
   slackChannels,
+  appContextOptions,
   slackChannelsError,
   standup,
   onSaved,
@@ -60,6 +94,18 @@ export function StandupForm({
     standup?.members.map((member) => member.roster_member_id) ??
       rosterMembers.filter((member) => !member.paused).map((member) => member.id),
   );
+  const [contextIntegrations, setContextIntegrations] = useState<string[]>(() =>
+    initialContextIntegrations(standup, appContextOptions),
+  );
+  const initialDestinations = parseResultDestinations(
+    standup?.result_destinations,
+  );
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>(
+    initialDestinations.channelIds,
+  );
+  const [selectedRosterDmIds, setSelectedRosterDmIds] = useState<string[]>(
+    initialDestinations.rosterDmIds,
+  );
   const [timezone, setTimezone] = useState(standup?.timezone ?? workspaceTimezone);
   const [frequency, setFrequency] = useState<ScheduleFrequency>(
     standup?.frequency ?? "specific_days",
@@ -75,6 +121,23 @@ export function StandupForm({
   const [isPending, startTransition] = useTransition();
 
   const timezoneGroups = useMemo(() => groupTimezonesByRegion(), []);
+
+  const slackChannelsForPicker = useMemo(() => {
+    const byId = new Map(slackChannels.map((channel) => [channel.id, channel]));
+    for (const destination of standup?.result_destinations ?? []) {
+      if (
+        destination.type === "slack_channel" &&
+        !byId.has(destination.channel_id)
+      ) {
+        byId.set(destination.channel_id, {
+          id: destination.channel_id,
+          name: destination.name ?? destination.channel_id,
+          is_private: false,
+        });
+      }
+    }
+    return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
+  }, [slackChannels, standup?.result_destinations]);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -107,6 +170,12 @@ export function StandupForm({
           style,
           custom_instructions: customInstructions.trim(),
           roster_member_ids: selectedMemberIds,
+          context_integrations: contextIntegrations,
+          result_destinations: buildResultDestinations({
+            channelIds: selectedChannelIds,
+            channels: slackChannelsForPicker,
+            rosterDmIds: selectedRosterDmIds,
+          }),
           schedule: {
             timezone,
             frequency,
@@ -155,6 +224,26 @@ export function StandupForm({
         selectedIds={selectedMemberIds}
         onChange={setSelectedMemberIds}
         disabled={isPending}
+      />
+
+      <AppContextPicker
+        options={appContextOptions}
+        selectedIds={contextIntegrations}
+        onChange={setContextIntegrations}
+        disabled={isPending}
+      />
+
+      <ResultDestinationsPicker
+        slackChannels={slackChannelsForPicker}
+        slackChannelsError={slackChannelsError}
+        rosterMembers={rosterMembers}
+        selectedChannelIds={selectedChannelIds}
+        selectedRosterDmIds={selectedRosterDmIds}
+        onChannelIdsChange={setSelectedChannelIds}
+        onRosterDmIdsChange={setSelectedRosterDmIds}
+        disabled={isPending}
+        description="After each standup, Ceptly posts a rollup for this standup only. Pick one or more Slack channels, and optionally DM team members."
+        channelsMenuLabel="Channels for this standup"
       />
 
       <div className="space-y-2">

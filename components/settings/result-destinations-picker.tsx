@@ -24,6 +24,8 @@ interface ResultDestinationsPickerProps {
   onChannelIdsChange: (ids: string[]) => void;
   onRosterDmIdsChange: (ids: string[]) => void;
   disabled?: boolean;
+  description?: string;
+  channelsMenuLabel?: string;
 }
 
 function toggleId(ids: string[], id: string): string[] {
@@ -53,6 +55,8 @@ export function ResultDestinationsPicker({
   onChannelIdsChange,
   onRosterDmIdsChange,
   disabled = false,
+  description = "After each check-in window, Ceptly posts a rollup for this conversation only. Pick one or more Slack channels, and optionally DM team members.",
+  channelsMenuLabel = "Channels for this conversation",
 }: ResultDestinationsPickerProps) {
   const activeMembers = rosterMembers.filter((member) => !member.paused);
 
@@ -60,11 +64,7 @@ export function ResultDestinationsPicker({
     <div className="space-y-4">
       <div className="space-y-1">
         <Label>Send standup results to</Label>
-        <p className="text-sm text-muted-foreground">
-          After each check-in window, Ceptly posts a rollup for this
-          conversation only. Pick one or more Slack channels, and optionally DM
-          team members.
-        </p>
+        <p className="text-sm text-muted-foreground">{description}</p>
       </div>
 
       <div className="space-y-2">
@@ -97,7 +97,7 @@ export function ResultDestinationsPicker({
             <DropdownMenuContent className="max-h-64 w-[var(--anchor-width)]">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="text-xs">
-                  Channels for this conversation
+                  {channelsMenuLabel}
                 </DropdownMenuLabel>
                 {slackChannels.map((channel) => (
                   <DropdownMenuCheckboxItem

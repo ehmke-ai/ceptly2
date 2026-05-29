@@ -1,6 +1,7 @@
 import { resolveApiBaseUrl } from "./auth";
 import type {
   ChannelStandupProposal,
+  ConversationResultDestination,
   Standup,
   StandupSchedule,
   StandupSessionDetail,
@@ -65,6 +66,8 @@ export type StandupCreateBody = {
   style?: StandupStyle;
   custom_instructions?: string;
   roster_member_ids: string[];
+  context_integrations?: string[];
+  result_destinations?: ConversationResultDestination[];
   schedule: StandupSchedule;
 };
 
