@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -42,6 +42,10 @@ export function StandupsSettings({
   const router = useRouter();
   const [standups, setStandups] = useState(initialStandups);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setStandups(initialStandups);
+  }, [initialStandups]);
   const [creating, setCreating] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -70,7 +74,16 @@ export function StandupsSettings({
     });
   };
 
-  const handleSaved = () => {
+  const handleSaved = (savedStandup: Standup) => {
+    setStandups((current) => {
+      const index = current.findIndex((item) => item.id === savedStandup.id);
+      if (index >= 0) {
+        const next = [...current];
+        next[index] = savedStandup;
+        return next;
+      }
+      return [...current, savedStandup];
+    });
     setCreating(false);
     setEditingId(null);
     router.refresh();

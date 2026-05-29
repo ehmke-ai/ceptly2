@@ -93,7 +93,7 @@ export async function saveStandupAction(input: {
   workspaceId: string;
   standupId?: string;
   body: StandupCreateBody;
-}): Promise<{ error?: string }> {
+}): Promise<{ standup?: Standup; error?: string }> {
   const parsed = standupBodySchema.safeParse(input.body);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Invalid input." };
@@ -115,7 +115,7 @@ export async function saveStandupAction(input: {
     }
 
     revalidateStandupPaths();
-    return {};
+    return { standup: result.data?.standup };
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Failed to save standup.",

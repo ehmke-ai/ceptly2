@@ -24,6 +24,7 @@ import {
   groupTimezonesByRegion,
   TIMEZONE_OPTIONS,
 } from "@/lib/schedule/timezones";
+import { ScheduleTimePicker } from "@/components/settings/schedule-time-picker";
 import { snapScheduleTimeToInterval } from "@/lib/schedule/interval";
 
 interface StandupFormProps {
@@ -33,7 +34,7 @@ interface StandupFormProps {
   slackChannels: SlackChannel[];
   slackChannelsError?: string | null;
   standup?: Standup;
-  onSaved?: () => void;
+  onSaved?: (standup: Standup) => void;
   onCancel?: () => void;
 }
 
@@ -122,7 +123,9 @@ export function StandupForm({
         return;
       }
 
-      onSaved?.();
+      if (result.standup) {
+        onSaved?.(result.standup);
+      }
     });
   };
 
@@ -147,6 +150,13 @@ export function StandupForm({
         disabled={isPending}
       />
 
+      <RosterMemberPicker
+        members={rosterMembers}
+        selectedIds={selectedMemberIds}
+        onChange={setSelectedMemberIds}
+        disabled={isPending}
+      />
+
       <div className="space-y-2">
         <Label>Standup style</Label>
         <OptionSelector
@@ -168,13 +178,6 @@ export function StandupForm({
         />
       </div>
 
-      <RosterMemberPicker
-        members={rosterMembers}
-        selectedIds={selectedMemberIds}
-        onChange={setSelectedMemberIds}
-        disabled={isPending}
-      />
-
       <div className="space-y-2">
         <Label htmlFor="standup-instructions">Custom instructions</Label>
         <Textarea
@@ -187,29 +190,12 @@ export function StandupForm({
         />
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="standup-timezone">Timezone</Label>
-        <select
-          id="standup-timezone"
-          value={timezone}
-          onChange={(event) => setTimezone(event.target.value)}
-          disabled={isPending}
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
-        >
-          {Object.entries(timezoneGroups).map(([region, options]) => (
-            <optgroup key={region} label={region}>
-              {options.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-          {!TIMEZONE_OPTIONS.some((option) => option.value === timezone) ? (
-            <option value={timezone}>{timezone}</option>
-          ) : null}
-        </select>
-      </div>
+      <ScheduleTimePicker
+        id="standup-time"
+        value={timeLocal}
+        onChange={setTimeLocal}
+        disabled={isPending}
+      />
 
       <div className="space-y-2">
         <Label>Frequency</Label>
@@ -233,20 +219,27 @@ export function StandupForm({
       ) : null}
 
       <div className="space-y-2">
-        <Label htmlFor="standup-time">Time</Label>
-        <Input
-          id="standup-time"
-          type="time"
-          step={900}
-          value={timeLocal}
-          onChange={(event) =>
-            setTimeLocal(snapScheduleTimeToInterval(event.target.value))
-          }
+        <Label htmlFor="standup-timezone">Timezone</Label>
+        <select
+          id="standup-timezone"
+          value={timezone}
+          onChange={(event) => setTimezone(event.target.value)}
           disabled={isPending}
-        />
-        <p className="text-sm text-muted-foreground">
-          Standups run on 15-minute intervals (e.g. 9:00, 9:15, 9:30).
-        </p>
+          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs"
+        >
+          {Object.entries(timezoneGroups).map(([region, options]) => (
+            <optgroup key={region} label={region}>
+              {options.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+          {!TIMEZONE_OPTIONS.some((option) => option.value === timezone) ? (
+            <option value={timezone}>{timezone}</option>
+          ) : null}
+        </select>
       </div>
 
       <label className="flex items-center gap-2 text-sm">

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 
 import { fetchStandupSessionDetail } from "@/actions/standups";
+import { CheckinTranscriptMessageList } from "@/components/activity/checkin-transcript-message-list";
 import { Badge } from "@/components/ui/badge";
 import type {
   StandupSessionDetail,
@@ -20,15 +21,6 @@ interface StandupSessionDetailViewProps {
 function formatLabel(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
     weekday: "short",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
-}
-
-function formatMessageTime(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
     month: "short",
     day: "numeric",
     hour: "numeric",
@@ -138,30 +130,14 @@ export function StandupSessionDetailView({
             </div>
           ) : null}
 
-          <div className="space-y-3">
-            <p className="text-sm font-medium">Thread</p>
-            {detail.messages.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No messages yet.</p>
-            ) : (
-              detail.messages.map((message, index) => (
-                <div
-                  key={index}
-                  className="rounded-lg border border-border px-4 py-3 text-sm dark:border-white/10"
-                >
-                  <p className="text-xs text-muted-foreground">
-                    <span className="font-medium">
-                      {message.display_name ??
-                        (message.role === "agent" ? "Ceptly" : "Participant")}
-                    </span>
-                    {" · "}
-                    <time dateTime={message.created_at}>
-                      {formatMessageTime(message.created_at)}
-                    </time>
-                  </p>
-                  <p className="mt-1 whitespace-pre-wrap">{message.content}</p>
-                </div>
-              ))
-            )}
+          <div className="space-y-4">
+            <h2 className="text-sm font-semibold">Thread</h2>
+            <CheckinTranscriptMessageList
+              standupMessages={detail.messages}
+              icDisplayName={
+                detail.participants[0]?.display_name ?? "Participant"
+              }
+            />
           </div>
         </div>
       ) : null}

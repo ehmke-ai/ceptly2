@@ -7,14 +7,37 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type {
   ConversationRunLegacyResponse,
   ConversationRunTranscriptMessage,
+  StandupSessionMessage,
 } from "@/lib/api/types";
 import { cn } from "@/lib/utils";
 
 interface CheckinTranscriptMessageListProps {
   transcript?: ConversationRunTranscriptMessage[];
+  standupMessages?: StandupSessionMessage[];
   legacyResponses?: ConversationRunLegacyResponse[];
   icDisplayName: string;
   className?: string;
+}
+
+type BubbleMessage = {
+  role: ConversationRunTranscriptMessage["role"] | StandupSessionMessage["role"];
+  content: string;
+  created_at: string;
+  display_name?: string;
+};
+
+function isParticipantMessage(role: BubbleMessage["role"]): boolean {
+  return role === "user" || role === "ic";
+}
+
+function messageLabel(message: BubbleMessage, fallbackIcName: string): string {
+  if (message.role === "assistant" || message.role === "agent") {
+    return "Ceptly";
+  }
+  if (message.display_name?.trim()) {
+    return icFirstName(message.display_name);
+  }
+  return icFirstName(fallbackIcName);
 }
 
 function icFirstName(displayName: string): string {
@@ -57,18 +80,20 @@ function MessageMeta({
 
 export function CheckinTranscriptMessageList({
   transcript = [],
+  standupMessages,
   legacyResponses = [],
   icDisplayName,
   className,
 }: CheckinTranscriptMessageListProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const icLabel = icFirstName(icDisplayName);
+  const bubbleMessages: BubbleMessage[] = standupMessages ?? transcript;
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [transcript, legacyResponses]);
+  }, [bubbleMessages, legacyResponses]);
 
-  if (transcript.length === 0 && legacyResponses.length === 0) {
+  if (bubbleMessages.length === 0 && legacyResponses.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
         No messages yet. The conversation will appear here once Ceptly sends the
@@ -79,8 +104,8 @@ export function CheckinTranscriptMessageList({
 
   return (
     <div className={cn("flex flex-col gap-4", className)}>
-      {transcript.map((message, index) => {
-        const isIc = message.role === "user";
+      {bubbleMessages.map((message, index) => {
+        const isIc = isParticipantMessage(message.role);
 
         return (
           <div
@@ -105,7 +130,7 @@ export function CheckinTranscriptMessageList({
               )}
             >
               <MessageMeta
-                label={isIc ? icLabel : "Ceptly"}
+                label={messageLabel(message, icDisplayName)}
                 timestamp={message.created_at}
                 alignEnd={isIc}
               />
